@@ -1,0 +1,32 @@
+{
+  "name": "plus-minus",
+  "version": "1.0.0",
+  "description": "Bill generating desktop application developed using electron js",
+  "main": "app.js",
+  "config": {
+    "forge": {
+      "packagerConfig": {}
+    }
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SachinVel/plus-minus.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SachinVel/plus-minus/issues"
+  },
+  "homepage": "https://github.com/SachinVel/plus-minus#readme",
+  "devDependencies": {
+    "electron": "^11.2.0",
+    "electron-packager": "^15.2.0",
+    "electron-prebuilt": "^1.4.13",
+    "electron-prebuilt-compile": "^8.2.0"
+  }
+}
