@@ -11,6 +11,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron app.js",
+    "pack": "electron-builder --dir",
     "dist": "electron-builder"
   },
   "repository": {
@@ -26,19 +27,17 @@
   "homepage": "https://github.com/SachinVel/plus-minus#readme",
   "devDependencies": {
     "electron": "^11.2.0",
-    "electron-builder": "^22.9.1",
     "electron-packager": "^15.2.0",
     "electron-prebuilt": "^1.4.13",
-    "electron-prebuilt-compile": "^8.2.0"
+    "electron-builder": "^22.9.1",
+    "electron-prebuilt-compile": "^8.2.0",
+    "electron-reload": "^1.5.0",
+    "read-excel-file": "^5.0.0"
   },
   "build": {
-    "appId": "com.electron.app",
-    "win": {
-      "target": "portable"
-    },
-    "portable": {
-      "unicode": false,
-      "artifactName": "electron_app.exe"
+    "appId": "electron_app",
+    "deb": {
+      "category": "electron_excel_app"
     }
   }
 }
