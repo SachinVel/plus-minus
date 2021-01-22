@@ -16,9 +16,9 @@ app.once('ready', () => {
         nodeIntegration: true
     },
     // Set the initial width to 500px
-    width: 500,
+    width: 1200,
     // Set the initial height to 400px
-    height: 400,
+    height: 800,
     
     backgroundColor: "#fff",
     // Don't show the window until it's ready, this prevents any white flickering
@@ -26,7 +26,7 @@ app.once('ready', () => {
   })
 
   window.loadURL(url.format({
-    pathname: path.join(__dirname, 'app/bank-statement-analyser/importFile.html'),
+    pathname: path.join(__dirname, '/app/bank-statement-analyser/html/consolidation-view.html'),
     protocol: 'file:',
     slashes: true
   }))

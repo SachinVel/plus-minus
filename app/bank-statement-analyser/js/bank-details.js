@@ -15,6 +15,8 @@ let bankStatementKeywords = ["upi","salary","sbiint","pos","upi","neft","rtgs","
     "cash withdrawal","bank charges","lic of india","new india assurance",
     "refund", "rent", "tangedco"]
 
-exports.bankStatementHeaders =  bankStatementHeaders;
-exports.bankDataColumnIndexes =  bankDataColumnIndexes;
-exports.bankStatementKeywords = bankStatementKeywords;
+module.exports = {
+    bankStatementKeywords : bankStatementKeywords,
+    bankDataColumnIndexes : bankDataColumnIndexes,
+    bankStatementHeaders : bankStatementHeaders
+}

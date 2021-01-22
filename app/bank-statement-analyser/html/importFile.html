@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Hello World!</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <script src="../js/importFile.js"></script>
 </head>
 
 <body>
@@ -13,10 +14,12 @@
     and Electron
 
     <h3>File Upload in Electron</h3>
-    <button id="upload">Upload File</button>
-
-    <!-- Adding Individual Renderer Process JS File -->
-    <script src="importFile.js"></script>
+    <select id="bank-type-input">
+        <option value="canara">Canara Bank</option>
+    </select>
+    <button id="file-input">Select File</button>
+    <button id="upload">Upload</button>
+    
 </body>
 
 </html>
