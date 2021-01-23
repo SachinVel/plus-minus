@@ -50,3 +50,8 @@ select {
     width: 100px;
     margin-left: 20px;
 }
+.logo-container{
+    height: 75px;
+    padding-top: 10px;
+    background-color: white;
+}
