@@ -22,10 +22,15 @@ body{
     font-size: 14px;
     border-radius: 3px;
     padding: 7px 10;
+    cursor: pointer;
+}
+.primary-btn:hover{
+    opacity: 0.8;
 }
 .title-bar{
     background-color:  #317fed;
     height: 50px;
+    text-align: center;
     padding: 0px 23px;
 }
 .vertical-center-align{
@@ -34,12 +39,13 @@ body{
     transform: translateY(-50%);
 }
 .title-content{
-    text-align: center;
     font-size: 25px;
     color: white;
+    display: inline-block;
 }
 .back-icon{
     color: white;
+    cursor: pointer;
     display: inline-block;
     float: left;
     font-size: 20px;

@@ -1,8 +1,9 @@
 <html>
     <head>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" href="../../dependencies/css/font-awesome.min.css">
         <link href="../../common/css/common.css" rel="stylesheet">
         <link href="../css/consolidation-view.css" rel="stylesheet">
+        <script>window.$ = window.jQuery = require('jquery');</script>
         <script src="../js/consolidation-viewer.js"></script>
         <script>
             window.onload = function(){
@@ -13,13 +14,13 @@
     <body>
         <div class="header">
             <img src="../../assets/logo.svg" width="100px" alt="plus-minus">
-            <button class="primary-btn export-btn vertical-center-align">
+            <button class="primary-btn export-btn vertical-center-align" id="export-btn">
                 <i class="fa fa-upload" aria-hidden="true"></i>
                 Export
             </button>
         </div>
         <div class="title-bar">
-            <span class="back-icon vertical-center-align">
+            <span class="back-icon vertical-center-align" id="back-icon">
                 <i class="fa fa-arrow-left" aria-hidden="true"></i>
             </span>
             <div class="title-content vertical-center-align">Consolidation Data</div>
@@ -27,71 +28,67 @@
         <div class="consolidation-grid-container">
             <div class="consolidation-grid__box consolidation-grid__box1">
                 <div class="amount-box-title">Opening Balance</div>
-                <div class="amount-box-value">Rs.40,000</div>
+                <div class="amount-box-value" id="opening-balance-amount"></div>
             </div>
             <div class="consolidation-grid__box consolidation-grid__box2">
                 <div class="amount-box-title">Payment Total</div>
-                <div class="amount-box-value">Rs.40,000</div>
+                <div class="amount-box-value" id="payment-total-amount"></div>
             </div>
             <div class="consolidation-grid__box consolidation-grid__box3">
                 <div class="amount-box-title">Receipt Total</div>
-                <div class="amount-box-value">Rs.40,000</div>
+                <div class="amount-box-value" id="receipt-total-amount"></div>
             </div>
             <div class="consolidation-grid__box consolidation-grid__box4">
                 <div class="amount-box-title">Closing Balance</div>
-                <div class="amount-box-value">Rs.40,000</div>
+                <div class="amount-box-value" id="closing-balance-amount"></div>
             </div>
             <div class="consolidation-grid__box consolidation-grid__box5">
-                <div class="group-title">Receipts</div>
+                <div class="group-title">
+                    Receipts
+                    <button class="primary-btn add-group-btn" id="receipt-group-add-btn">
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        New Group
+                    </button>
+                </div>
+                
                 <div class="group-container">
-                    <table class="group-table">
+                    <table class="group-table js-group-table" id="receipt-table"  data-group-type="credit">
                         <tr>
                             <th>Particular</th>
                             <th>Amount</th>
                             <th>Total Transactions</th>
                         </tr>
-                        <tr>
-                            <td>POS</td>
-                            <td>RS.2400.00</td>
-                            <td>60</td>
-                        </tr>
                     </table>
                 </div>
                 
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box6 ">
+            <div class="consolidation-grid__box consolidation-grid__box6" >
                 <div class="transaction-container">
-                    <table class="group-table">
+                    <table class="group-table" id="transaction-table">
                         <tr>
                             <th>Date</th>
                             <th>Description</th>
                             <th>Credit</th>
                             <th>Debit</th>
                         </tr>
-                        <tr>
-                            <td>24/04.1998</td>
-                            <td>POS</td>
-                            <td>RS.2400.00</td>
-                            <td>RS.2400.00</td>
-                        </tr>
-                    
                     </table>
                 </div>
                 
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box7">
-                <div class="group-title">Payments</div>
+            <div class="consolidation-grid__box consolidation-grid__box7" >
+                <div class="group-title">
+                    Payments
+                    <button class="primary-btn add-group-btn" id="payment-group-add-btn"> 
+                        <i class="fa fa-plus" aria-hidden="true"></i>
+                        New Group
+                    </button>
+                </div>
                 <div class="group-container">
-                    <table class="group-table">
+                    <table class="group-table js-group-table" id="payment-table" data-group-type="debit">
                         <tr>
                             <th>Particular</th>
                             <th>Amount</th>
                             <th>Total Transactions</th>
-                        </tr>
-                        <tr>
-                            <td>POS</td>
-                            <td>RS.2400.00</td>
-                            <td>60</td>
                         </tr>
                     </table>
                 </div>

@@ -1,8 +1,12 @@
-const xlsxFile = require('read-excel-file/node');
-const bankDetails = require('./bank-details');
+
 const ExcelJS = require('exceljs');
+const bankDetails = require('./bank-details');
+
+
 
 exports.bankStatementAnalyser = new function(){
+
+    let floatNumRegex = /[0-9\.]*/;
     
     const checkHeadersInBankStatement = function(row,bankTye){
         let bankHeaders = bankDetails.bankStatementHeaders[bankTye];
@@ -40,19 +44,35 @@ exports.bankStatementAnalyser = new function(){
     }
 
     const getFileContent = function(filePath){
-        return new Promise((resolve,reject)=>{
-            xlsxFile(filePath).then((rows) => {
-                resolve(rows);
-            }).catch(error=>{
-                reject(error);
-            });
+        // return new Promise((resolve,reject)=>{
+        //     xlsxFile(filePath).then((rows) => {
+        //         resolve(rows);
+        //     }).catch(error=>{
+        //         reject(error);
+        //     });
+        // });
+
+        return new Promise(async (resolve,reject)=>{
+            let workbook = new ExcelJS.Workbook(); 
+            await workbook.xlsx.readFile(filePath);
+            
+            let worksheet = workbook.getWorksheet(1);
+            
+            let rowValues = [];
+            worksheet.getRows(0,worksheet.rowCount+1).forEach(row=>{ rowValues.push(row.values)});
+            // console.log("worksheet : ",rowValues);
+            // resolve(worksheet);
+            // let rows = worksheet.getRows(0,worksheet.rowCount);
+            // console.log("rows : ",rows);
+            resolve(rowValues);
         });
+        
     }
 
     const processDescription = function(description){
 
         let regex = /[0-9/\-:\s]+/g;
-        let tempStr = description.replace(regex,"");
+        let tempStr = description.toString().replace(regex,"");
         tempStr = tempStr.toLowerCase()
         tempStr = tempStr.trim();
         return tempStr.toLowerCase();
@@ -61,6 +81,8 @@ exports.bankStatementAnalyser = new function(){
     
 
     const analyseTransactionData = function(transactionData,bankName){
+
+
         let bankDataColumnIndexes = bankDetails.bankDataColumnIndexes[bankName];
         let bankStmtCommonWords = bankDetails.bankStatementKeywords;
 
@@ -70,7 +92,8 @@ exports.bankStatementAnalyser = new function(){
         let totalRecords;
         let debitAmount,creditAmount;
         let transactionGroupMappingID=1;
-        let currentGroupCreditTransaction, currentGroupDebitTransaction;;
+        let currentGroupCreditTransaction, currentGroupDebitTransaction;
+        let openingBalance, closingBalance, receiptTotalAmount=0, paymentTotalAmount=0;
 
         let groupTransactions = {};
 
@@ -78,6 +101,23 @@ exports.bankStatementAnalyser = new function(){
             payments : {},
             receipts : {}
         }
+
+        transactionData = transactionData.filter((transRecord)=>
+            (
+                transRecord[bankDataColumnIndexes.description]!=null 
+                && ( !isNaN(transRecord[bankDataColumnIndexes.debit]) || transRecord[bankDataColumnIndexes.debit]==undefined ) 
+                && ( !isNaN(transRecord[bankDataColumnIndexes.credit]) || transRecord[bankDataColumnIndexes.credit]==undefined ) 
+                && transRecord[bankDataColumnIndexes.balance]!=null 
+                && transRecord[bankDataColumnIndexes.date]!=null 
+            ));
+
+       
+
+
+        console.log("transactionData : ",JSON.parse(JSON.stringify(transactionData)));
+
+        openingBalance = transactionData[0][bankDataColumnIndexes.balance];
+        closingBalance = transactionData[transactionData.length-1][bankDataColumnIndexes.balance];
 
         // extract common keywords data
         
@@ -97,6 +137,7 @@ exports.bankStatementAnalyser = new function(){
                     if( transRecord[creditColInd] ){
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
+                        
                     }else if( transRecord[debitColInd] ){
                         debitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
@@ -105,20 +146,23 @@ exports.bankStatementAnalyser = new function(){
                     transactionData.push(transRecord);
                 }
             }
+            receiptTotalAmount += creditAmount;
+            paymentTotalAmount += debitAmount;
 
             if( debitAmount>0 ){
-                groupDetails.payments[keyword] = {
+                groupDetails.payments[transactionGroupMappingID] = {
                     amount : debitAmount,
                     totalTransactions : currentGroupDebitTransaction.length,
-                    mappingId : transactionGroupMappingID
+                    particular : keyword
                 };
                 groupTransactions[transactionGroupMappingID] = currentGroupDebitTransaction;
                 ++transactionGroupMappingID;
-            }else if( creditAmount>0 ){
-                groupDetails.receipts[keyword] = {
+            } 
+            if( creditAmount>0 ){
+                groupDetails.receipts[transactionGroupMappingID] = {
                     amount : creditAmount,
                     totalTransactions : currentGroupCreditTransaction.length,
-                    mappingId : transactionGroupMappingID
+                    particular : keyword
                 }
                 groupTransactions[transactionGroupMappingID] = currentGroupCreditTransaction;
                 ++transactionGroupMappingID;
@@ -132,10 +176,19 @@ exports.bankStatementAnalyser = new function(){
                 continue;
             }
             let curRecDesc = processDescription(curRecord[descColInd]);
-            debitAmount = 0;
-            creditAmount = 0;
+
+            debitAmount = curRecord[debitColInd]!=null?curRecord[debitColInd]:0;
+            creditAmount = curRecord[creditColInd]!=null?curRecord[creditColInd]:0;
             currentGroupCreditTransaction = [];
             currentGroupDebitTransaction = [];
+
+            if( debitAmount>0 ){
+                currentGroupDebitTransaction.push(curRecord)
+            }else{
+                currentGroupCreditTransaction.push(curRecord);
+            }
+
+            
             totalRecords = transactionData.length;
             for( let ind=0 ; ind<totalRecords ; ++ind ){
                 let transRecord = transactionData.shift();
@@ -157,19 +210,22 @@ exports.bankStatementAnalyser = new function(){
                 }
             }   
 
+            receiptTotalAmount += creditAmount;
+            paymentTotalAmount += debitAmount;
+
             if( debitAmount>0 ){
-                groupDetails.payments[curRecDesc] = {
+                groupDetails.payments[transactionGroupMappingID] = {
                     amount : debitAmount,
                     totalTransactions : currentGroupDebitTransaction.length,
-                    mappingId : transactionGroupMappingID
+                    particular : curRecDesc
                 };
                 groupTransactions[transactionGroupMappingID] = currentGroupDebitTransaction;
                 ++transactionGroupMappingID;
             }else if( creditAmount>0 ){
-                groupDetails.receipts[curRecDesc] = {
+                groupDetails.receipts[transactionGroupMappingID] = {
                     amount : creditAmount,
                     totalTransactions : currentGroupCreditTransaction.length,
-                    mappingId : transactionGroupMappingID
+                    particular : curRecDesc
                 }
                 groupTransactions[transactionGroupMappingID] = currentGroupCreditTransaction;
                 ++transactionGroupMappingID;
@@ -180,6 +236,12 @@ exports.bankStatementAnalyser = new function(){
         console.log(" groupDetails : ",groupDetails);
 
         return {
+            amountDetails : {
+                openingBalance : openingBalance,
+                closingBalance : closingBalance,
+                receiptTotalAmount : receiptTotalAmount,
+                paymentTotalAmount : paymentTotalAmount
+            },
             groupDetails : groupDetails,
             groupTransactions : groupTransactions
         };
@@ -193,20 +255,16 @@ exports.bankStatementAnalyser = new function(){
             getFileContent(filePath).then(function(rows){
                 let records = rows;
 
-                console.log("before transaction data : ",records);
                 let headersIndex = getHeaderRowIndex(records,bankType);
                 if( headersIndex===-1){
                     console.error("unable to identify headers.");
                     return;
                 }
                 records.splice(0,headersIndex+1);
-                console.log("after transaction data : ",records);
 
                 let consolidationData = analyseTransactionData(records,bankType);
 
                 resolve(consolidationData);
-
-                // writeToFile(consolidationData);
 
             }).catch(function(error){
                 reject(error);

@@ -4,13 +4,11 @@
 }
 .consolidation-grid-container{
     display: grid;
-    grid-gap: 20px;
+    grid-gap: 20px 1%;
     padding: 20px;
-    grid-template-columns: auto auto auto auto auto auto auto auto;
+    grid-template-columns: 11% 11% 11% 11% 11% 11% 11% 11%;
     grid-template-rows: 10% 45% 45%;
     height: calc( 100% - 170px);
-}
-.consolidation-grid__box{
 }
 .consolidation-grid__box1{
     grid-area: 1 / 1 / span 1 / span 2;
@@ -54,15 +52,28 @@
     background-color: #e5e5e5;
     width: 100%;
     height: calc( 100% - 35px);
+    overflow: scroll;
 }
 .transaction-container{
     background-color: #e5e5e5;
     width: 100%;
     height: 100%;
+    overflow: scroll;
 }
 .group-table{
     padding: 5px;
     width: 100%;
     text-align: center;
     border-radius: 6px;
+    border-collapse: collapse;
+}
+.add-group-btn{
+    height: 27px;
+    font-size: 12px;
+    width: 97px;
+    padding: 0px;
+    float: right;
+}
+.group-row--selected{
+    border: 1px solid grey;
 }
