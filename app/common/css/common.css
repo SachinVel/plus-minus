@@ -1,0 +1,52 @@
+body{
+    margin: 0px;
+}
+*{
+    box-sizing: border-box;
+}
+.header{
+    height: 80px;
+    position: relative;
+    padding : 15px 30px;
+    border: 1px solid black;
+}
+.product-logo{
+    height: 40px;
+    float: left;
+    width: 100px;
+}
+.primary-btn{
+    border: none;
+    background-color: #317fed;
+    color: white;
+    font-size: 14px;
+    border-radius: 3px;
+    padding: 7px 10;
+}
+.title-bar{
+    background-color:  #317fed;
+    height: 50px;
+    padding: 0px 23px;
+}
+.vertical-center-align{
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.title-content{
+    text-align: center;
+    font-size: 25px;
+    color: white;
+}
+.back-icon{
+    color: white;
+    display: inline-block;
+    float: left;
+    font-size: 20px;
+}
+select {
+    font-family: 'FontAwesome';
+    background-color: white;
+    width: 100px;
+    margin-left: 20px;
+}

@@ -1,0 +1,101 @@
+<html>
+    <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="../../common/css/common.css" rel="stylesheet">
+        <link href="../css/consolidation-view.css" rel="stylesheet">
+        <script src="../js/consolidation-viewer.js"></script>
+        <script>
+            window.onload = function(){
+                ConsolidationViewer.init();
+            }
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <img class="product-logo" src="" alt="product-logo">
+            <button class="primary-btn export-btn vertical-center-align">
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                Export
+            </button>
+        </div>
+        <div class="title-bar">
+            <span class="back-icon vertical-center-align">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i>
+            </span>
+            <div class="title-content vertical-center-align">Consolidation Data</div>
+        </div>
+        <div class="consolidation-grid-container">
+            <div class="consolidation-grid__box consolidation-grid__box1">
+                <div class="amount-box-title">Opening Balance</div>
+                <div class="amount-box-value">Rs.40,000</div>
+            </div>
+            <div class="consolidation-grid__box consolidation-grid__box2">
+                <div class="amount-box-title">Payment Total</div>
+                <div class="amount-box-value">Rs.40,000</div>
+            </div>
+            <div class="consolidation-grid__box consolidation-grid__box3">
+                <div class="amount-box-title">Receipt Total</div>
+                <div class="amount-box-value">Rs.40,000</div>
+            </div>
+            <div class="consolidation-grid__box consolidation-grid__box4">
+                <div class="amount-box-title">Closing Balance</div>
+                <div class="amount-box-value">Rs.40,000</div>
+            </div>
+            <div class="consolidation-grid__box consolidation-grid__box5">
+                <div class="group-title">Receipts</div>
+                <div class="group-container">
+                    <table class="group-table">
+                        <tr>
+                            <th>Particular</th>
+                            <th>Amount</th>
+                            <th>Total Transactions</th>
+                        </tr>
+                        <tr>
+                            <td>POS</td>
+                            <td>RS.2400.00</td>
+                            <td>60</td>
+                        </tr>
+                    </table>
+                </div>
+                
+            </div>
+            <div class="consolidation-grid__box consolidation-grid__box6 ">
+                <div class="transaction-container">
+                    <table class="group-table">
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Credit</th>
+                            <th>Debit</th>
+                        </tr>
+                        <tr>
+                            <td>24/04.1998</td>
+                            <td>POS</td>
+                            <td>RS.2400.00</td>
+                            <td>RS.2400.00</td>
+                        </tr>
+                    
+                    </table>
+                </div>
+                
+            </div>
+            <div class="consolidation-grid__box consolidation-grid__box7">
+                <div class="group-title">Payments</div>
+                <div class="group-container">
+                    <table class="group-table">
+                        <tr>
+                            <th>Particular</th>
+                            <th>Amount</th>
+                            <th>Total Transactions</th>
+                        </tr>
+                        <tr>
+                            <td>POS</td>
+                            <td>RS.2400.00</td>
+                            <td>60</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

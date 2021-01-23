@@ -4,22 +4,27 @@ const url = require('url')
 
 let window = null
 
+require('electron-reload')(__dirname);
+
 // Wait until the app is ready
 app.once('ready', () => {
   // Create a new window
   window = new BrowserWindow({
+    webPreferences: {
+        nodeIntegration: true
+    },
     // Set the initial width to 500px
-    width: 500,
+    width: 1200,
     // Set the initial height to 400px
-    height: 400,
-    // set the title bar style
-    titleBarStyle: 'hiddenInset',
+    height: 800,
+    
+    backgroundColor: "#fff",
     // Don't show the window until it's ready, this prevents any white flickering
     show: false
   })
 
   window.loadURL(url.format({
-    pathname: path.join(__dirname, 'app/index.html'),
+    pathname: path.join(__dirname, '/app/bank-statement-analyser/html/importFile.html'),
     protocol: 'file:',
     slashes: true
   }))
