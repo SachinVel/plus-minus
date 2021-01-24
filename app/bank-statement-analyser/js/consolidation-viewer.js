@@ -11,95 +11,203 @@ let ConsolidationViewer = new function(){
     
     const writeToFile = function(filePath){
 
-        console.log("groupDetails : ",groupDetails);
-
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Bank Consolidation');
+        let row;
+        
+        //40
 
+        worksheet.mergeCells('B2', 'D3');
 
-        worksheet.mergeCells('A1', 'B2');
-        worksheet.getCell('A1').value = 'Receipts';
-        worksheet.getCell('A1').font = {
+        worksheet.getCell('B2').value = 'CREDIT SUMMATION';
+
+        worksheet.getCell('B2').font = {
             bold: true,
             size: 20,
+            color: { argb: '317FED' }
         };
-        worksheet.getCell('A1').alignment = {
+
+        worksheet.getCell('B2').alignment = {
             vertical: 'middle', horizontal: 'center'
         };
 
-        worksheet.mergeCells('F1', 'G2');
-        worksheet.getCell('F1').value = 'Payments';
-        worksheet.getCell('F1').font = {
-            bold: true,
-            size: 20,
-        };
-        worksheet.getCell('F1').alignment = {
-            vertical: 'middle', horizontal: 'center'
-        };
-
-        worksheet.getRow(5).values = ['Particulars', 'Amount','','','', 'Particulars', 'Amount'];
-        worksheet.getRow(5).eachCell((cell, rowNumber) => { 
-            cell.font = {
-                bold: true,
-                size: 16,
-            };
-            cell.alignment = {
-                vertical: 'middle', horizontal: 'center'
-            };
-        })
-
-        // add column headers
         worksheet.columns = [
-            { key: 'receiptParticular',width: 50 },
-            { key: 'receiptAmount',width: 25,style: {numFmt:'[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00'} },
-            {},
-            {},
-            {},
-            { key: 'paymentParticular',width: 50 },
-            { key: 'paymentAmount',width: 25 ,style: {numFmt:'[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00'}}
+            { header : "" ,key: 'col1',width: 5 },
+            { header : "" ,key: 'col2',width: 35 },
+            { header : "" ,key: 'col3',width: 15 },
+            { header : "" ,key: 'col4',width: 15 },
+            { header : "" ,key: 'col5',width: 5 },
         ];
+        worksheet.addRow({});
+
+        row = {
+            col2 : "Name of Bank",
+            col3 : bankType
+        }
+        worksheet.addRow(row);
+        worksheet.addRow({});
+        worksheet.addRow({});
+
+        row = {
+            col2 : "OPENING BALANCE (A)",
+            col3 : amountDetails.openingBalance
+        }
+        worksheet.addRow(row);
+
+        worksheet.addRow({});
+
+        row = {
+            col2 : "RECEIPTS (B)"
+        }
+        worksheet.addRow(row);
 
         let receiptObjKeys = Object.keys(groupDetails.receipts);
         let paymentObjKeys = Object.keys(groupDetails.payments);
-
-        while( receiptObjKeys.length>0 || paymentObjKeys.length>0 ){
-            let row = {},particular,amount;
-            if( receiptObjKeys.length>0 ){
-                let curObjectKey = receiptObjKeys.shift();
-                particular = groupDetails.receipts[curObjectKey.toString()].particular;
-                amount = groupDetails.receipts[curObjectKey.toString()].amount;
-                row = Object.assign({},{ receiptParticular: particular, receiptAmount:  amount });
-            }
-            if( paymentObjKeys.length>0 ){
-                let curObjectKey = paymentObjKeys.shift();
-                particular = groupDetails.payments[curObjectKey.toString()].particular;
-                amount = groupDetails.payments[curObjectKey.toString()].amount;
-                row = Object.assign(row,{ paymentParticular: particular, paymentAmount:  amount });
-            }
+        let particular,amount;
+        let curObjectKey;
+        while ( receiptObjKeys.length>1  ){
+            
+            curObjectKey = receiptObjKeys.shift();
+            particular = groupDetails.receipts[curObjectKey.toString()].particular;
+            amount = groupDetails.receipts[curObjectKey.toString()].amount;
+            row = { col2: particular, col3:  amount };
             worksheet.addRow(row);
         }
 
-        let receiptTotalRowind = 5+Object.keys(groupDetails.receipts).length+1;
-        let paymentTotalRowind = 5+Object.keys(groupDetails.payments).length+1;
-        let receiptTotalCellAddr = 'B'+receiptTotalRowind;
-        let paymentTotalCellAddr = 'G'+paymentTotalRowind;
 
-        let totalBorderStyles = {
-                top: { style: "thin" },
-                bottom: { style: "thin" }
-            };
 
-        worksheet.getCell(receiptTotalCellAddr).value = amountDetails.receiptTotalAmount;
-        worksheet.getCell(receiptTotalCellAddr).numFmt = '[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00';
-        worksheet.getCell(receiptTotalCellAddr).font = { bold: true }
-        worksheet.getCell(receiptTotalCellAddr).border = totalBorderStyles;
+        curObjectKey = receiptObjKeys.shift();
+        particular = groupDetails.receipts[curObjectKey.toString()].particular;
+        amount = groupDetails.receipts[curObjectKey.toString()].amount;
+        row = { col2: particular, col3:  amount, col4 : amountDetails.receiptTotalAmount };
+        worksheet.addRow(row);
+
+        worksheet.addRow({});
+
+        row = {
+            col2 : "TOTAL AMOUNT AVAILABLE (C)=(A)+(B)",
+            col4 : amountDetails.openingBalance+amountDetails.receiptTotalAmount
+        }
+        worksheet.addRow(row);
+
+        worksheet.addRow({});
+
+        row = {
+            col2 : "PAYMENTS (D)"
+        }
+        worksheet.addRow(row);
+        
+        while ( paymentObjKeys.length>1  ){
+            
+            curObjectKey = paymentObjKeys.shift();
+            particular = groupDetails.payments[curObjectKey.toString()].particular;
+            amount = groupDetails.payments[curObjectKey.toString()].amount;
+            row = { col2: particular, col3:  amount };
+            worksheet.addRow(row);
+        }
+
+        curObjectKey = paymentObjKeys.shift();
+        particular = groupDetails.payments[curObjectKey.toString()].particular;
+        amount = groupDetails.payments[curObjectKey.toString()].amount;
+        row = { col2: particular, col3:  amount, col4 : amountDetails.paymentTotalAmount };
+        worksheet.addRow(row);
+
+        worksheet.addRow({});
+
+        row = {
+            col2 : "CLOSING BALANCE (E)=(C)-(D)",
+            col4 : amountDetails.closingBalance
+        }
+        worksheet.addRow(row);
+
+        let topBorderStyles = {
+            top: { style: "thin" }
+        };
+
+        let verticalBorderStyles = {
+            top: { style: "thin" },
+            bottom: { style: "thin" }
+        };
+
+
+
+
+
+
+
+        // worksheet.getCell('A1').value = 'Receipts';
+        // worksheet.getCell('A1').font = {
+        //     bold: true,
+        //     size: 20,
+        // };
+        // worksheet.getCell('A1').alignment = {
+        //     vertical: 'middle', horizontal: 'center'
+        // };
+
+        // worksheet.mergeCells('F1', 'G2');
+        // worksheet.getCell('F1').value = 'Payments';
+        // worksheet.getCell('F1').font = {
+        //     bold: true,
+        //     size: 20,
+        // };
+        // worksheet.getCell('F1').alignment = {
+        //     vertical: 'middle', horizontal: 'center'
+        // };
+
+        // // worksheet.getRow(5).values = ['Particulars', 'Amount','','','', 'Particulars', 'Amount'];
+        // worksheet.getRow(5).eachCell((cell, rowNumber) => { 
+        //     cell.font = {
+        //         bold: true,
+        //         size: 16,
+        //     };
+        //     cell.alignment = {
+        //         vertical: 'middle', horizontal: 'center'
+        //     };
+        // })
+
+        // // add column headers
+        
+
+       
+
+        // while( receiptObjKeys.length>0 || paymentObjKeys.length>0 ){
+        //     let row = {},particular,amount;
+        //     if( receiptObjKeys.length>0 ){
+        //         let curObjectKey = receiptObjKeys.shift();
+        //         particular = groupDetails.receipts[curObjectKey.toString()].particular;
+        //         amount = groupDetails.receipts[curObjectKey.toString()].amount;
+        //         row = Object.assign({},{ receiptParticular: particular, receiptAmount:  amount });
+        //     }
+        //     if( paymentObjKeys.length>0 ){
+        //         let curObjectKey = paymentObjKeys.shift();
+        //         particular = groupDetails.payments[curObjectKey.toString()].particular;
+        //         amount = groupDetails.payments[curObjectKey.toString()].amount;
+        //         row = Object.assign(row,{ paymentParticular: particular, paymentAmount:  amount });
+        //     }
+        //     worksheet.addRow(row);
+        // }
+
+        // let receiptTotalRowind = 5+Object.keys(groupDetails.receipts).length+1;
+        // let paymentTotalRowind = 5+Object.keys(groupDetails.payments).length+1;
+        // let receiptTotalCellAddr = 'B'+receiptTotalRowind;
+        // let paymentTotalCellAddr = 'G'+paymentTotalRowind;
+
+        // let totalBorderStyles = {
+        //         top: { style: "thin" },
+        //         bottom: { style: "thin" }
+        //     };
+
+        // worksheet.getCell(receiptTotalCellAddr).value = amountDetails.receiptTotalAmount;
+        // worksheet.getCell(receiptTotalCellAddr).numFmt = '[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00';
+        // worksheet.getCell(receiptTotalCellAddr).font = { bold: true }
+        // worksheet.getCell(receiptTotalCellAddr).border = totalBorderStyles;
         
 
 
-        worksheet.getCell(paymentTotalCellAddr).value = amountDetails.paymentTotalAmount;
-        worksheet.getCell(paymentTotalCellAddr).numFmt = '[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00';
-        worksheet.getCell(paymentTotalCellAddr).font = { bold: true }
-        worksheet.getCell(paymentTotalCellAddr).border = totalBorderStyles;
+        // worksheet.getCell(paymentTotalCellAddr).value = amountDetails.paymentTotalAmount;
+        // worksheet.getCell(paymentTotalCellAddr).numFmt = '[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00';
+        // worksheet.getCell(paymentTotalCellAddr).font = { bold: true }
+        // worksheet.getCell(paymentTotalCellAddr).border = totalBorderStyles;
 
         // save workbook to disk
         workbook
@@ -197,9 +305,6 @@ let ConsolidationViewer = new function(){
             groupDetails = consolidationData.groupDetails;
             groupTransactions = consolidationData.groupTransactions;
             amountDetails = consolidationData.amountDetails;
-            console.log("group details : ",groupDetails);
-            console.log("group transaction : ",groupTransactions);
-            console.log("Amount details : ",amountDetails);
         }
         
 
@@ -235,14 +340,12 @@ let ConsolidationViewer = new function(){
         $(".js-group-table").on('click','.js-group-row',function(){
             let mappingId = $(this).attr("data-mapping-id");
             let selectedGroupTransactions = groupTransactions[mappingId.toString()];
-            console.log(selectedGroupTransactions);
             populateGroupTransactions(selectedGroupTransactions,mappingId);
         }); 
 
         $(".js-group-table").on('click','.js-group-row',function(){
             let mappingId = $(this).attr("data-mapping-id");
             let selectedGroupTransactions = groupTransactions[mappingId.toString()];
-            console.log(selectedGroupTransactions);
             populateGroupTransactions(selectedGroupTransactions,mappingId);
         }); 
 
@@ -256,10 +359,9 @@ let ConsolidationViewer = new function(){
             let selectedTransactionIndex = $(this).index();
             let selectedTransaction = groupTransactions[sourceMappingId.toString()][selectedTransactionIndex-1];
             groupTransactions[sourceMappingId.toString()].splice(selectedTransactionIndex-1,1);
-            console.log("row index : ",);
 
             event.originalEvent.dataTransfer.setData("selectedTransaction",JSON.stringify(selectedTransaction));
-            if( creditAmount!=null ){
+            if( +creditAmount>0 ){
                 event.originalEvent.dataTransfer.setData("transactionAmount", creditAmount.toString());
                 event.originalEvent.dataTransfer.setData("transactionType", "credit");
             }else{
@@ -276,7 +378,6 @@ let ConsolidationViewer = new function(){
         $(".js-group-table").on('dragover', '.js-group-row',function(event){
             $(".js-group-table tr").removeClass("group-row--selected");
             $(this).addClass("group-row--selected");
-            console.log($(this).attr("data-mapping-id"));
             var transactionType = event.originalEvent.dataTransfer.getData("transactionType");
             if( transactionType && transactionType==$(this).attr("data-group-type") ){    
                 return true;
@@ -297,9 +398,9 @@ let ConsolidationViewer = new function(){
                 targetGroupDetails = groupDetails.receipts[targetMappingId.toString()];
             }else{
                 sourceGroupDetails = groupDetails.payments[sourceMappingId.toString()];
-                targetGroupDetails = groupDetails.payment[targetMappingId.toString()];
+                targetGroupDetails = groupDetails.payments[targetMappingId.toString()];
             }
-            
+
             sourceGroupDetails.amount -= amount;
             --sourceGroupDetails.totalTransactions;
             targetGroupDetails.amount += amount;
@@ -307,7 +408,6 @@ let ConsolidationViewer = new function(){
             
             let selectedTransaction = event.originalEvent.dataTransfer.getData("selectedTransaction");
 
-            console.log("selectedTRansaction : ",selectedTransaction);
             groupTransactions[targetMappingId.toString()].push(JSON.parse(selectedTransaction));
 
             let selectedGroupTransactions = groupTransactions[sourceMappingId.toString()];

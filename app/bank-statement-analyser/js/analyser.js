@@ -2,11 +2,12 @@
 const ExcelJS = require('exceljs');
 const bankDetails = require('./bank-details');
 
-
-
 exports.bankStatementAnalyser = new function(){
 
-    let floatNumRegex = /[0-9\.]*/;
+    const convertToNum = function(numStr){
+        var patt = /[^0-9\.]+/g;
+        return numStr.toString().replace(patt,"");
+    }
     
     const checkHeadersInBankStatement = function(row,bankTye){
         let bankHeaders = bankDetails.bankStatementHeaders[bankTye];
@@ -44,13 +45,6 @@ exports.bankStatementAnalyser = new function(){
     }
 
     const getFileContent = function(filePath){
-        // return new Promise((resolve,reject)=>{
-        //     xlsxFile(filePath).then((rows) => {
-        //         resolve(rows);
-        //     }).catch(error=>{
-        //         reject(error);
-        //     });
-        // });
 
         return new Promise(async (resolve,reject)=>{
             let workbook = new ExcelJS.Workbook(); 
@@ -60,10 +54,6 @@ exports.bankStatementAnalyser = new function(){
             
             let rowValues = [];
             worksheet.getRows(0,worksheet.rowCount+1).forEach(row=>{ rowValues.push(row.values)});
-            // console.log("worksheet : ",rowValues);
-            // resolve(worksheet);
-            // let rows = worksheet.getRows(0,worksheet.rowCount);
-            // console.log("rows : ",rows);
             resolve(rowValues);
         });
         
@@ -81,7 +71,6 @@ exports.bankStatementAnalyser = new function(){
     
 
     const analyseTransactionData = function(transactionData,bankName){
-
 
         let bankDataColumnIndexes = bankDetails.bankDataColumnIndexes[bankName];
         let bankStmtCommonWords = bankDetails.bankStatementKeywords;
@@ -101,6 +90,14 @@ exports.bankStatementAnalyser = new function(){
             payments : {},
             receipts : {}
         }
+        transactionData.forEach(transRecord => {
+            if( transRecord[bankDataColumnIndexes.debit]!=null && typeof transRecord[bankDataColumnIndexes.debit] != 'number' ){
+                transRecord[bankDataColumnIndexes.debit] = +convertToNum(transRecord[bankDataColumnIndexes.debit]);
+            }
+            if( transRecord[bankDataColumnIndexes.credit]!=null &&  typeof transRecord[bankDataColumnIndexes.credit] != 'number' ){
+                transRecord[bankDataColumnIndexes.credit] = +convertToNum(transRecord[bankDataColumnIndexes.credit]);
+            }
+        });
 
         transactionData = transactionData.filter((transRecord)=>
             (
@@ -110,11 +107,6 @@ exports.bankStatementAnalyser = new function(){
                 && transRecord[bankDataColumnIndexes.balance]!=null 
                 && transRecord[bankDataColumnIndexes.date]!=null 
             ));
-
-       
-
-
-        console.log("transactionData : ",JSON.parse(JSON.stringify(transactionData)));
 
         openingBalance = transactionData[0][bankDataColumnIndexes.balance];
         closingBalance = transactionData[transactionData.length-1][bankDataColumnIndexes.balance];
@@ -232,8 +224,6 @@ exports.bankStatementAnalyser = new function(){
             }
             
         }
-
-        console.log(" groupDetails : ",groupDetails);
 
         return {
             amountDetails : {
