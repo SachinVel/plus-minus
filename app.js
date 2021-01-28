@@ -4,14 +4,15 @@ const url = require('url')
 
 let window = null
 
-require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
 // Wait until the app is ready
 app.once('ready', () => {
   // Create a new window
   window = new BrowserWindow({
     webPreferences: {
-        nodeIntegration: true
+        nodeIntegration: true,
+        enableRemoteModule: true  // For enabling remote module in windows os
     },
     // Set the initial width to 500px
     width: 1200,

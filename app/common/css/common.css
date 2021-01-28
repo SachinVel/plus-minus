@@ -1,6 +1,13 @@
 body{
     margin: 0px;
+    font-family: 'amethysta';
 }
+
+@font-face{
+    font-family: 'amethysta';
+    src: url("../fonts/amethysta.ttf") format("truetype");
+}
+
 *{
     box-sizing: border-box;
 }

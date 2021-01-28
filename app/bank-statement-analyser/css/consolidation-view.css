@@ -1,6 +1,11 @@
 .export-btn{
     float: right;
     right: 3%;
+    font-family: 'amethysta';
+}
+@font-face{
+    font-family: 'amethysta';
+    src: url("../../common/fonts/amethysta.ttf") format("truetype");
 }
 .consolidation-grid-container{
     display: grid;
