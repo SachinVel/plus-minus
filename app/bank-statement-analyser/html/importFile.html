@@ -36,11 +36,16 @@
         <div class = "import-screen-content">
             <span> Select the Bank for which you want to upload!</span>
             <select id="bank-type-input">
+                <option disabled selected value> Select  </option>
                 <option value="canara">Canara Bank</option>
                 <option value="icici">ICICI Bank</option>
                 <option value="hdfc">HDFC Bank</option>
                 <option value="sbi">SBI Bank</option>
             </select>
+        <div style="padding-top: 20px;">
+                <label>Please enter the account number : </label> 
+                <input type = "text" id = "account-number-value" placeholder="Account Number">
+        </div>
             <div class = "import-screen-select-content">
                 <input type="file" aria-label="Select File" class = "import-screen-file-upload" id="file-input">
             </div>

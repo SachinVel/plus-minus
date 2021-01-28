@@ -23,6 +23,8 @@ app.once('ready', () => {
     // Don't show the window until it's ready, this prevents any white flickering
     show: false
   })
+  
+  window.setMenuBarVisibility(false)
 
   window.loadURL(url.format({
     pathname: path.join(__dirname, '/app/bank-statement-analyser/html/importFile.html'),

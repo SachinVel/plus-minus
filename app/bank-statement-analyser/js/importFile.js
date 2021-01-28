@@ -13,6 +13,8 @@ window.onload = function(){
     let uploadFile = document.getElementById("file-input");
 
     uploadedButton.addEventListener('click',()=>{
+        var accountNumberValue = document.getElementById('account-number-value').value;
+        localStorage.setItem( 'accountNumberValue', accountNumberValue );
         let bankType = document.getElementById("bank-type-input").value;
         filePath = uploadFile.files[0].path;
         console.log("File path : ",filePath);

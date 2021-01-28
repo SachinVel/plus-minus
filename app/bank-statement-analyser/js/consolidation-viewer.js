@@ -5,10 +5,13 @@ const path = require('path');
 const electron = require('electron'); 
 const dialog = electron.remote.dialog; 
 
+// var accountNumberValue = localStorage.getItem('accountNumberValue');
+// // document.getElementById("account-number-value").innerHTML = accountNumberValue;
+// console.log(accountNumberValue);
+
 let ConsolidationViewer = new function(){
     let groupDetails, groupTransactions, amountDetails;
     let bankType;
-    
     const writeToFile = function(filePath){
 
         const workbook = new ExcelJS.Workbook();
@@ -50,7 +53,7 @@ let ConsolidationViewer = new function(){
 
         row = {
             col2 : "OPENING BALANCE (A)",
-            col3 : amountDetails.openingBalance
+            col4 : amountDetails.openingBalance
         }
         worksheet.addRow(row);
 
@@ -245,12 +248,34 @@ let ConsolidationViewer = new function(){
                 '</tr'
             );
         }
+        // Excel formulas if applied, the result(value) is an json object with result key
+        if(typeof(amountDetails.openingBalance)=="object"){
+            $("#opening-balance-amount").text(amountDetails.openingBalance.result);
+        }
+        else{
+            $("#opening-balance-amount").text(amountDetails.openingBalance);
+        }
 
-        $("#opening-balance-amount").text(amountDetails.openingBalance);
-        $("#closing-balance-amount").text(amountDetails.closingBalance);
-        $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
-        $("#receipt-total-amount").text(amountDetails.receiptTotalAmount);
+        if(typeof(amountDetails.closingBalance)=="object"){
+            $("#closing-balance-amount").text(amountDetails.closingBalance.result);
+        }
+        else{
+            $("#closing-balance-amount").text(amountDetails.closingBalance);
+        }
 
+        if(typeof(amountDetails.paymentTotalAmount)=="object"){
+            $("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);
+        }
+        else{
+            $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
+        }
+
+        if(typeof(amountDetails.receiptTotalAmount)=="object"){
+            $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);
+        }
+        else{
+            $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
+        }
     }
 
     const populateGroupTransactions = function(transactionData,mappingId){
