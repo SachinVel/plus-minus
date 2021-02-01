@@ -82,3 +82,15 @@
 .group-row--selected{
     border: 1px solid grey;
 }
+
+.tag {
+    display: inline-block;
+    vertical-align: bottom;
+    padding: 3px 7px;
+    margin-bottom: 3px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #317fed;
+    background: rgb(49, 127, 237, 0.2);
+}
