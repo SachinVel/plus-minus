@@ -107,8 +107,15 @@ exports.bankStatementAnalyser = new function(){
                 && transRecord[bankDataColumnIndexes.balance]!=null 
                 && transRecord[bankDataColumnIndexes.date]!=null 
             ));
+        
+        // calculating opening balance
+        if(transactionData[0][bankDataColumnIndexes.debit] > 0){
+        openingBalance = transactionData[0][bankDataColumnIndexes.balance] + transactionData[0][bankDataColumnIndexes.debit];
+        }
+        else{
+            openingBalance = transactionData[0][bankDataColumnIndexes.balance] - transactionData[0][bankDataColumnIndexes.credit];   
+        }
 
-        openingBalance = transactionData[0][bankDataColumnIndexes.balance];
         closingBalance = transactionData[transactionData.length-1][bankDataColumnIndexes.balance];
 
         // extract common keywords data

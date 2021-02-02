@@ -5,9 +5,7 @@ const path = require('path');
 const electron = require('electron'); 
 const dialog = electron.remote.dialog; 
 
-// var accountNumberValue = localStorage.getItem('accountNumberValue');
-// // document.getElementById("account-number-value").innerHTML = accountNumberValue;
-// console.log(accountNumberValue);
+
 
 let ConsolidationViewer = new function(){
     let groupDetails, groupTransactions, amountDetails;
@@ -322,7 +320,8 @@ let ConsolidationViewer = new function(){
     }
 
     this.init = function(){
-
+        let accountNumberValue = localStorage.getItem('accountNumberValue');
+        $("#account-number-value").text("AC NO : " + accountNumberValue);    
         let consolidationData = JSON.parse(localStorage.getItem("consolidationData"));
         bankType = localStorage.getItem("bankType");
         localStorage.clear();
@@ -331,7 +330,6 @@ let ConsolidationViewer = new function(){
             groupTransactions = consolidationData.groupTransactions;
             amountDetails = consolidationData.amountDetails;
         }
-        
 
         document.getElementById("export-btn").addEventListener("click",()=>{
             updateGroupNames();
