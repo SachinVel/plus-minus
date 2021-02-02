@@ -2,6 +2,7 @@
     float: right;
     right: 3%;
     font-family: 'amethysta';
+    cursor: pointer;
 }
 @font-face{
     font-family: 'amethysta';
@@ -79,6 +80,30 @@
     padding: 0px;
     float: right;
 }
-.group-row--selected{
+.group-row--drop{
     border: 1px solid grey;
+}
+
+.tag {
+    display: inline-block;
+    vertical-align: bottom;
+    padding: 3px 7px;
+    margin-bottom: 3px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #317fed;
+    background: rgb(49, 127, 237, 0.2);
+}
+
+.js-group-row, .js-transaction-record {
+    cursor: pointer;
+}
+
+.js-group-row:hover, .js-transaction-record:hover {
+    background: rgba(128, 128, 128, 0.2);
+}
+
+.group-row--selected {
+    background: rgba(128, 128, 128, 0.3);
 }
