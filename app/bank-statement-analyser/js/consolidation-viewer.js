@@ -249,6 +249,9 @@ let ConsolidationViewer = new function () {
             );
             paymentTotalTransaction += curGroupDetail.totalTransactions;
         }
+        $("#payment-total-transaction").text(paymentTotalTransaction);
+        $("#receipt-total-transaction").text(receiptTotalTransaction);
+        
         // Excel formulas if applied, the result(value) is an json object with result key
         if(typeof(amountDetails.openingBalance)=="object"){
             $("#opening-balance-amount").text(amountDetails.openingBalance.result);
