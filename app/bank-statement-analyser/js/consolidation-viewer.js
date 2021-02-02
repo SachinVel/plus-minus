@@ -227,7 +227,7 @@ let ConsolidationViewer = new function () {
         let receiptTotalTransaction = 0;
         for (let [mappingId, curGroupDetail] of Object.entries(receiptDetails)) {
             receiptTable.append(
-                '<tr data-mapping-id="' + mappingId + '" class="js-group-row">' +
+                '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
                 '<td contenteditable="true" class="js-group-particular">' + curGroupDetail.particular + '</td>' +
                 '<td class="js-group-amount">' + curGroupDetail.amount.toFixed(2) + '</td>' +
                 '<td class="js-total-transactions">' + curGroupDetail.totalTransactions + '</td>' +
@@ -241,7 +241,7 @@ let ConsolidationViewer = new function () {
         let paymentTotalTransaction = 0;
         for (let [mappingId, curGroupDetail] of Object.entries(paymentDetails)) {
             paymentTable.append(
-                '<tr data-mapping-id="' + mappingId + '" class="js-group-row">' +
+                '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
                 '<td contenteditable="true" class="js-group-particular">' + curGroupDetail.particular + '</td>' +
                 '<td class="js-group-amount">' + curGroupDetail.amount.toFixed(2) + '</td>' +
                 '<td class="js-total-transactions">' + curGroupDetail.totalTransactions + '</td>' +
@@ -258,7 +258,7 @@ let ConsolidationViewer = new function () {
         $('#receipt-total-transaction').text(receiptTotalTransaction);
     }
 
-    const populateGroupTransactions = function (transactionData, mappingId) {
+    const populateGroupTransactions = function (transactionData, mappingId, dataGroupType) {
         let transactionTable = $("#transaction-table");
         transactionTable.attr("data-mapping-id", mappingId);
         transactionTable.empty();
@@ -266,8 +266,7 @@ let ConsolidationViewer = new function () {
             '<tr>' +
             '<th>Date</th>' +
             '<th>Description</th>' +
-            '<th>Credit</th>' +
-            '<th>Debit</th>' +
+            `<th>${dataGroupType.charAt(0).toUpperCase() + dataGroupType.slice(1)}</th>` +
             '</tr>'
         );
         let curBankDataColumn = bankDataColumnIndexes[bankType];
@@ -276,8 +275,7 @@ let ConsolidationViewer = new function () {
                 '<tr draggable="true" class="js-transaction-record">' +
                 '<td>' + transRecord[curBankDataColumn.date] + '</td>' +
                 '<td>' + transRecord[curBankDataColumn.description] + '</td>' +
-                '<td class="js-transaction-credit-amt">' + transRecord[curBankDataColumn.credit] + '</td>' +
-                '<td class="js-transaction-debit-amt">' + transRecord[curBankDataColumn.debit] + '</td>' +
+                `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[curBankDataColumn[dataGroupType]].toFixed(2) + '</td>' +
                 '</tr>'
             )
         }
@@ -343,15 +341,11 @@ let ConsolidationViewer = new function () {
         });
 
         $(".js-group-table").on('click', '.js-group-row', function () {
+            $(".js-group-table tr").removeClass("group-row--selected");
+            $(this).addClass("group-row--selected");
             let mappingId = $(this).attr("data-mapping-id");
             let selectedGroupTransactions = groupTransactions[mappingId.toString()];
-            populateGroupTransactions(selectedGroupTransactions, mappingId);
-        });
-
-        $(".js-group-table").on('click', '.js-group-row', function () {
-            let mappingId = $(this).attr("data-mapping-id");
-            let selectedGroupTransactions = groupTransactions[mappingId.toString()];
-            populateGroupTransactions(selectedGroupTransactions, mappingId);
+            populateGroupTransactions(selectedGroupTransactions, mappingId, $(this).attr('data-group-type'));
         });
 
         $("#transaction-table").on('dragstart', '.js-transaction-record', function (event) {
@@ -377,12 +371,12 @@ let ConsolidationViewer = new function () {
         });
 
         $("#transaction-table").on('dragstop', '.js-transaction-record', function (event) {
-            $(".js-group-table tr").removeClass("group-row--selected");
+            $(".js-group-table tr").removeClass("group-row--drop");
         });
 
         $(".js-group-table").on('dragover', '.js-group-row', function (event) {
-            $(".js-group-table tr").removeClass("group-row--selected");
-            $(this).addClass("group-row--selected");
+            $(".js-group-table tr").removeClass("group-row--drop");
+            $(this).addClass("group-row--drop");
             var transactionType = event.originalEvent.dataTransfer.getData("transactionType");
             if (transactionType && transactionType == $(this).attr("data-group-type")) {
                 return true;
@@ -392,6 +386,7 @@ let ConsolidationViewer = new function () {
 
         $(".js-group-table").on('drop', '.js-group-row', function (event) {
             event.preventDefault();
+            $(".js-group-table tr").removeClass("group-row--drop");
             let amount = parseFloat(event.originalEvent.dataTransfer.getData("transactionAmount"));
             var transactionType = event.originalEvent.dataTransfer.getData("transactionType");
             let sourceMappingId = event.originalEvent.dataTransfer.getData("mappingId");
@@ -416,12 +411,12 @@ let ConsolidationViewer = new function () {
             groupTransactions[targetMappingId.toString()].push(JSON.parse(selectedTransaction));
 
             let selectedGroupTransactions = groupTransactions[sourceMappingId.toString()];
-            populateGroupTransactions(selectedGroupTransactions, sourceMappingId);
+            populateGroupTransactions(selectedGroupTransactions, sourceMappingId, $(this).attr('data-group-type'));
 
-            $(this).find(".js-group-amount").text(targetGroupDetails.amount);
+            $(this).find(".js-group-amount").text(targetGroupDetails.amount.toFixed(2));
             $(this).find(".js-total-transactions").text(targetGroupDetails.totalTransactions);
 
-            $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find(".js-group-amount").text(sourceGroupDetails.amount);
+            $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find(".js-group-amount").text(sourceGroupDetails.amount.toFixed(2));
             $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find(".js-total-transactions").text(sourceGroupDetails.totalTransactions);
 
         });
@@ -435,9 +430,9 @@ let ConsolidationViewer = new function () {
             }
             let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 2;
             $("#payment-table").append(
-                '<tr data-mapping-id="' + mappingId + '" class="js-group-row">' +
+                '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
                 '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
-                '<td class="js-group-amount">' + newPaymentGroup.amount + '</td>' +
+                '<td class="js-group-amount">' + newPaymentGroup.amount.toFixed(2) + '</td>' +
                 '<td class="js-total-transactions">' + newPaymentGroup.totalTransactions + '</td>' +
                 '</tr'
             )
@@ -456,9 +451,9 @@ let ConsolidationViewer = new function () {
             }
             let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 1;
             $("#receipt-table").append(
-                '<tr data-mapping-id="' + mappingId + '" class="js-group-row">' +
+                '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
                 '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
-                '<td class="js-group-amount">' + newPaymentGroup.amount + '</td>' +
+                '<td class="js-group-amount">' + newPaymentGroup.amount.toFixed(2) + '</td>' +
                 '<td class="js-total-transactions">' + newPaymentGroup.totalTransactions + '</td>' +
                 '</tr'
             )
