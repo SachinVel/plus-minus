@@ -234,10 +234,10 @@ exports.bankStatementAnalyser = new function(){
 
         return {
             amountDetails : {
-                openingBalance : openingBalance.toFixed(2),
-                closingBalance : closingBalance.toFixed(2),
-                receiptTotalAmount : receiptTotalAmount.toFixed(2),
-                paymentTotalAmount : paymentTotalAmount.toFixed(2)
+                openingBalance: openingBalance.toFixed(2),
+                closingBalance: closingBalance.toFixed(2),
+                receiptTotalAmount: receiptTotalAmount.toFixed(2),
+                paymentTotalAmount: paymentTotalAmount.toFixed(2)
             },
             groupDetails : groupDetails,
             groupTransactions : groupTransactions
