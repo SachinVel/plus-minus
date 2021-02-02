@@ -67,6 +67,7 @@
     overflow: scroll;
 }
 .group-table{
+    table-layout: fixed;
     padding: 5px;
     width: 100%;
     text-align: center;
