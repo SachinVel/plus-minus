@@ -1,12 +1,12 @@
-const electron = require('electron'); 
-const path = require('path'); 
+const electron = require('electron');
+const path = require('path');
 const analyser = require('../js/analyser');
 
-const dialog = electron.remote.dialog; 
+const dialog = electron.remote.dialog;
 
 let filePath = null;
 
-window.onload = function(){
+window.onload = function () {
 
     var uploadedButton = document.getElementById('upload');
 
@@ -17,18 +17,17 @@ window.onload = function(){
         localStorage.setItem( 'accountNumberValue', accountNumberValue );
         let bankType = document.getElementById("bank-type-input").value;
         filePath = uploadFile.files[0].path;
-        console.log("File path : ",filePath);
-        if( filePath!=null && bankType ){
-            analyser.bankStatementAnalyser.anaylseFile(filePath,bankType).then((consolidationData)=>{
-                localStorage.setItem("consolidationData",JSON.stringify(consolidationData));
-                localStorage.setItem("bankType",bankType);
+        if (filePath != null && bankType) {
+            analyser.bankStatementAnalyser.anaylseFile(filePath, bankType).then((consolidationData) => {
+                localStorage.setItem("consolidationData", JSON.stringify(consolidationData));
+                localStorage.setItem("bankType", bankType);
                 window.location.href = "consolidation-view.html";
-            }).catch(error=>{
-            console.error("Error in analysing bank statement : ",error);
+            }).catch(error => {
+                console.error("Error in analysing bank statement : ", error);
             });
-        }else{
+        } else {
             alert("please fill the input");
         }
-        
+
     });
 }  
