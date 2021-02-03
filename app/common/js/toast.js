@@ -5,10 +5,10 @@ const toast = (type, message) => {
         console.error('dev-error: enter type and message. type can be error, warning, and success');
         return;
     }
-    $('body').append(`<div class='toast-message ${type}'>${message}</div>`);
+    let toastMessage = $(`<div class='toast-message ${type}'>${message}</div>`).appendTo('body');
     setTimeout(() => {
-        if ($('.toast-message')) {
-            $('.toast-message').remove();
+        if (toastMessage) {
+            toastMessage.remove();
         }
     }, 3000);
 }

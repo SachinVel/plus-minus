@@ -1,13 +1,14 @@
 const electron = require('electron');
 const path = require('path');
 const analyser = require('../js/analyser');
+const toast = require('../../common/js/toast');
 
 const dialog = electron.remote.dialog;
 
 let filePath = null;
 
 window.onload = function () {
-
+    toast("error", "im kishore");
     var uploadedButton = document.getElementById('upload');
 
     let uploadFile = document.getElementById("file-input");
