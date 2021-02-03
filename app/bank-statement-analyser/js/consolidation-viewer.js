@@ -1,5 +1,4 @@
 
-const { bankDataColumnIndexes } = require("../js/bank-details");
 const ExcelJS = require('exceljs');
 const path = require('path');
 const electron = require('electron');
@@ -8,14 +7,17 @@ const dialog = electron.remote.dialog;
 let ConsolidationViewer = new function () {
     let groupDetails, groupTransactions, amountDetails;
     let bankType;
+    let bankDataColumnIndexes;
 
-    const writeToFile = function (filePath) {
+    // const formatNumToRupees = function(num){
+    //     return Number(num).toLocaleString('en-IN');
+    // }
+    
+    const writeToFile = function(filePath){
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Bank Consolidation');
         let row;
-
-        //40
 
         worksheet.mergeCells('B2', 'D3');
 
@@ -72,6 +74,7 @@ let ConsolidationViewer = new function () {
             amount = groupDetails.receipts[curObjectKey.toString()].amount;
             row = { col2: particular, col3: amount };
             worksheet.addRow(row);
+
         }
 
 
@@ -119,95 +122,6 @@ let ConsolidationViewer = new function () {
             col4: amountDetails.closingBalance
         }
         worksheet.addRow(row);
-
-        let topBorderStyles = {
-            top: { style: "thin" }
-        };
-
-        let verticalBorderStyles = {
-            top: { style: "thin" },
-            bottom: { style: "thin" }
-        };
-
-
-
-
-
-
-
-        // worksheet.getCell('A1').value = 'Receipts';
-        // worksheet.getCell('A1').font = {
-        //     bold: true,
-        //     size: 20,
-        // };
-        // worksheet.getCell('A1').alignment = {
-        //     vertical: 'middle', horizontal: 'center'
-        // };
-
-        // worksheet.mergeCells('F1', 'G2');
-        // worksheet.getCell('F1').value = 'Payments';
-        // worksheet.getCell('F1').font = {
-        //     bold: true,
-        //     size: 20,
-        // };
-        // worksheet.getCell('F1').alignment = {
-        //     vertical: 'middle', horizontal: 'center'
-        // };
-
-        // // worksheet.getRow(5).values = ['Particulars', 'Amount','','','', 'Particulars', 'Amount'];
-        // worksheet.getRow(5).eachCell((cell, rowNumber) => { 
-        //     cell.font = {
-        //         bold: true,
-        //         size: 16,
-        //     };
-        //     cell.alignment = {
-        //         vertical: 'middle', horizontal: 'center'
-        //     };
-        // })
-
-        // // add column headers
-
-
-
-
-        // while( receiptObjKeys.length>0 || paymentObjKeys.length>0 ){
-        //     let row = {},particular,amount;
-        //     if( receiptObjKeys.length>0 ){
-        //         let curObjectKey = receiptObjKeys.shift();
-        //         particular = groupDetails.receipts[curObjectKey.toString()].particular;
-        //         amount = groupDetails.receipts[curObjectKey.toString()].amount;
-        //         row = Object.assign({},{ receiptParticular: particular, receiptAmount:  amount });
-        //     }
-        //     if( paymentObjKeys.length>0 ){
-        //         let curObjectKey = paymentObjKeys.shift();
-        //         particular = groupDetails.payments[curObjectKey.toString()].particular;
-        //         amount = groupDetails.payments[curObjectKey.toString()].amount;
-        //         row = Object.assign(row,{ paymentParticular: particular, paymentAmount:  amount });
-        //     }
-        //     worksheet.addRow(row);
-        // }
-
-        // let receiptTotalRowind = 5+Object.keys(groupDetails.receipts).length+1;
-        // let paymentTotalRowind = 5+Object.keys(groupDetails.payments).length+1;
-        // let receiptTotalCellAddr = 'B'+receiptTotalRowind;
-        // let paymentTotalCellAddr = 'G'+paymentTotalRowind;
-
-        // let totalBorderStyles = {
-        //         top: { style: "thin" },
-        //         bottom: { style: "thin" }
-        //     };
-
-        // worksheet.getCell(receiptTotalCellAddr).value = amountDetails.receiptTotalAmount;
-        // worksheet.getCell(receiptTotalCellAddr).numFmt = '[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00';
-        // worksheet.getCell(receiptTotalCellAddr).font = { bold: true }
-        // worksheet.getCell(receiptTotalCellAddr).border = totalBorderStyles;
-
-
-
-        // worksheet.getCell(paymentTotalCellAddr).value = amountDetails.paymentTotalAmount;
-        // worksheet.getCell(paymentTotalCellAddr).numFmt = '[>=10000000]##\,##\,##\,##0;[>=100000] ##\,##\,##0;##,##0.00';
-        // worksheet.getCell(paymentTotalCellAddr).font = { bold: true }
-        // worksheet.getCell(paymentTotalCellAddr).border = totalBorderStyles;
 
         // save workbook to disk
         workbook
@@ -269,13 +183,12 @@ let ConsolidationViewer = new function () {
             `<th>${dataGroupType.charAt(0).toUpperCase() + dataGroupType.slice(1)}</th>` +
             '</tr>'
         );
-        let curBankDataColumn = bankDataColumnIndexes[bankType];
         for (let transRecord of transactionData) {
             transactionTable.append(
                 '<tr draggable="true" class="js-transaction-record">' +
-                '<td>' + transRecord[curBankDataColumn.date] + '</td>' +
-                '<td>' + transRecord[curBankDataColumn.description] + '</td>' +
-                `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[curBankDataColumn[dataGroupType]].toFixed(2) + '</td>' +
+                '<td>' + transRecord[bankDataColumnIndexes.date] + '</td>' +
+                '<td>' + transRecord[bankDataColumnIndexes.description] + '</td>' +
+                `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[bankDataColumnIndexes[dataGroupType]].toFixed(2) + '</td>' +
                 '</tr>'
             )
         }
@@ -308,6 +221,7 @@ let ConsolidationViewer = new function () {
             groupDetails = consolidationData.groupDetails;
             groupTransactions = consolidationData.groupTransactions;
             amountDetails = consolidationData.amountDetails;
+            bankDataColumnIndexes = consolidationData.bankDataColumnIndexes;
         }
 
 
@@ -335,7 +249,6 @@ let ConsolidationViewer = new function () {
             });
 
         });
-
         $("#back-icon").on('click', () => {
             window.location.href = "importFile.html";
         });
@@ -349,6 +262,7 @@ let ConsolidationViewer = new function () {
         });
 
         $("#transaction-table").on('dragstart', '.js-transaction-record', function (event) {
+            
             let sourceMappingId = $(this).closest("table").attr("data-mapping-id");
             event.originalEvent.dataTransfer.setData("mappingId", sourceMappingId);
             let creditAmount = $(this).find(".js-transaction-credit-amt").text();

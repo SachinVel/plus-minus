@@ -1,0 +1,22 @@
+#bank-stmt-table{
+    border-collapse: collapse;
+    overflow: scroll;
+}
+#bank-stmt-table th{
+    border: 1px solid grey;
+}
+
+#bank-stmt-table td{
+    border: 1px solid grey;
+    cursor: pointer;
+}
+#user-prompt{
+    text-align: center;
+    padding: 10px;
+    font-size: 20px;
+    color: grey;
+}
+.bank-stmt-table-container{
+    overflow: scroll;
+    height: calc( 100% - 50px);
+}

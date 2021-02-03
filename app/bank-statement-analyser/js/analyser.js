@@ -9,55 +9,56 @@ exports.bankStatementAnalyser = new function(){
         return numStr.toString().replace(patt,"");
     }
     
-    const checkHeadersInBankStatement = function(row,bankTye){
-        let bankHeaders = bankDetails.bankStatementHeaders[bankTye];
-        let isHeadersMatch = true;
-        let headersInd=0;
-        for( let ind=0 ; ind<row.length ; ++ind){
-            if( row[ind]==null ){
-                continue;
-            }
-            if( headersInd==6 ){
-                break;
-            }
-            if( row[ind] instanceof String && row[ind].trim()!=bankHeaders[headersInd] ){
-                isHeadersMatch = false;
-                break;
-            }
-            ++headersInd;
-        };
-        if( isHeadersMatch && headersInd==6 ){
-            return isHeadersMatch;
-        }
+    // const checkHeadersInBankStatement = function(row,bankTye){
+    //     let bankHeaders = bankDetails.bankStatementHeaders[bankTye];
+    //     let isHeadersMatch = true;
+    //     let headersInd=0;
+    //     for( let ind=0 ; ind<row.length ; ++ind){
+    //         if( row[ind]==null ){
+    //             continue;
+    //         }
+    //         if( headersInd==6 ){
+    //             break;
+    //         }
+    //         if( row[ind] instanceof String && row[ind].trim()!=bankHeaders[headersInd] ){
+    //             isHeadersMatch = false;
+    //             break;
+    //         }
+    //         ++headersInd;
+    //     };
+    //     if( isHeadersMatch && headersInd==6 ){
+    //         return isHeadersMatch;
+    //     }
 
-    }
+    // }
 
-    const getHeaderRowIndex = function(records,bankName){
-        let headersIndex=-1;
-        for(let index=0 ; index<records.length ; ++index ){
-            let row = records[index];
-            if( checkHeadersInBankStatement(row,bankName) ){
-                headersIndex = index;
-                break;
-            }
-        };
-        return headersIndex;
-    }
+    // const getHeaderRowIndex = function(records,columnInfo){
+    //     let headersIndex=-1;
+    //     let rowInd = /[0-9]+/.exec(columnInfo.)
+    //     for(let index=0 ; index<records.length ; ++index ){
+    //         let row = records[index];
+    //         if( checkHeadersInBankStatement(row,bankName) ){
+    //             headersIndex = index;
+    //             break;
+    //         }
+    //     };
+    //     return headersIndex;
+    // }
 
-    const getFileContent = function(filePath){
+    // const getFileContent = function(filePath){
 
-        return new Promise(async (resolve,reject)=>{
-            let workbook = new ExcelJS.Workbook(); 
-            await workbook.xlsx.readFile(filePath);
+    //     return new Promise(async (resolve,reject)=>{
+    //         let workbook = new ExcelJS.Workbook(); 
+    //         await workbook.xlsx.readFile(filePath);
             
-            let worksheet = workbook.getWorksheet(1);
+    //         let worksheet = workbook.getWorksheet(1);
             
-            let rowValues = [];
-            worksheet.getRows(0,worksheet.rowCount+1).forEach(row=>{ rowValues.push(row.values)});
-            resolve(rowValues);
-        });
+    //         let rowValues = [];
+    //         worksheet.getRows(0,worksheet.rowCount+1).forEach(row=>{ rowValues.push(row.values)});
+    //         resolve(rowValues);
+    //     });
         
-    }
+    // }
 
     const processDescription = function(description){
 
@@ -68,11 +69,41 @@ exports.bankStatementAnalyser = new function(){
         return tempStr.toLowerCase();
 
     }
+
+    const getColumnIndices = function(columnInfo){
+        
+        let colIdRegex = /[A-Z]+/g;
+
+        console.log("colIdRegex : ",colIdRegex.exec(columnInfo.dateCellId));
+
+        let descriptionColId = /[A-Z]+/g.exec(columnInfo.descCellId)[0];
+        let descColInd = +descriptionColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
+
+        let dateColId = /[A-Z]+/g.exec(columnInfo.dateCellId)[0];
+        let dateColInd = +dateColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
+
+        let creditColId = /[A-Z]+/g.exec(columnInfo.credtiCellId)[0];
+        let creditColInd = +creditColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
+
+        let debitColId = /[A-Z]+/g.exec(columnInfo.debitCellId)[0];
+        let debitColInd = +debitColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
+
+        let balanceColId = /[A-Z]+/g.exec(columnInfo.balanceCellId)[0];
+        let balanceColInd = +balanceColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
+
+        return {
+            description : descColInd,
+            credit: creditColInd,
+            debit : debitColInd,
+            date : dateColInd,
+            balance : balanceColInd
+        }
+
+    }
     
 
-    const analyseTransactionData = function(transactionData,bankName){
+    const analyseTransactionData = function(transactionData,bankDataColumnIndexes){
 
-        let bankDataColumnIndexes = bankDetails.bankDataColumnIndexes[bankName];
         let bankStmtCommonWords = bankDetails.bankStatementKeywords;
 
         let descColInd =  bankDataColumnIndexes.description;
@@ -125,7 +156,18 @@ exports.bankStatementAnalyser = new function(){
                     continue;
                 }
                 let processedDesc = processDescription(transRecord[descColInd]);
-                if( processedDesc.includes(keyword) ){
+                let isKeywordMatch = false;
+                switch( keyword.condition ){
+                    case "contains":
+                        isKeywordMatch =  processedDesc.includes(keyword.name)?true:false; 
+                        break;
+                    case "startsWith":
+                        isKeywordMatch =  processedDesc.indexOf(keyword.name)==0?true:false; 
+                        break;
+                    default:
+                        isKeywordMatch =  processedDesc.includes(keyword.name)?true:false; 
+                }
+                if( isKeywordMatch ){
                     if( transRecord[creditColInd] ){
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
@@ -145,7 +187,7 @@ exports.bankStatementAnalyser = new function(){
                 groupDetails.payments[transactionGroupMappingID] = {
                     amount : debitAmount,
                     totalTransactions : currentGroupDebitTransaction.length,
-                    particular : keyword
+                    particular : keyword.name
                 };
                 groupTransactions[transactionGroupMappingID] = currentGroupDebitTransaction;
                 ++transactionGroupMappingID;
@@ -154,7 +196,7 @@ exports.bankStatementAnalyser = new function(){
                 groupDetails.receipts[transactionGroupMappingID] = {
                     amount : creditAmount,
                     totalTransactions : currentGroupCreditTransaction.length,
-                    particular : keyword
+                    particular : keyword.name
                 }
                 groupTransactions[transactionGroupMappingID] = currentGroupCreditTransaction;
                 ++transactionGroupMappingID;
@@ -240,28 +282,21 @@ exports.bankStatementAnalyser = new function(){
 
     
 
-    this.anaylseFile = function(filePath,bankType){
+    this.anaylseContent = function(rows,columnInfo){
+
         return new Promise((resolve,reject)=>{
-            getFileContent(filePath).then(function(rows){
-                let records = rows;
 
-                let headersIndex = getHeaderRowIndex(records,bankType);
-                if( headersIndex===-1){
-                    console.error("unable to identify headers.");
-                    return;
-                }
-                records.splice(0,headersIndex+1);
+            let headersIndex = +/[0-9]+/g.exec(columnInfo.descCellId)[0];
+            rows.splice(0,headersIndex+1);
 
-                let consolidationData = analyseTransactionData(records,bankType);
+            let bankDataColumnIndexes = getColumnIndices(columnInfo);
 
-                resolve(consolidationData);
+            let consolidationData = analyseTransactionData(rows,bankDataColumnIndexes);
 
-            }).catch(function(error){
-                reject(error);
-            });
-        })
-        
-        
+            consolidationData.bankDataColumnIndexes = bankDataColumnIndexes;
+
+            resolve(consolidationData);
+        });
         
     }
 }

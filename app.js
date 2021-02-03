@@ -25,7 +25,7 @@ app.once('ready', () => {
   })
 
   window.loadURL(url.format({
-    pathname: path.join(__dirname, '/app/bank-statement-analyser/html/importFile.html'),
+    pathname: path.join(__dirname, '/app/bank-statement-analyser/html/import-file.html'),
     protocol: 'file:',
     slashes: true
   }))
