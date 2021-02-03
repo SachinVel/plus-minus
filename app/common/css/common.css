@@ -67,3 +67,51 @@ select {
 input[type="file"] {
     cursor: pointer;
 }
+
+.toast-message {
+    position: fixed;
+    left: 50%;
+    top: 10px;
+    z-index: 999;
+    min-width: 60%;
+    text-align: center;
+    border-radius: 10px; 
+    padding: 13px;  
+    color: #fff;
+    font-weight: 600;  
+    transform: translateX(-50%);
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+.toast-message.error {
+    background-color: rgba(253, 34, 34, 0.8);
+}
+
+.toast-message.warning {
+    background-color: rgba(252, 150, 34, 0.8);
+}
+
+.toast-message.success {
+    background-color: rgba(76, 202, 7, 0.8);
+}
+  
+@-webkit-keyframes fadein {
+    from {top: 0; opacity: 0;}
+    to {top: 10px; opacity: 1;}
+}
+  
+@keyframes fadein {
+    from {top: 0; opacity: 0;}
+    to {top: 10px; opacity: 1;}
+}
+  
+@-webkit-keyframes fadeout {
+    from {top: 10px; opacity: 1;}
+    to {top: 0; opacity: 0;}
+}
+  
+@keyframes fadeout {
+    from {top: 10px; opacity: 1;}
+    to {top: 0; opacity: 0;}
+}
