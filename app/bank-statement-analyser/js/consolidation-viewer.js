@@ -49,8 +49,8 @@ let ConsolidationViewer = new function () {
         worksheet.addRow({});
 
         row = {
-            col2 : "OPENING BALANCE (A)",
-            col4 : amountDetails.openingBalance
+            col2: "OPENING BALANCE (A)",
+            col4: amountDetails.openingBalance
         }
         worksheet.addRow(row);
 
@@ -249,36 +249,32 @@ let ConsolidationViewer = new function () {
             );
             paymentTotalTransaction += curGroupDetail.totalTransactions;
         }
-        
+
         $("#payment-total-transaction").text(paymentTotalTransaction);
         $("#receipt-total-transaction").text(receiptTotalTransaction);
 
         // Excel formulas if applied, the result(value) is an json object with result key
-        if(typeof(amountDetails.openingBalance)=='object'){
+        if (typeof (amountDetails.openingBalance) === 'object') {
             $("#opening-balance-amount").text(amountDetails.openingBalance.result);
-        }
-        else{
+        } else {
             $("#opening-balance-amount").text(amountDetails.openingBalance);
         }
 
-        if(typeof(amountDetails.closingBalance)=='object'){
+        if (typeof (amountDetails.closingBalance) === 'object') {
             $("#closing-balance-amount").text(amountDetails.closingBalance.result);
-        }
-        else{
+        } else {
             $("#closing-balance-amount").text(amountDetails.closingBalance);
         }
 
-        if(typeof(amountDetails.paymentTotalAmount)=='object'){
+        if (typeof (amountDetails.paymentTotalAmount) === 'object') {
             $("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);
-        }
-        else{
+        } else {
             $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
         }
 
-        if(typeof(amountDetails.receiptTotalAmount)=='object'){
+        if (typeof (amountDetails.receiptTotalAmount) === 'object') {
             $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);
-        }
-        else{
+        } else {
             $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
         }
     }
@@ -324,9 +320,9 @@ let ConsolidationViewer = new function () {
         });
     }
 
-    this.init = function(){
+    this.init = function () {
         let accountNumberValue = localStorage.getItem('accountNumberValue');
-        $("#account-number-value").text("AC NO : " + accountNumberValue);    
+        $("#account-number-value").text("AC NO : " + accountNumberValue);
         let consolidationData = JSON.parse(localStorage.getItem("consolidationData"));
         bankType = localStorage.getItem("bankType");
         localStorage.clear();
