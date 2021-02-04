@@ -254,28 +254,40 @@ let ConsolidationViewer = new function () {
         $("#receipt-total-transaction").text(receiptTotalTransaction);
 
         // Excel formulas if applied, the result(value) is an json object with result key
-        console.log(amountDetails)
-        if (typeof (amountDetails.openingBalance) === 'object' && amountDetails.openingBalance!=null) {
-            $("#opening-balance-amount").text(amountDetails.openingBalance.result);
+        // Excel formulas if applied, the result(value) is an json object with result key
+        if (typeof (amountDetails.openingBalance) === 'object' || amountDetails.openingBalance==null) {
+            if(amountDetails.openingBalance==null){
+                $("#opening-balance-amount").text('null');
+            }
+            else{$("#opening-balance-amount").text(amountDetails.openingBalance.result);}
         }   
         else {
             $("#opening-balance-amount").text(amountDetails.openingBalance);
         }
 
-        if (typeof (amountDetails.closingBalance) === 'object' && amountDetails.openingBalance!=null) {
-            $("#closing-balance-amount").text(amountDetails.closingBalance.result);
+        if (typeof (amountDetails.closingBalance) === 'object' || amountDetails.closingBalance==null) {
+            if(amountDetails.closingBalance==null){
+                $("#closing-balance-amount").text('null');
+            }
+            else{$("#closing-balance-amount").text(amountDetails.closingBalance.result);}
         } else {
             $("#closing-balance-amount").text(amountDetails.closingBalance);
         }
 
-        if (typeof (amountDetails.paymentTotalAmount) === 'object' && amountDetails.openingBalance!=null) {
-            $("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);
+        if (typeof (amountDetails.paymentTotalAmount) === 'object' || amountDetails.paymentTotalAmount==null) {
+            if(amountDetails.paymentTotalAmount==null){
+                $("#payment-total-amount").text('null');
+            }
+            else{$("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);}
         } else {
             $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
         }
 
-        if (typeof (amountDetails.receiptTotalAmount) === 'object' && amountDetails.openingBalance!=null) {
-            $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);
+        if (typeof (amountDetails.receiptTotalAmount) === 'object' || amountDetails.receiptTotalAmount==null) {
+            if(amountDetails.receiptTotalAmount==null){
+                $("#receipt-total-amount").text('null');
+            }
+            else{$("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);}
         } else {
             $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
         }
