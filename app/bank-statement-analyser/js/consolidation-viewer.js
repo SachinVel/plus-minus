@@ -254,25 +254,27 @@ let ConsolidationViewer = new function () {
         $("#receipt-total-transaction").text(receiptTotalTransaction);
 
         // Excel formulas if applied, the result(value) is an json object with result key
-        if (typeof (amountDetails.openingBalance) === 'object') {
+        console.log(amountDetails)
+        if (typeof (amountDetails.openingBalance) === 'object' && amountDetails.openingBalance!=null) {
             $("#opening-balance-amount").text(amountDetails.openingBalance.result);
-        } else {
+        }   
+        else {
             $("#opening-balance-amount").text(amountDetails.openingBalance);
         }
 
-        if (typeof (amountDetails.closingBalance) === 'object') {
+        if (typeof (amountDetails.closingBalance) === 'object' && amountDetails.openingBalance!=null) {
             $("#closing-balance-amount").text(amountDetails.closingBalance.result);
         } else {
             $("#closing-balance-amount").text(amountDetails.closingBalance);
         }
 
-        if (typeof (amountDetails.paymentTotalAmount) === 'object') {
+        if (typeof (amountDetails.paymentTotalAmount) === 'object' && amountDetails.openingBalance!=null) {
             $("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);
         } else {
             $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
         }
 
-        if (typeof (amountDetails.receiptTotalAmount) === 'object') {
+        if (typeof (amountDetails.receiptTotalAmount) === 'object' && amountDetails.openingBalance!=null) {
             $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);
         } else {
             $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
