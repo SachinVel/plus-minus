@@ -1,22 +1,44 @@
-#bank-stmt-table{
-    border-collapse: collapse;
-    overflow: scroll;
-}
-#bank-stmt-table th{
-    border: 1px solid grey;
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
 }
 
-#bank-stmt-table td{
-    border: 1px solid grey;
+#bank-stmt-table{
+    overflow: scroll;
+}
+
+
+
+.bank-stmt-table .cell{
     cursor: pointer;
 }
+.bank-stmt-table .cell:hover{
+    border : 2px solid  #317fed;
+}
+.bank-stmt-table .selected-cell{
+    border: 1px solid green;
+    cursor: not-allowed;
+}
+.bank-stmt-table .selected-cell:hover{
+    border: 1px solid green;
+}
+
+
+.bank-stmt-table th,td{
+    border: 1px solid #dadada;
+}
+
+
 #user-prompt{
     text-align: center;
     padding: 10px;
     font-size: 20px;
-    color: grey;
+    color:  black;
+    animation: blinker 3s linear infinite;
 }
 .bank-stmt-table-container{
     overflow: scroll;
     height: calc( 100% - 50px);
 }
+

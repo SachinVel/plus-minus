@@ -1,10 +1,4 @@
-
-
-// let bankStatementKeywords = ["upi","salary","sbiint","pos","upi","neft","rtgs","cash deposit",
-//     "cash withdrawal","bank charges","lic of india","new india assurance",'sbint','imps',
-//     "refund", "rent", "tangedco"]
-
-let bankStatementKeywords = [
+const bankStatementKeywords = [
     { name : "upi" , condition : "startsWith"},
     { name : "pos" , condition : "startsWith"},
     { name : "salary" , condition : "contains"},

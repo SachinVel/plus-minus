@@ -1,5 +1,4 @@
 
-const ExcelJS = require('exceljs');
 const bankDetails = require('./bank-details');
 
 exports.bankStatementAnalyser = new function(){
@@ -8,57 +7,6 @@ exports.bankStatementAnalyser = new function(){
         var patt = /[^0-9\.]+/g;
         return numStr.toString().replace(patt,"");
     }
-    
-    // const checkHeadersInBankStatement = function(row,bankTye){
-    //     let bankHeaders = bankDetails.bankStatementHeaders[bankTye];
-    //     let isHeadersMatch = true;
-    //     let headersInd=0;
-    //     for( let ind=0 ; ind<row.length ; ++ind){
-    //         if( row[ind]==null ){
-    //             continue;
-    //         }
-    //         if( headersInd==6 ){
-    //             break;
-    //         }
-    //         if( row[ind] instanceof String && row[ind].trim()!=bankHeaders[headersInd] ){
-    //             isHeadersMatch = false;
-    //             break;
-    //         }
-    //         ++headersInd;
-    //     };
-    //     if( isHeadersMatch && headersInd==6 ){
-    //         return isHeadersMatch;
-    //     }
-
-    // }
-
-    // const getHeaderRowIndex = function(records,columnInfo){
-    //     let headersIndex=-1;
-    //     let rowInd = /[0-9]+/.exec(columnInfo.)
-    //     for(let index=0 ; index<records.length ; ++index ){
-    //         let row = records[index];
-    //         if( checkHeadersInBankStatement(row,bankName) ){
-    //             headersIndex = index;
-    //             break;
-    //         }
-    //     };
-    //     return headersIndex;
-    // }
-
-    // const getFileContent = function(filePath){
-
-    //     return new Promise(async (resolve,reject)=>{
-    //         let workbook = new ExcelJS.Workbook(); 
-    //         await workbook.xlsx.readFile(filePath);
-            
-    //         let worksheet = workbook.getWorksheet(1);
-            
-    //         let rowValues = [];
-    //         worksheet.getRows(0,worksheet.rowCount+1).forEach(row=>{ rowValues.push(row.values)});
-    //         resolve(rowValues);
-    //     });
-        
-    // }
 
     const processDescription = function(description){
 
@@ -70,25 +18,21 @@ exports.bankStatementAnalyser = new function(){
 
     }
 
-    const getColumnIndices = function(columnInfo){
-        
-        let colIdRegex = /[A-Z]+/g;
+    const getColumnIndices = function(columnHeaderCells){
 
-        console.log("colIdRegex : ",colIdRegex.exec(columnInfo.dateCellId));
-
-        let descriptionColId = /[A-Z]+/g.exec(columnInfo.descCellId)[0];
+        let descriptionColId = /[A-Z]+/g.exec(columnHeaderCells.descCellId)[0];
         let descColInd = +descriptionColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
 
-        let dateColId = /[A-Z]+/g.exec(columnInfo.dateCellId)[0];
+        let dateColId = /[A-Z]+/g.exec(columnHeaderCells.dateCellId)[0];
         let dateColInd = +dateColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
 
-        let creditColId = /[A-Z]+/g.exec(columnInfo.credtiCellId)[0];
+        let creditColId = /[A-Z]+/g.exec(columnHeaderCells.credtiCellId)[0];
         let creditColInd = +creditColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
 
-        let debitColId = /[A-Z]+/g.exec(columnInfo.debitCellId)[0];
+        let debitColId = /[A-Z]+/g.exec(columnHeaderCells.debitCellId)[0];
         let debitColInd = +debitColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
 
-        let balanceColId = /[A-Z]+/g.exec(columnInfo.balanceCellId)[0];
+        let balanceColId = /[A-Z]+/g.exec(columnHeaderCells.balanceCellId)[0];
         let balanceColInd = +balanceColId.charCodeAt(0)-'A'.charCodeAt(0)+1;
 
         return {
@@ -282,21 +226,16 @@ exports.bankStatementAnalyser = new function(){
 
     
 
-    this.anaylseContent = function(rows,columnInfo){
+    this.anaylseContent = function(rows,columnHeaderCells){
 
-        return new Promise((resolve,reject)=>{
+        let headersIndex = +/[0-9]+/g.exec(columnHeaderCells.descCellId)[0];
+        rows.splice(0,headersIndex+1);
+        
+        let bankDataColumnIndexes = getColumnIndices(columnHeaderCells);
 
-            let headersIndex = +/[0-9]+/g.exec(columnInfo.descCellId)[0];
-            rows.splice(0,headersIndex+1);
-
-            let bankDataColumnIndexes = getColumnIndices(columnInfo);
-
-            let consolidationData = analyseTransactionData(rows,bankDataColumnIndexes);
-
-            consolidationData.bankDataColumnIndexes = bankDataColumnIndexes;
-
-            resolve(consolidationData);
-        });
+        let consolidationData = analyseTransactionData(rows,bankDataColumnIndexes);
+        consolidationData.bankDataColumnIndexes = bankDataColumnIndexes;
+        return consolidationData;
         
     }
 }

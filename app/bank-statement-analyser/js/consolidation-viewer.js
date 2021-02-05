@@ -128,10 +128,10 @@ let ConsolidationViewer = new function () {
             .xlsx
             .writeFile(filePath)
             .then(() => {
-                console.log("saved");
+                // console.log("saved");
             })
             .catch((err) => {
-                console.log("err", err);
+                // console.log("err", err);
             });
     }
 
@@ -230,7 +230,6 @@ let ConsolidationViewer = new function () {
             dialog.showSaveDialog({
                 title: 'Select the File Path to save',
                 defaultPath: path.join(__dirname),
-                // defaultPath: path.join(__dirname, '../assets/'), 
                 buttonLabel: 'Save',
                 // Restricting the user to only Text Files. 
                 filters: [
@@ -245,12 +244,12 @@ let ConsolidationViewer = new function () {
                     writeToFile(file.filePath.toString());
                 }
             }).catch(err => {
-                console.log(err)
+                console.error(err)
             });
 
         });
         $("#back-icon").on('click', () => {
-            window.location.href = "importFile.html";
+            window.location.href = "import-file.html";
         });
 
         $(".js-group-table").on('click', '.js-group-row', function () {
