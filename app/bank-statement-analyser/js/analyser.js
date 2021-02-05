@@ -1,5 +1,5 @@
 
-const bankDetails = require('./bank-details');
+const bankStatementKeywords = require('./bank-details');
 
 exports.bankStatementAnalyser = new function(){
 
@@ -48,8 +48,6 @@ exports.bankStatementAnalyser = new function(){
 
     const analyseTransactionData = function(transactionData,bankDataColumnIndexes){
 
-        let bankStmtCommonWords = bankDetails.bankStatementKeywords;
-
         let descColInd =  bankDataColumnIndexes.description;
         let creditColInd = bankDataColumnIndexes.credit;
         let debitColInd = bankDataColumnIndexes.debit;
@@ -88,7 +86,7 @@ exports.bankStatementAnalyser = new function(){
 
         // extract common keywords data
         
-        for( let keyword of bankStmtCommonWords ){
+        for( let keyword of bankStatementKeywords ){
             currentGroupCreditTransaction = [];
             currentGroupDebitTransaction = [];
             debitAmount = 0;
@@ -103,13 +101,13 @@ exports.bankStatementAnalyser = new function(){
                 let isKeywordMatch = false;
                 switch( keyword.condition ){
                     case "contains":
-                        isKeywordMatch =  processedDesc.includes(keyword.name)?true:false; 
+                        isKeywordMatch =  processedDesc.includes(keyword.name);
                         break;
                     case "startsWith":
-                        isKeywordMatch =  processedDesc.indexOf(keyword.name)==0?true:false; 
+                        isKeywordMatch =  processedDesc.indexOf(keyword.name)==0;
                         break;
                     default:
-                        isKeywordMatch =  processedDesc.includes(keyword.name)?true:false; 
+                        isKeywordMatch =  processedDesc.includes(keyword.name);
                 }
                 if( isKeywordMatch ){
                     if( transRecord[creditColInd] ){

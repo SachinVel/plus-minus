@@ -17,6 +17,4 @@ const bankStatementKeywords = [
     { name : "tangedco" , condition : "contains"}
 ]
 
-module.exports = {
-    bankStatementKeywords : bankStatementKeywords,
-}
+module.exports = bankStatementKeywords;

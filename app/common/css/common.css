@@ -40,15 +40,13 @@ body{
     text-align: center;
     padding: 0px 23px;
 }
-.vertical-center-align{
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-}
 .title-content{
     font-size: 25px;
     color: white;
     display: inline-block;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
 }
 .back-icon{
     color: white;
@@ -56,6 +54,9 @@ body{
     display: inline-block;
     float: left;
     font-size: 20px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
 }
 select {
     font-family: 'FontAwesome';

@@ -8,10 +8,6 @@ let ConsolidationViewer = new function () {
     let groupDetails, groupTransactions, amountDetails;
     let bankType;
     let bankDataColumnIndexes;
-
-    // const formatNumToRupees = function(num){
-    //     return Number(num).toLocaleString('en-IN');
-    // }
     
     const writeToFile = function(filePath){
 
