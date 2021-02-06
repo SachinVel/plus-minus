@@ -1,4 +1,4 @@
-window.$ = window.jQuery = require('jquery');
+window.$ = require('jquery');
 
 const toast = (type, message) => {
     if (!type || !message) {
