@@ -48,7 +48,7 @@ let ConsolidationViewer = new function () {
 
         row = {
             col2: "OPENING BALANCE (A)",
-            col3: amountDetails.openingBalance
+            col4: amountDetails.openingBalance
         }
         worksheet.addRow(row);
 
@@ -160,12 +160,47 @@ let ConsolidationViewer = new function () {
             paymentTotalTransaction += curGroupDetail.totalTransactions;
         }
 
-        $("#opening-balance-amount").text(amountDetails.openingBalance.toFixed(2));
-        $("#closing-balance-amount").text(amountDetails.closingBalance.toFixed(2));
-        $("#payment-total-amount").text(amountDetails.paymentTotalAmount.toFixed(2));
-        $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.toFixed(2));
-        $('#payment-total-transaction').text(paymentTotalTransaction);
-        $('#receipt-total-transaction').text(receiptTotalTransaction);
+        $("#payment-total-transaction").text(paymentTotalTransaction);
+        $("#receipt-total-transaction").text(receiptTotalTransaction);
+
+        // Excel formulas if applied, the result(value) is an json object with result key
+        // Excel formulas if applied, the result(value) is an json object with result key
+        if (typeof (amountDetails.openingBalance) === 'object' || amountDetails.openingBalance==null) {
+            if(amountDetails.openingBalance==null){
+                $("#opening-balance-amount").text('null');
+            }
+            else{$("#opening-balance-amount").text(amountDetails.openingBalance.result);}
+        }   
+        else {
+            $("#opening-balance-amount").text(amountDetails.openingBalance);
+        }
+
+        if (typeof (amountDetails.closingBalance) === 'object' || amountDetails.closingBalance==null) {
+            if(amountDetails.closingBalance==null){
+                $("#closing-balance-amount").text('null');
+            }
+            else{$("#closing-balance-amount").text(amountDetails.closingBalance.result);}
+        } else {
+            $("#closing-balance-amount").text(amountDetails.closingBalance);
+        }
+
+        if (typeof (amountDetails.paymentTotalAmount) === 'object' || amountDetails.paymentTotalAmount==null) {
+            if(amountDetails.paymentTotalAmount==null){
+                $("#payment-total-amount").text('null');
+            }
+            else{$("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);}
+        } else {
+            $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
+        }
+
+        if (typeof (amountDetails.receiptTotalAmount) === 'object' || amountDetails.receiptTotalAmount==null) {
+            if(amountDetails.receiptTotalAmount==null){
+                $("#receipt-total-amount").text('null');
+            }
+            else{$("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);}
+        } else {
+            $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
+        }
     }
 
     const populateGroupTransactions = function (transactionData, mappingId, dataGroupType) {
@@ -209,7 +244,8 @@ let ConsolidationViewer = new function () {
     }
 
     this.init = function () {
-
+        let accountNumberValue = localStorage.getItem('accountNumberValue');
+        $("#account-number-value").text("AC NO : " + accountNumberValue);
         let consolidationData = JSON.parse(localStorage.getItem("consolidationData"));
         bankType = localStorage.getItem("bankType");
         localStorage.clear();
