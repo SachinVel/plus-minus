@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron app.js",
+    "start": "electron ./app/app.js",
     "pack": "electron-packager .",
     "dist": "electron-builder"
   },
@@ -19,7 +19,7 @@
     "url": "git+https://github.com/SachinVel/plus-minus.git"
   },
   "keywords": [],
-  "author": "Sachin, Sathiya",
+  "author": "Sachin, Sathiya, Kishore",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/SachinVel/plus-minus/issues"

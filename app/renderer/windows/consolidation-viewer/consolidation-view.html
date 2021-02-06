@@ -1,10 +1,10 @@
 <html>
     <head>
-        <link rel="stylesheet" href="../../dependencies/css/font-awesome.min.css">
-        <link href="../../common/css/common.css" rel="stylesheet">
-        <link href="../css/consolidation-view.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../../assets/css/font-awesome.min.css">
+        <link href="../../common.css" rel="stylesheet">
+        <link href="./consolidation-view.css" rel="stylesheet">
         <script>window.$ = window.jQuery = require('jquery');</script>
-        <script src="../js/consolidation-viewer.js"></script>
+        <script src="./consolidation-viewer.js"></script>
         <script>
             window.onload = function(){
                 ConsolidationViewer.init();
@@ -13,14 +13,14 @@
     </head>
     <body>
         <div class="title-bar">
-            <button class="primary-btn export-btn vertical-center-align" id="export-btn">
+            <button class="primary-btn export-btn" id="export-btn">
                 <i class="fa fa-upload" aria-hidden="true"></i>
                 Export
             </button>
-            <span class="back-icon vertical-center-align" id="back-icon">
+            <span class="back-icon" id="back-icon">
                 <i class="fa fa-arrow-left" aria-hidden="true"></i>
             </span>
-            <div class="title-content vertical-center-align" id="account-number-value">Consolidation Data</div>
+            <div class="title-content" id="account-number-value">Consolidation Data</div>
         </div>
         <div class="consolidation-grid-container">
             <div class="consolidation-grid__box consolidation-grid__box1">

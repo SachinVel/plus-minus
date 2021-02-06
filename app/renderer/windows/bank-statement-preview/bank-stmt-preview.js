@@ -1,6 +1,6 @@
-const { bankStatementAnalyser } = require("../js/analyser");
+const bankStatementAnalyser = require("../../server/analyser/analyser");
 const ExcelJS = require('exceljs');
-const toast = require('../../common/js/toast');
+const toast = require('../../utils/toast/toast');
 
 const BankStmtPreview = new function () {
     const getFileContent = function (filePath) {
@@ -20,16 +20,48 @@ const BankStmtPreview = new function () {
 
     }
 
-    const getCellValue = function (cell) {
-        if (typeof cell === "object") {
-            if (cell.richText) {
-                return cell.richText[0].text;
+    const processBankData = function (rows) {
+        let processedRows = [];
+        rows.forEach(row => {
+            let processedRow = [];
+            for (let ind = 0; ind < row.length; ++ind) {
+                let cell = row[ind];
+                if (typeof cell === "object") {
+                    if (cell.richText) {
+                        processedRow[ind] = cell.richText[0].text;
+                    }
+                } else {
+                    processedRow[ind] = cell;
+                }
             }
-        }
-        return cell;
+            processedRows.push(processedRow);
+        });
+        return processedRows;
+    }
+
+    const parseBankData = function (rows, bankDataColumnIndexes) {
+
+        rows = rows.filter(row => (row[bankDataColumnIndexes.credit] != null && row[bankDataColumnIndexes.debit] != null
+            && row[bankDataColumnIndexes.balance] != null));
+
+        rows.forEach(row => {
+            if (typeof row[bankDataColumnIndexes.credit] === 'string') {
+                row[bankDataColumnIndexes.credit] = parseFloat(row[bankDataColumnIndexes.credit].replace(/,/g, ''));
+            }
+            if (typeof row[bankDataColumnIndexes.debit] === 'string') {
+                row[bankDataColumnIndexes.debit] = parseFloat(row[bankDataColumnIndexes.debit].replace(/,/g, ''));
+            }
+            if (typeof row[bankDataColumnIndexes.balance] === 'string') {
+                row[bankDataColumnIndexes.balance] = parseFloat(row[bankDataColumnIndexes.balance].replace(/,/g, ''));
+            }
+        });
+
+        return rows;
+
     }
 
     const populateData = function (rows) {
+
         let tableElem = $("#bank-stmt-table");
 
         let colMaxLen = -1;
@@ -63,7 +95,7 @@ const BankStmtPreview = new function () {
 
                 if (row[colInd + 1]) {
                     rowContent.append(
-                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + getCellValue(row[colInd + 1]) + '</td>'
+                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd + 1] + '</td>'
                     );
                 } else {
                     rowContent.append(
@@ -144,19 +176,53 @@ const BankStmtPreview = new function () {
         };
     }
 
+    const getColumnIndices = function (columnHeaderCells) {
+
+        let descriptionColId = /[A-Z]+/g.exec(columnHeaderCells.descCellId)[0];
+        let descColInd = +descriptionColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+
+        let dateColId = /[A-Z]+/g.exec(columnHeaderCells.dateCellId)[0];
+        let dateColInd = +dateColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+
+        let creditColId = /[A-Z]+/g.exec(columnHeaderCells.credtiCellId)[0];
+        let creditColInd = +creditColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+
+        let debitColId = /[A-Z]+/g.exec(columnHeaderCells.debitCellId)[0];
+        let debitColInd = +debitColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+
+        let balanceColId = /[A-Z]+/g.exec(columnHeaderCells.balanceCellId)[0];
+        let balanceColInd = +balanceColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+
+        return {
+            description: descColInd,
+            credit: creditColInd,
+            debit: debitColInd,
+            date: dateColInd,
+            balance: balanceColInd
+        }
+
+    }
+
     this.init = function () {
 
         let filePath = localStorage.getItem("filePath");
 
         getFileContent(filePath).then(async function (rows) {
+
+            rows = processBankData(rows);
             populateData(rows);
             let columnHeaderInfo = await getColumnHeaderInformation();
+            let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo.headerCells);
+            let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.headerCells.descCellId)[0];
+            rows.splice(0, headersIndex + 1);
+            rows  = parseBankData(rows, bankDataColumnIndexes);
+            console.log("rows : ",rows);
             let popupMessage = `Selected header contents are ${columnHeaderInfo.headerNames}Are you sure you want to continue?`;
             popup.display(popupMessage, {
                 success: function () {
-                    let consolidationData = bankStatementAnalyser.anaylseContent(rows, columnHeaderInfo.headerCells)
+                    let consolidationData = bankStatementAnalyser.anaylseContent(rows, bankDataColumnIndexes);
                     localStorage.setItem("consolidationData", JSON.stringify(consolidationData));
-                    window.location.href = "consolidation-view.html";
+                    window.location.href = "../consolidation-viewer/consolidation-view.html";
                     localStorage.removeItem("filePath");
                 },
                 reject: function () {
@@ -166,7 +232,7 @@ const BankStmtPreview = new function () {
         });
 
         $("#back-icon").on('click', function () {
-            window.location.href = "import-file.html";
+            window.location.href = "../import-file/import-file.html";
         });
 
     }

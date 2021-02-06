@@ -1,0 +1,73 @@
+body {
+    margin: 0px;
+    font-family: "amethysta";
+}
+
+@font-face {
+    font-family: "amethysta";
+    src: url("../fonts/amethysta.ttf") format("truetype");
+}
+
+* {
+    box-sizing: border-box;
+}
+.header {
+    height: 80px;
+    position: relative;
+    padding: 15px 30px;
+    background-color: white;
+}
+.product-logo {
+    height: 40px;
+    float: left;
+    width: 100px;
+}
+.primary-btn {
+    border: none;
+    background-color: #317fed;
+    color: white;
+    font-size: 14px;
+    border-radius: 3px;
+    padding: 7px 10;
+    cursor: pointer;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.primary-btn:hover {
+    opacity: 0.8;
+}
+.title-bar {
+    background-color: #317fed;
+    height: 50px;
+    text-align: center;
+    padding: 0px 23px;
+}
+.title-content {
+    font-size: 25px;
+    color: white;
+    display: inline-block;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.back-icon {
+    color: white;
+    cursor: pointer;
+    display: inline-block;
+    float: left;
+    font-size: 20px;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+}
+select {
+    font-family: "FontAwesome";
+    background-color: white;
+    width: 100px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+input[type="file"] {
+    cursor: pointer;
+}

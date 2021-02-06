@@ -1,15 +1,14 @@
-
 const ExcelJS = require('exceljs');
 const path = require('path');
 const electron = require('electron');
 const dialog = electron.remote.dialog;
 
-let ConsolidationViewer = new function () {
+const ConsolidationViewer = new function () {
     let groupDetails, groupTransactions, amountDetails;
     let bankType;
     let bankDataColumnIndexes;
-    
-    const writeToFile = function(filePath){
+
+    const writeToFile = function (filePath) {
 
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Bank Consolidation');
@@ -97,7 +96,6 @@ let ConsolidationViewer = new function () {
         worksheet.addRow(row);
 
         while (paymentObjKeys.length > 1) {
-
             curObjectKey = paymentObjKeys.shift();
             particular = groupDetails.payments[curObjectKey.toString()].particular;
             amount = groupDetails.payments[curObjectKey.toString()].amount;
@@ -165,39 +163,39 @@ let ConsolidationViewer = new function () {
 
         // Excel formulas if applied, the result(value) is an json object with result key
         // Excel formulas if applied, the result(value) is an json object with result key
-        if (typeof (amountDetails.openingBalance) === 'object' || amountDetails.openingBalance==null) {
-            if(amountDetails.openingBalance==null){
+        if (typeof (amountDetails.openingBalance) === 'object' || amountDetails.openingBalance == null) {
+            if (amountDetails.openingBalance == null) {
                 $("#opening-balance-amount").text('null');
             }
-            else{$("#opening-balance-amount").text(amountDetails.openingBalance.result);}
-        }   
+            else { $("#opening-balance-amount").text(amountDetails.openingBalance.result); }
+        }
         else {
             $("#opening-balance-amount").text(amountDetails.openingBalance);
         }
 
-        if (typeof (amountDetails.closingBalance) === 'object' || amountDetails.closingBalance==null) {
-            if(amountDetails.closingBalance==null){
+        if (typeof (amountDetails.closingBalance) === 'object' || amountDetails.closingBalance == null) {
+            if (amountDetails.closingBalance == null) {
                 $("#closing-balance-amount").text('null');
             }
-            else{$("#closing-balance-amount").text(amountDetails.closingBalance.result);}
+            else { $("#closing-balance-amount").text(amountDetails.closingBalance.result); }
         } else {
             $("#closing-balance-amount").text(amountDetails.closingBalance);
         }
 
-        if (typeof (amountDetails.paymentTotalAmount) === 'object' || amountDetails.paymentTotalAmount==null) {
-            if(amountDetails.paymentTotalAmount==null){
+        if (typeof (amountDetails.paymentTotalAmount) === 'object' || amountDetails.paymentTotalAmount == null) {
+            if (amountDetails.paymentTotalAmount == null) {
                 $("#payment-total-amount").text('null');
             }
-            else{$("#payment-total-amount").text(amountDetails.paymentTotalAmount.result);}
+            else { $("#payment-total-amount").text(amountDetails.paymentTotalAmount.result); }
         } else {
             $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
         }
 
-        if (typeof (amountDetails.receiptTotalAmount) === 'object' || amountDetails.receiptTotalAmount==null) {
-            if(amountDetails.receiptTotalAmount==null){
+        if (typeof (amountDetails.receiptTotalAmount) === 'object' || amountDetails.receiptTotalAmount == null) {
+            if (amountDetails.receiptTotalAmount == null) {
                 $("#receipt-total-amount").text('null');
             }
-            else{$("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result);}
+            else { $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result); }
         } else {
             $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
         }
@@ -281,7 +279,7 @@ let ConsolidationViewer = new function () {
 
         });
         $("#back-icon").on('click', () => {
-            window.location.href = "import-file.html";
+            window.location.href = "../import-file/import-file.html";
         });
 
         $(".js-group-table").on('click', '.js-group-row', function () {
@@ -293,7 +291,7 @@ let ConsolidationViewer = new function () {
         });
 
         $("#transaction-table").on('dragstart', '.js-transaction-record', function (event) {
-            
+
             let sourceMappingId = $(this).closest("table").attr("data-mapping-id");
             event.originalEvent.dataTransfer.setData("mappingId", sourceMappingId);
             let creditAmount = $(this).find(".js-transaction-credit-amt").text();
