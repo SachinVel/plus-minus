@@ -4,7 +4,7 @@ const url = require('url')
 
 let window = null
 
-require('electron-reload')(__dirname);
+// require('electron-reload')(__dirname);
 
 // Wait until the app is ready
 app.once('ready', () => {
