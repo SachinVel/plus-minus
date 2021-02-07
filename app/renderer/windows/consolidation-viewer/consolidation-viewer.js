@@ -1,7 +1,12 @@
+import './consolidation-viewer.css';
 const ExcelJS = require('exceljs');
 const path = require('path');
 const electron = require('electron');
 const dialog = electron.remote.dialog;
+
+window.onload = function () {
+    ConsolidationViewer.init();
+}
 
 const ConsolidationViewer = new function () {
     let groupDetails, groupTransactions, amountDetails;
@@ -279,7 +284,7 @@ const ConsolidationViewer = new function () {
 
         });
         $("#back-icon").on('click', () => {
-            window.location.href = "../import-file/import-file.html";
+            window.location.href = "./import-file.html";
         });
 
         $(".js-group-table").on('click', '.js-group-row', function () {

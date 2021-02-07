@@ -1,4 +1,4 @@
-const bankStatementKeywords = require('../../constants/bank-details');
+import { bankStatementKeywords } from '../../constants/bank-details';
 
 const bankStatementAnalyser = new function () {
 
@@ -195,4 +195,4 @@ const bankStatementAnalyser = new function () {
     }
 }
 
-module.exports = bankStatementAnalyser;
+export default bankStatementAnalyser;

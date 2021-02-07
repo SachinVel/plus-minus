@@ -25,9 +25,8 @@ app.once('ready', () => {
   })
   
   window.setMenuBarVisibility(false)
-    console.log("hi");
   window.loadURL(url.format({
-    pathname: path.join(__dirname, '/renderer/windows/import-file/import-file.html'),
+    pathname: path.join(__dirname, '../dist/import-file.html'),
     protocol: 'file:',
     slashes: true
   }))

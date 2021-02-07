@@ -1,7 +1,11 @@
-const bankStatementAnalyser = require("../../server/analyser/analyser");
-const ExcelJS = require('exceljs');
-const toast = require('../../utils/toast/toast');
+import popup from "../../utils/popup/popup";
+import bankStatementAnalyser from "../../server/analyser/analyser";
+import './bank-stmt-preview.css';
+import toast from "../../utils/toast/toast";
 
+window.onload = function () {
+    BankStmtPreview.init();
+}
 const BankStmtPreview = new function () {
     const getFileContent = function (filePath) {
 
@@ -215,14 +219,14 @@ const BankStmtPreview = new function () {
             let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo.headerCells);
             let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.headerCells.descCellId)[0];
             rows.splice(0, headersIndex + 1);
-            rows  = parseBankData(rows, bankDataColumnIndexes);
-            console.log("rows : ",rows);
+            rows = parseBankData(rows, bankDataColumnIndexes);
+            console.log("rows : ", rows);
             let popupMessage = `Selected header contents are ${columnHeaderInfo.headerNames}Are you sure you want to continue?`;
             popup.display(popupMessage, {
                 success: function () {
                     let consolidationData = bankStatementAnalyser.anaylseContent(rows, bankDataColumnIndexes);
                     localStorage.setItem("consolidationData", JSON.stringify(consolidationData));
-                    window.location.href = "../consolidation-viewer/consolidation-view.html";
+                    window.location.href = "./consolidation-view.html";
                     localStorage.removeItem("filePath");
                 },
                 reject: function () {
@@ -232,7 +236,7 @@ const BankStmtPreview = new function () {
         });
 
         $("#back-icon").on('click', function () {
-            window.location.href = "../import-file/import-file.html";
+            window.location.href = "./import-file.html";
         });
 
     }

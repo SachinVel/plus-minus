@@ -1,4 +1,5 @@
-const popup = new function () {
+import './popup.css';
+export default new function () {
 
     let isElementInserted = false;
     let successCallback, failureCallback;

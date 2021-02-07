@@ -1,4 +1,4 @@
-const bankStatementKeywords = [
+export const bankStatementKeywords = [
     { name : "upi" , condition : "startsWith"},
     { name : "pos" , condition : "startsWith"},
     { name : "salary" , condition : "contains"},
@@ -16,5 +16,3 @@ const bankStatementKeywords = [
     { name : "rent" , condition : "contains"},
     { name : "tangedco" , condition : "contains"}
 ]
-
-module.exports = bankStatementKeywords;
