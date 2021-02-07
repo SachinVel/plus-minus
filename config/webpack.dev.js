@@ -1,11 +1,9 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WebpackObfuscator = require('webpack-obfuscator');
 const path = require('path');
 const webpack = require('webpack');
 
-module.exports = {
-  devtool: false,
-
-  // https://webpack.js.org/concepts/entry-points/#multi-page-application
+let webpackConfig = {
   entry: {
     'import-file': './app/renderer/windows/import-file/import-file.js',
     'bank-stmt-preview': './app/renderer/windows/bank-statement-preview/bank-stmt-preview.js',
@@ -24,7 +22,6 @@ module.exports = {
     }
   },
 
-  // https://webpack.js.org/concepts/plugins/
   plugins: [
     new webpack.ProvidePlugin({
       $: "jquery",
@@ -47,7 +44,7 @@ module.exports = {
       inject: true,
       chunks: ['consolidation-viewer'],
       filename: 'consolidation-viewer.html'
-    })
+    }),
   ],
 
   target: 'electron-main',
@@ -78,3 +75,20 @@ module.exports = {
     ]
   },
 };
+
+if (process.env.NODE_ENV === 'production') {
+  webpackConfig.module.rules.push(
+    {
+      test: /\.js$/,
+      enforce: 'post',
+      use: {
+        loader: WebpackObfuscator.loader,
+        options: {
+          rotateStringArray: true
+        }
+      }
+    }
+  )
+}
+
+module.exports = webpackConfig;
