@@ -3,7 +3,6 @@ const path = require('path')
 const url = require('url')
 
 let window = null
-let loadURL = ''
 
 // Wait until the app is ready
 app.once('ready', () => {

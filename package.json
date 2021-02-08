@@ -39,13 +39,11 @@
     "html-webpack-plugin": "^5.0.0",
     "javascript-obfuscator": "^2.10.3",
     "jquery": "^3.5.1",
+    "path-browserify": "^1.0.1",
     "style-loader": "^2.0.0",
     "webpack": "^5.21.1",
     "webpack-cli": "^4.5.0",
     "webpack-obfuscator": "^3.3.0",
     "xlsx": "^0.16.9"
-  },
-  "dependencies": {
-    "path-browserify": "^1.0.1"
   }
 }
