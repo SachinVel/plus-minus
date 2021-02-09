@@ -4,7 +4,8 @@ const url = require('url')
 
 let window = null
 
-// require('electron-reload')(__dirname);
+require('electron-reload')(__dirname);
+// console.log("node version : ",process.versions);
 
 // Wait until the app is ready
 app.once('ready', () => {
@@ -25,7 +26,7 @@ app.once('ready', () => {
   })
   
   window.setMenuBarVisibility(false)
-    console.log("hi");
+
   window.loadURL(url.format({
     pathname: path.join(__dirname, '/renderer/windows/import-file/import-file.html'),
     protocol: 'file:',

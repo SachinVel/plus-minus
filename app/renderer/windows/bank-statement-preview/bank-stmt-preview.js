@@ -1,45 +1,61 @@
 const bankStatementAnalyser = require("../../server/analyser/analyser");
-const ExcelJS = require('exceljs');
+const XLSX = require('xlsx');
 const toast = require('../../utils/toast/toast');
 
 const BankStmtPreview = new function () {
     const getFileContent = function (filePath) {
-
+        
         return new Promise(async (resolve, reject) => {
+            let excelFile = XLSX.readFile(filePath);
 
-            let workbook = new ExcelJS.Workbook();
-            await workbook.xlsx.readFile(filePath);
-
-            let worksheet = workbook.getWorksheet(1);
-
-            let rowValues = [];
-            worksheet.getRows(0, worksheet.rowCount + 1).forEach(row => { rowValues.push(row.values) });
-            resolve(rowValues);
-
-        });
-
-    }
-
-    const processBankData = function (rows) {
-        let processedRows = [];
-        rows.forEach(row => {
-            let processedRow = [];
-            for (let ind = 0; ind < row.length; ++ind) {
-                let cell = row[ind];
-                if (typeof cell === "object") {
-                    if (cell.richText) {
-                        processedRow[ind] = cell.richText[0].text;
-                    }
-                } else {
-                    processedRow[ind] = cell;
-                }
+            if (excelFile.SheetNames.length>1 ){
+                reject("Upload excel file with single sheet");
             }
-            processedRows.push(processedRow);
+
+            let sheetname = excelFile.SheetNames[0];
+            let sheetContent = excelFile.Sheets[sheetname];
+
+            resolve(sheetContent);
+
         });
-        return processedRows;
+        
+        // return new Promise(async (resolve, reject) => {
+
+        //     let workbook = new ExcelJS.Workbook();
+        //     await workbook.xlsx.readFile(filePath);
+
+        //     let worksheet = workbook.getWorksheet(1);
+
+        //     let rowValues = [];
+        //     worksheet.getRows(0, worksheet.rowCount + 1).forEach(row => { rowValues.push(row.values) });
+        //     resolve(rowValues);
+
+        // });
+
     }
+
+    // const processBankData = function (rows) {
+    //     let processedRows = [];
+    //     rows.forEach(row => {
+    //         let processedRow = [];
+    //         for (let ind = 0; ind < row.length; ++ind) {
+    //             let cell = row[ind];
+    //             if (typeof cell === "object") {
+    //                 if (cell.richText) {
+    //                     processedRow[ind] = cell.richText[0].text;
+    //                 }
+    //             } else {
+    //                 processedRow[ind] = cell;
+    //             }
+    //         }
+    //         processedRows.push(processedRow);
+    //     });
+    //     return processedRows;
+    // }
 
     const parseBankData = function (rows, bankDataColumnIndexes) {
+
+        rows.sort(function (row1, row2) { return row1[bankDataColumnIndexes.date] - row2[bankDataColumnIndexes.date] });
 
         rows = rows.filter(row => (row[bankDataColumnIndexes.credit] != null && row[bankDataColumnIndexes.debit] != null
             && row[bankDataColumnIndexes.balance] != null));
@@ -60,7 +76,9 @@ const BankStmtPreview = new function () {
 
     }
 
-    const populateData = function (rows) {
+    const populateData = function (sheetContent) {
+
+        let rows = XLSX.utils.sheet_to_json(sheetContent, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
 
         let tableElem = $("#bank-stmt-table");
 
@@ -74,7 +92,7 @@ const BankStmtPreview = new function () {
         let headerContent = $("<tr></tr>");
         headerContent.append('<th></th>');
         let colName = 'A';
-        for (let colNum = 1; colNum <= colMaxLen; ++colNum) {
+        for (let colNum = 0; colNum < colMaxLen; ++colNum) {
             headerContent.append('<th>' + colName + '</th>');
             colName = String.fromCharCode(colName.charCodeAt(0) + 1);
         }
@@ -90,12 +108,12 @@ const BankStmtPreview = new function () {
                 "<th>" + rowInd + "</th>"
             );
 
-            for (let colInd = 0; colInd < colMaxLen; ++colInd) {
+            for (let colInd = 0; colInd <colMaxLen; ++colInd) {
                 colName = String.fromCharCode('A'.charCodeAt(0) + colInd);
 
-                if (row[colInd + 1]) {
+                if (row[colInd]) {
                     rowContent.append(
-                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd + 1] + '</td>'
+                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd] + '</td>'
                     );
                 } else {
                     rowContent.append(
@@ -179,19 +197,19 @@ const BankStmtPreview = new function () {
     const getColumnIndices = function (columnHeaderCells) {
 
         let descriptionColId = /[A-Z]+/g.exec(columnHeaderCells.descCellId)[0];
-        let descColInd = +descriptionColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let descColInd = +descriptionColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
         let dateColId = /[A-Z]+/g.exec(columnHeaderCells.dateCellId)[0];
-        let dateColInd = +dateColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let dateColInd = +dateColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
         let creditColId = /[A-Z]+/g.exec(columnHeaderCells.credtiCellId)[0];
-        let creditColInd = +creditColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let creditColInd = +creditColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
         let debitColId = /[A-Z]+/g.exec(columnHeaderCells.debitCellId)[0];
-        let debitColInd = +debitColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let debitColInd = +debitColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
         let balanceColId = /[A-Z]+/g.exec(columnHeaderCells.balanceCellId)[0];
-        let balanceColInd = +balanceColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let balanceColInd = +balanceColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
         return {
             description: descColInd,
@@ -207,20 +225,22 @@ const BankStmtPreview = new function () {
 
         let filePath = localStorage.getItem("filePath");
 
-        getFileContent(filePath).then(async function (rows) {
+        getFileContent(filePath).then( async function (sheetContent) {
 
-            rows = processBankData(rows);
-            populateData(rows);
+            // rows = processBankData(rows);
+            populateData(sheetContent);
+
             let columnHeaderInfo = await getColumnHeaderInformation();
             let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo.headerCells);
             let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.headerCells.descCellId)[0];
-            rows.splice(0, headersIndex + 1);
-            rows  = parseBankData(rows, bankDataColumnIndexes);
-            console.log("rows : ",rows);
+
+            let rawContent = XLSX.utils.sheet_to_json(sheetContent, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+            rawContent.splice(0, headersIndex);
+            rawContent = parseBankData(rawContent, bankDataColumnIndexes);
             let popupMessage = `Selected header contents are ${columnHeaderInfo.headerNames}Are you sure you want to continue?`;
             popup.display(popupMessage, {
                 success: function () {
-                    let consolidationData = bankStatementAnalyser.anaylseContent(rows, bankDataColumnIndexes);
+                    let consolidationData = bankStatementAnalyser.anaylseContent(rawContent, bankDataColumnIndexes);
                     localStorage.setItem("consolidationData", JSON.stringify(consolidationData));
                     window.location.href = "../consolidation-viewer/consolidation-view.html";
                     localStorage.removeItem("filePath");
@@ -229,6 +249,9 @@ const BankStmtPreview = new function () {
                     window.location.reload();
                 }
             })
+
+        }).catch((errorMsg)=>{
+            toast('error',errorMsg);
         });
 
         $("#back-icon").on('click', function () {

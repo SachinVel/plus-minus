@@ -1,4 +1,5 @@
 const ExcelJS = require('exceljs');
+const XLSX = require('xlsx');
 const path = require('path');
 const electron = require('electron');
 const dialog = electron.remote.dialog;
@@ -8,125 +9,111 @@ const ConsolidationViewer = new function () {
     let bankType;
     let bankDataColumnIndexes;
 
+    const writeToCell = function(worksheet,cellAddr,content){
+        worksheet[cellAddr] = {};
+        worksheet[cellAddr].v = content;
+    }
+
     const writeToFile = function (filePath) {
 
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Bank Consolidation');
-        let row;
+        var workbook = XLSX.utils.book_new();
 
-        worksheet.mergeCells('B2', 'D3');
-
-        worksheet.getCell('B2').value = 'CREDIT SUMMATION';
-
-        worksheet.getCell('B2').font = {
-            bold: true,
-            size: 20,
-            color: { argb: '317FED' }
+        //meta details
+        workbook.Props = {
+            Title: "Consolidation Data",
+            Subject: "Bank Consolidation",
+            Author: "plus-minus",
+            CreatedDate: new Date(Date.now())
         };
 
-        worksheet.getCell('B2').alignment = {
-            vertical: 'middle', horizontal: 'center'
-        };
+        //sheet name
+        workbook.SheetNames.push("Sheet1");
 
-        worksheet.columns = [
-            { header: "", key: 'col1', width: 5 },
-            { header: "", key: 'col2', width: 35 },
-            { header: "", key: 'col3', width: 15 },
-            { header: "", key: 'col4', width: 15 },
-            { header: "", key: 'col5', width: 5 },
+        //create empty worksheet
+        let worksheet =XLSX.utils.json_to_sheet([]);
+
+        //merge cells content - 0 index
+        let mergeCells = [
+            //b2 to d3 merge
+            { s: { r: 1, c: 1 }, e: { r: 2, c: 3 } },
+
         ];
-        worksheet.addRow({});
+        worksheet["!merges"] = mergeCells;
 
-        row = {
-            col2: "Name of Bank",
-            col3: bankType
-        }
-        worksheet.addRow(row);
-        worksheet.addRow({});
-        worksheet.addRow({});
+        var wscols = [
+            { wch: 5 }, 
+            { wch: 35 }, 
+            { wch: 15 }, 
+            { wch: 15 }, 
+            { wch: 5 }, 
 
-        row = {
-            col2: "OPENING BALANCE (A)",
-            col4: amountDetails.openingBalance
-        }
-        worksheet.addRow(row);
+        ];
+        worksheet['!cols'] = wscols;
 
-        worksheet.addRow({});
+        writeToCell(worksheet, 'B2', "Credit Summation");
+        writeToCell(worksheet, 'B5', "Bank Name");
+        writeToCell(worksheet, 'B6', "Account Number");
 
-        row = {
-            col2: "RECEIPTS (B)"
-        }
-        worksheet.addRow(row);
+        // writeToCell("B2","Credit Summation",data);
 
-        let receiptObjKeys = Object.keys(groupDetails.receipts);
-        let paymentObjKeys = Object.keys(groupDetails.payments);
-        let particular, amount;
-        let curObjectKey;
-        while (receiptObjKeys.length > 1) {
+        writeToCell(worksheet, 'B9', "Opening Balance (A)");
+        writeToCell(worksheet, 'D9', +amountDetails.openingBalance);
 
-            curObjectKey = receiptObjKeys.shift();
-            particular = groupDetails.receipts[curObjectKey.toString()].particular;
-            amount = groupDetails.receipts[curObjectKey.toString()].amount;
-            row = { col2: particular, col3: amount };
-            worksheet.addRow(row);
+        writeToCell(worksheet, 'B11', "Receipts (B)");
 
-        }
-
-
-
-        curObjectKey = receiptObjKeys.shift();
-        particular = groupDetails.receipts[curObjectKey.toString()].particular;
-        amount = groupDetails.receipts[curObjectKey.toString()].amount;
-        row = { col2: particular, col3: amount, col4: amountDetails.receiptTotalAmount };
-        worksheet.addRow(row);
-
-        worksheet.addRow({});
-
-        row = {
-            col2: "TOTAL AMOUNT AVAILABLE (C)=(A)+(B)",
-            col4: amountDetails.openingBalance + amountDetails.receiptTotalAmount
-        }
-        worksheet.addRow(row);
-
-        worksheet.addRow({});
-
-        row = {
-            col2: "PAYMENTS (D)"
-        }
-        worksheet.addRow(row);
-
-        while (paymentObjKeys.length > 1) {
-            curObjectKey = paymentObjKeys.shift();
-            particular = groupDetails.payments[curObjectKey.toString()].particular;
-            amount = groupDetails.payments[curObjectKey.toString()].amount;
-            row = { col2: particular, col3: amount };
-            worksheet.addRow(row);
+        let receiptsData = [];
+        let rowData;
+        let receipts = groupDetails.receipts;
+        let receiptsLength = Object.keys(groupDetails.receipts).length;
+        let curInd = 1;
+        for( let key of Object.keys(groupDetails.receipts) ){
+            
+            if( curInd!=receiptsLength ){
+                rowData = [receipts[key].particular, receipts[key].amount];
+            }else{
+                rowData = [receipts[key].particular, receipts[key].amount, amountDetails.receiptTotalAmount];
+            }
+            receiptsData.push(rowData);
+            ++curInd;
         }
 
-        curObjectKey = paymentObjKeys.shift();
-        particular = groupDetails.payments[curObjectKey.toString()].particular;
-        amount = groupDetails.payments[curObjectKey.toString()].amount;
-        row = { col2: particular, col3: amount, col4: amountDetails.paymentTotalAmount };
-        worksheet.addRow(row);
+        XLSX.utils.sheet_add_aoa(worksheet, receiptsData, { origin: 'B12' });
 
-        worksheet.addRow({});
+        let nextRowInd = 11+receiptsLength+2;
 
-        row = {
-            col2: "CLOSING BALANCE (E)=(C)-(D)",
-            col4: amountDetails.closingBalance
+        writeToCell(worksheet, 'B' + nextRowInd, "TOTAL AMOUNT AVAILABLE (C)=(A)+(B)");
+        writeToCell(worksheet, 'D' + nextRowInd, +amountDetails.openingBalance + amountDetails.receiptTotalAmount);
+
+        nextRowInd += 2;
+
+        writeToCell(worksheet, 'B'+nextRowInd, "Payments (D)");
+
+        ++nextRowInd;
+
+        let paymentsData = [];
+
+        let payments = groupDetails.payments;
+        let paymentsLength = Object.keys(groupDetails.payments).length;
+        curInd = 1;
+        for (let key of Object.keys(groupDetails.payments)) {
+
+            if (curInd != paymentsLength) {
+                rowData = [payments[key].particular, payments[key].amount];
+            } else {
+                rowData = [payments[key].particular, payments[key].amount, amountDetails.paymentTotalAmount];
+            }
+            paymentsData.push(rowData);
+            ++curInd;
         }
-        worksheet.addRow(row);
 
-        // save workbook to disk
-        workbook
-            .xlsx
-            .writeFile(filePath)
-            .then(() => {
-                // console.log("saved");
-            })
-            .catch((err) => {
-                // console.log("err", err);
-            });
+        paymentsData.push([]);
+        paymentsData.push(["CLOSING BALANCE (E)=(C)-(D)",'' , amountDetails.closingBalance]);
+
+        XLSX.utils.sheet_add_aoa(worksheet, paymentsData, { origin: 'B'+nextRowInd });
+
+        workbook.Sheets["Sheet1"] = worksheet;
+
+        XLSX.writeFile(workbook, filePath);
     }
 
     const populateData = function () {
@@ -242,6 +229,7 @@ const ConsolidationViewer = new function () {
     }
 
     this.init = function () {
+
         let accountNumberValue = localStorage.getItem('accountNumberValue');
         $("#account-number-value").text("AC NO : " + accountNumberValue);
         let consolidationData = JSON.parse(localStorage.getItem("consolidationData"));
@@ -252,6 +240,7 @@ const ConsolidationViewer = new function () {
             groupTransactions = consolidationData.groupTransactions;
             amountDetails = consolidationData.amountDetails;
             bankDataColumnIndexes = consolidationData.bankDataColumnIndexes;
+
         }
 
 

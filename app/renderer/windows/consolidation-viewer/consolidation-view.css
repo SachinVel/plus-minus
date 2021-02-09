@@ -6,10 +6,6 @@
     background-color:white; 
     color: black;
 }
-@font-face{
-    font-family: 'amethysta';
-    src: url("../../common/fonts/amethysta.ttf") format("truetype");
-}
 .consolidation-grid-container{
     margin: 30 30 30 30;
     display: grid;

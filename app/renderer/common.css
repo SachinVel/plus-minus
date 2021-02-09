@@ -5,7 +5,7 @@ body {
 
 @font-face {
     font-family: "amethysta";
-    src: url("../fonts/amethysta.ttf") format("truetype");
+    src: url("../assets/fonts/amethysta.ttf") format("truetype");
 }
 
 * {
