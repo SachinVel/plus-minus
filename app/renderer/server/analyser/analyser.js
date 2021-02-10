@@ -14,7 +14,6 @@ const bankStatementAnalyser = new function () {
 
 
     const analyseTransactionData = function (transactionData, bankDataColumnIndexes) {
-
         let descColInd = bankDataColumnIndexes.description;
         let creditColInd = bankDataColumnIndexes.credit;
         let debitColInd = bankDataColumnIndexes.debit;
@@ -32,7 +31,7 @@ const bankStatementAnalyser = new function () {
         }
 
         // calculating opening balance
-        if (transactionData[0][bankDataColumnIndexes.debit] > 0) {
+        if (transactionData[0][bankDataColumnIndexes.debit] && transactionData[0][bankDataColumnIndexes.debit] > 0) {
             openingBalance = transactionData[0][bankDataColumnIndexes.balance] + transactionData[0][bankDataColumnIndexes.debit];
         }
         else {
@@ -67,11 +66,11 @@ const bankStatementAnalyser = new function () {
                         isKeywordMatch = processedDesc.includes(keyword.name);
                 }
                 if (isKeywordMatch) {
-                    if (transRecord[creditColInd]) {
+                    if ( transRecord[creditColInd] != null && transRecord[creditColInd]>0 ) {
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
 
-                    } else if (transRecord[debitColInd]) {
+                    } else if (transRecord[debitColInd] != null && transRecord[debitColInd] > 0) {
                         debitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
                     }
@@ -130,11 +129,10 @@ const bankStatementAnalyser = new function () {
                 }
                 let processedDesc = processDescription(transRecord[descColInd]);
                 if (processedDesc.includes(curRecDesc)) {
-                    if (transRecord[creditColInd]) {
+                    if (transRecord[creditColInd] != null && transRecord[creditColInd] > 0) {
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
-                    }
-                    if (transRecord[debitColInd]) {
+                    } else if (transRecord[debitColInd] != null && transRecord[debitColInd] > 0) {
                         debitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
                     }
@@ -182,11 +180,6 @@ const bankStatementAnalyser = new function () {
 
 
     this.anaylseContent = function (rows, bankDataColumnIndexes) {
-
-        // let headersIndex = +/[0-9]+/g.exec(columnHeaderCells.descCellId)[0];
-        // rows.splice(0, headersIndex + 1);
-
-        
 
         let consolidationData = analyseTransactionData(rows, bankDataColumnIndexes);
         consolidationData.bankDataColumnIndexes = bankDataColumnIndexes;

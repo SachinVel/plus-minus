@@ -18,57 +18,31 @@ const BankStmtPreview = new function () {
             resolve(sheetContent);
 
         });
-        
-        // return new Promise(async (resolve, reject) => {
-
-        //     let workbook = new ExcelJS.Workbook();
-        //     await workbook.xlsx.readFile(filePath);
-
-        //     let worksheet = workbook.getWorksheet(1);
-
-        //     let rowValues = [];
-        //     worksheet.getRows(0, worksheet.rowCount + 1).forEach(row => { rowValues.push(row.values) });
-        //     resolve(rowValues);
-
-        // });
 
     }
 
-    // const processBankData = function (rows) {
-    //     let processedRows = [];
-    //     rows.forEach(row => {
-    //         let processedRow = [];
-    //         for (let ind = 0; ind < row.length; ++ind) {
-    //             let cell = row[ind];
-    //             if (typeof cell === "object") {
-    //                 if (cell.richText) {
-    //                     processedRow[ind] = cell.richText[0].text;
-    //                 }
-    //             } else {
-    //                 processedRow[ind] = cell;
-    //             }
-    //         }
-    //         processedRows.push(processedRow);
-    //     });
-    //     return processedRows;
-    // }
-
     const parseBankData = function (rows, bankDataColumnIndexes) {
+
+        rows = rows.filter(row => (row[bankDataColumnIndexes.date] != null && row[bankDataColumnIndexes.description] != null &&
+            (row[bankDataColumnIndexes.credit] != null || row[bankDataColumnIndexes.debit] != null)
+            && row[bankDataColumnIndexes.balance] != null));
 
         rows.sort(function (row1, row2) { return row1[bankDataColumnIndexes.date] - row2[bankDataColumnIndexes.date] });
 
-        rows = rows.filter(row => (row[bankDataColumnIndexes.credit] != null && row[bankDataColumnIndexes.debit] != null
-            && row[bankDataColumnIndexes.balance] != null));
-
         rows.forEach(row => {
             if (typeof row[bankDataColumnIndexes.credit] === 'string') {
-                row[bankDataColumnIndexes.credit] = parseFloat(row[bankDataColumnIndexes.credit].replace(/,/g, ''));
+                let numStr = row[bankDataColumnIndexes.credit].replace(/[,\s]/g, '');
+                row[bankDataColumnIndexes.credit] = numStr.length > 0 ? parseFloat(numStr):0;
             }
+
             if (typeof row[bankDataColumnIndexes.debit] === 'string') {
-                row[bankDataColumnIndexes.debit] = parseFloat(row[bankDataColumnIndexes.debit].replace(/,/g, ''));
+                let numStr = row[bankDataColumnIndexes.debit].replace(/[,\s]/g, '');
+                row[bankDataColumnIndexes.debit] = numStr.length > 0 ? parseFloat(numStr) : 0;
             }
+
             if (typeof row[bankDataColumnIndexes.balance] === 'string') {
-                row[bankDataColumnIndexes.balance] = parseFloat(row[bankDataColumnIndexes.balance].replace(/,/g, ''));
+                let numStr = row[bankDataColumnIndexes.balance].replace(/[,\s]/g, '');
+                row[bankDataColumnIndexes.balance] = numStr.length > 0 ? parseFloat(numStr) : 0;
             }
         });
 
@@ -78,7 +52,7 @@ const BankStmtPreview = new function () {
 
     const populateData = function (sheetContent) {
 
-        let rows = XLSX.utils.sheet_to_json(sheetContent, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+        let rows = XLSX.utils.sheet_to_json(sheetContent, { header: 1, raw: false, dateNF: 'yyyy-mm-dd', blankrows: false });
 
         let tableElem = $("#bank-stmt-table");
 
@@ -227,16 +201,16 @@ const BankStmtPreview = new function () {
 
         getFileContent(filePath).then( async function (sheetContent) {
 
-            // rows = processBankData(rows);
             populateData(sheetContent);
 
             let columnHeaderInfo = await getColumnHeaderInformation();
             let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo.headerCells);
             let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.headerCells.descCellId)[0];
 
-            let rawContent = XLSX.utils.sheet_to_json(sheetContent, { header: 1, raw: false, dateNF: 'yyyy-mm-dd' });
+            let rawContent = XLSX.utils.sheet_to_json(sheetContent, { header: 1, blankrows: false, defval : null});
             rawContent.splice(0, headersIndex);
             rawContent = parseBankData(rawContent, bankDataColumnIndexes);
+
             let popupMessage = `Selected header contents are ${columnHeaderInfo.headerNames}Are you sure you want to continue?`;
             popup.display(popupMessage, {
                 success: function () {
