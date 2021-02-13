@@ -9,7 +9,6 @@ let webpackConfig = {
     'bank-stmt-preview': './app/renderer/windows/bank-statement-preview/bank-stmt-preview.js',
     'consolidation-viewer': './app/renderer/windows/consolidation-viewer/consolidation-viewer.js',
   },
-
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '../dist/')
@@ -92,6 +91,8 @@ if (process.env.NODE_ENV === 'production') {
       }
     }
   )
+} else {
+  webpackConfig.devtool = 'eval-cheap-source-map';
 }
 
 module.exports = webpackConfig;
