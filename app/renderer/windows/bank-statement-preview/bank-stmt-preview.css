@@ -29,13 +29,50 @@
     border: 1px solid #dadada;
 }
 
+.selection-info-container{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
 
-#user-prompt{
+.user-prompt{
     text-align: center;
-    padding: 10px;
+    width: 100%;
     font-size: 20px;
     color:  black;
     animation: blinker 3s linear infinite;
+}
+.header-select{
+    display: inline-block;
+    width: 15%;
+    margin: 20px;
+}
+.header-select__title{
+    width: 100%;
+    text-align: center;
+}
+.header-select__selected-name{
+    width: 100%;
+    padding: 10px;
+    color: grey;
+    background: #e2e2e2;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    display: none;
+}
+.selected-name__close{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    background-color: #e2e2e2;
+    z-index: 100;
+    cursor: pointer;
+}
+.selected-name__close:hover{
+    color: #317fed;
 }
 .bank-stmt-table-container{
     overflow: scroll;

@@ -5,11 +5,30 @@ const bankStatementAnalyser = new function () {
     const processDescription = function (description) {
 
         let regex = /[0-9/\-:\s]+/g;
-        let tempStr = description.toString().replace(regex, "");
+        let tempStr = description.toString().replace(regex, '');
         tempStr = tempStr.toLowerCase()
         tempStr = tempStr.trim();
         return tempStr.toLowerCase();
 
+    }
+
+    const convertExcelDateToString = function(serial) {
+        var utc_days = Math.floor(serial - 25569);
+        var utc_value = utc_days * 86400;
+        var date_info = new Date(utc_value * 1000);
+
+        var fractional_day = serial - Math.floor(serial) + 0.0000001;
+
+        var total_seconds = Math.floor(86400 * fractional_day);
+
+        var seconds = total_seconds % 60;
+
+        total_seconds -= seconds;
+
+        var hours = Math.floor(total_seconds / (60 * 60));
+        var minutes = Math.floor(total_seconds / 60) % 60;
+
+        return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds).toDateString();
     }
 
 
@@ -17,6 +36,7 @@ const bankStatementAnalyser = new function () {
         let descColInd = bankDataColumnIndexes.description;
         let creditColInd = bankDataColumnIndexes.credit;
         let debitColInd = bankDataColumnIndexes.debit;
+        let dateColInd = bankDataColumnIndexes.date;
         let totalRecords;
         let debitAmount, creditAmount;
         let transactionGroupMappingID = 1;
@@ -41,7 +61,6 @@ const bankStatementAnalyser = new function () {
         closingBalance = transactionData[transactionData.length - 1][bankDataColumnIndexes.balance];
 
         // extract common keywords data
-
         for (let keyword of bankStatementKeywords) {
             currentGroupCreditTransaction = [];
             currentGroupDebitTransaction = [];
@@ -50,16 +69,19 @@ const bankStatementAnalyser = new function () {
             totalRecords = transactionData.length;
             for (let ind = 0; ind < totalRecords; ++ind) {
                 let transRecord = transactionData.shift();
+                if (typeof transRecord[dateColInd] == 'number' ){
+                    transRecord[dateColInd] = convertExcelDateToString(transRecord[dateColInd]);
+                }
                 if (transRecord[descColInd] == null) {
                     continue;
                 }
                 let processedDesc = processDescription(transRecord[descColInd]);
                 let isKeywordMatch = false;
                 switch (keyword.condition) {
-                    case "contains":
+                    case 'contains':
                         isKeywordMatch = processedDesc.includes(keyword.name);
                         break;
-                    case "startsWith":
+                    case 'startsWith':
                         isKeywordMatch = processedDesc.indexOf(keyword.name) == 0;
                         break;
                     default:
@@ -104,6 +126,9 @@ const bankStatementAnalyser = new function () {
         // extract dynamic transaction
         while (transactionData.length > 0) {
             let curRecord = transactionData.shift();
+            if (typeof curRecord[dateColInd] == 'number') {
+                curRecord[dateColInd] = convertExcelDateToString(curRecord[dateColInd]);
+            }
             if (curRecord[descColInd] == null) {
                 continue;
             }

@@ -1,11 +1,4 @@
-.export-btn{
-    float: right;
-    right: 3%;
-    font-family: 'amethysta';
-    cursor: pointer;
-    background-color:white; 
-    color: black;
-}
+
 .consolidation-grid-container{
     margin: 30 30 30 30;
     display: grid;
