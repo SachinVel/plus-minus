@@ -1,42 +1,152 @@
 @import '../../common.css';
 
-.import-screen-top-container{
-    height: 500px;
-    background-color:#dadada;
+.import-screen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background-color: #f3f3f3;
+    justify-content: center;
+    align-items: center;
 }
-.import-screen-motto{ 
+
+.import-screen-top-container {
     width: 100%;
-    padding-top: 161px;
+    flex-grow: 1;
+    padding: 10px;
+    text-align: center;
+    background-color: var(--bsa-blue);
+}
+
+.import-screen-motto {
+    flex-grow: 3;
+    margin-top: 4%;
     font-weight: bold;
     font-size: 45px;
-    text-align: center;
     letter-spacing: 0.8px;
-    color: #317FED;
+    color: #fff;
 }
-.import-screen-followup{
-    position: relative;
-    padding-top: 20px;
-    font-size: 16px !important;
-    font-weight: normal !important;
-    color: #737B7D;
+
+.import-screen-followup {
+    margin-top: 1%;
+    font-size: 16px;
+    color: #efefef;
 }
-.import-screen-buttons{
+
+.import-screen-header-buttons {
+    margin-top: 4%;
+}
+
+.import-screen-contact, .import-screen-proceed {
     padding: 12px 12px 12px 12px;
-    top: 50px;
     font-size: 20px;
-    font-weight: bold;    
+    font-weight: bold;   
+    border-radius: 10px; 
 }
-.import-screen-body-container{
+
+.import-screen-contact {
+    color: var(--bsa-blue);
+    background-color: #efefef;
+}
+
+.import-screen-proceed {
+    background-color: var(--bsa-blue);
+    color: #efefef;
+}
+
+.import-screen-card-container {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center;
     margin-top: 50px;
+}
+
+.import-screen-card__value {
+    width: 100%;
+    font-size: 1.2em;
+    border-radius: 5px;
+    padding: 5px;
+    border: 2px solid var(--bsa-grey);
+}
+
+.import-screen-card__sub-title {
+    color: var(--bsa-grey);
+}
+
+.import-screen-card {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 350px;
+    height: 225px;
+    padding: 2em;
+    background: #FFFFFF;
+    box-shadow: 3px 3px 10px 2px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    margin: 0 40px;
+}
+
+.import-screen-card__header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.import-screen-optimal-sheet {
+    padding: 7px;
+    border-radius: 10px;
+    height: 35px;
+    align-self: center;
+}
+
+#optimal-spread-sheet {
+    width: 100%;
+    height: 100%;
+}
+
+.import-screen-card .field {
+    width: 100%;
+}
+
+.import-screen-card::after {
+    content: attr(content);
+    position: absolute;
+    top: -27px;
+    left: 0;
+    color: var(--bsa-blue);
+    font-weight: 600;
+}
+
+.import-screen-card__title {
+    color: var(--bsa-grey);
+    font-weight: 600;
+    font-size: 1.2em;
+}
+
+.import-screen-select-content {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin-top: 7px;
+    border: 2px dotted var(--bsa-grey);
+    background-color: #f2f2f2;    
+}
+
+.import-screen-select-content::before {
+    content: attr(content);
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    color: var(--bsa-grey);
+    transform: translateY(-50%);
     text-align: center;
 }
-.import-screen-content{
-    margin-top: 20px;
+
+.import-screen-file-upload {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
 }
-.import-screen-select-content{
-    margin-top: 30px;
-}
-.import-screen-file-upload{
-    width: 200px;
-    border-color: #317FED;
+
+.import-screen-footer {
+    flex-grow: 1;
 }

@@ -7,38 +7,57 @@
 </head>
 
 <body>
-    <div class="import-screen-top-container">
-        <div class="import-screen-motto">
-            Simplify your Accounting!
+    <div class="import-screen">
+        <div class="import-screen-top-container">
+            <div class="import-screen-motto">
+                Simplify your Accounting!
+            </div>
             <div class="import-screen-followup">
                 We make accounting easy!
             </div>
             <div class="import-screen-header-buttons">
-                <button class="primary-btn vertical-center-align import-screen-buttons">
+                <button class="primary-btn import-screen-contact">
                     Contact
                 </button>
             </div>
         </div>
+        <div class="import-screen-card-container">
+            <div class="import-screen-card" content="Step 1">
+                <div class="field">
+                    <div class="import-screen-card__title">Bank name</div>
+                    <input class="import-screen-card__value" type="text" />
+                </div>
+                <div class="field">
+                    <div class="import-screen-card__title">Account no</div>
+                    <input class="import-screen-card__value" type="text" />
+                </div>
+            </div>
+            <div class="import-screen-card" content="Step 2">
+                <div class="import-screen-card__header">
+                    <div class="import-screen-card__title-container">
+                        <div class="import-screen-card__title">Upload file here</div>
+                        <div class="import-screen-card__sub-title">
+                            (.xls,.xlsx supported!)
+                        </div>
+                    </div>
+                    <button class="primary-btn import-screen-optimal-sheet" id="optimal-sheet">
+                        Optimal sheets
+                    </button>
+                </div>
+                <div class="import-screen-select-content" content="Drag file here or click to select" id="file-input-wrapper">
+                    <input type="file" accept=".xls,.xlsx" aria-label="Select File" class="import-screen-file-upload"
+                        id="file-input">
+                </div>
+            </div>
+        </div>
+        <div class="import-screen-footer">
+            <button class="primary-btn import-screen-proceed" id="upload">
+                Proceed
+                <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
     </div>
-    <div class="import-screen-body-container">
-        <h3>Upload the File here</h3>
-        <div>
-            (.xls,.xlsx supported!)
-        </div>
-        <div class="import-screen-content">
-            <div class="import-screen-select-content">
-                <input type="file" aria-label="Select File" class="import-screen-file-upload" id="file-input">
-            </div>
-            <div>
-                <button class="primary-btn import-screen-buttons" id="upload">
-                    <i class="fa fa-upload" aria-hidden="true"></i>
-                    Upload
-                </button>
-            </div>
-        </div>
 
-    </div>
-    
 </body>
 
 </html>

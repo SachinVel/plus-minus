@@ -7,7 +7,7 @@ import './modal.css';
 */
 const closeModal = () => {
     $('#modal-dialog').css('display', 'none');
-    $('#"modal-content').empty();
+    $('#modal-content').empty();
 }
 
 const modal = (content) => {
@@ -32,7 +32,7 @@ const modal = (content) => {
         })
     } else {
         $('#modal-dialog').css('display', 'block');
-        $('#"modal-content').html(content);
+        $('#modal-content').html(content);
     }
 }
 
