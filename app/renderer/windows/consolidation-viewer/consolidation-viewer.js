@@ -1,5 +1,5 @@
 import './consolidation-viewer.css';
-const ExcelJS = require('exceljs');
+const XLSX = require('xlsx');
 const path = require('path');
 const electron = require('electron');
 const dialog = electron.remote.dialog;
@@ -10,133 +10,123 @@ window.onload = function () {
 
 const ConsolidationViewer = new function () {
     let groupDetails, groupTransactions, amountDetails;
-    let bankType;
+    let accountNumber,bankName;
     let bankDataColumnIndexes;
+
+    const writeToCell = function(worksheet,cellAddr,content){
+        worksheet[cellAddr] = {};
+        worksheet[cellAddr].v = content;
+    }
 
     const writeToFile = function (filePath) {
 
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Bank Consolidation');
-        let row;
+        var workbook = XLSX.utils.book_new();
 
-        worksheet.mergeCells('B2', 'D3');
-
-        worksheet.getCell('B2').value = 'CREDIT SUMMATION';
-
-        worksheet.getCell('B2').font = {
-            bold: true,
-            size: 20,
-            color: { argb: '317FED' }
+        //meta details
+        workbook.Props = {
+        Title: 'Consolidation Data',
+            Subject: 'Bank Consolidation',
+            Author: 'plus-minus',
+            CreatedDate: new Date(Date.now())
         };
 
-        worksheet.getCell('B2').alignment = {
-            vertical: 'middle', horizontal: 'center'
-        };
+        //sheet name
+        workbook.SheetNames.push('Sheet1');
 
-        worksheet.columns = [
-            { header: "", key: 'col1', width: 5 },
-            { header: "", key: 'col2', width: 35 },
-            { header: "", key: 'col3', width: 15 },
-            { header: "", key: 'col4', width: 15 },
-            { header: "", key: 'col5', width: 5 },
+        //create empty worksheet
+        let worksheet =XLSX.utils.json_to_sheet([]);
+
+        //merge cells content - 0 index
+        let mergeCells = [
+            //b2 to d3 merge
+            { s: { r: 1, c: 1 }, e: { r: 2, c: 3 } },
+
         ];
-        worksheet.addRow({});
+        worksheet['!merges'] = mergeCells;
 
-        row = {
-            col2: "Name of Bank",
-            col3: bankType
-        }
-        worksheet.addRow(row);
-        worksheet.addRow({});
-        worksheet.addRow({});
+        var wscols = [
+            { wch: 5 }, 
+            { wch: 35 }, 
+            { wch: 15 }, 
+            { wch: 15 }, 
+            { wch: 5 }, 
 
-        row = {
-            col2: "OPENING BALANCE (A)",
-            col4: amountDetails.openingBalance
-        }
-        worksheet.addRow(row);
+        ];
+        worksheet['!cols'] = wscols;
 
-        worksheet.addRow({});
+        writeToCell(worksheet, 'B2', 'Credit Summation');
+        writeToCell(worksheet, 'B5', 'Bank Name');
+        writeToCell(worksheet, 'B6', 'Account Number');
+        writeToCell(worksheet, 'C5', bankName);
+        writeToCell(worksheet, 'C6', accountNumber);
 
-        row = {
-            col2: "RECEIPTS (B)"
-        }
-        worksheet.addRow(row);
+        writeToCell(worksheet, 'B9', 'Opening Balance (A)');
+        writeToCell(worksheet, 'D9', +amountDetails.openingBalance);
 
-        let receiptObjKeys = Object.keys(groupDetails.receipts);
-        let paymentObjKeys = Object.keys(groupDetails.payments);
-        let particular, amount;
-        let curObjectKey;
-        while (receiptObjKeys.length > 1) {
+        writeToCell(worksheet, 'B11', 'Receipts (B)');
 
-            curObjectKey = receiptObjKeys.shift();
-            particular = groupDetails.receipts[curObjectKey.toString()].particular;
-            amount = groupDetails.receipts[curObjectKey.toString()].amount;
-            row = { col2: particular, col3: amount };
-            worksheet.addRow(row);
-
-        }
-
-
-
-        curObjectKey = receiptObjKeys.shift();
-        particular = groupDetails.receipts[curObjectKey.toString()].particular;
-        amount = groupDetails.receipts[curObjectKey.toString()].amount;
-        row = { col2: particular, col3: amount, col4: amountDetails.receiptTotalAmount };
-        worksheet.addRow(row);
-
-        worksheet.addRow({});
-
-        row = {
-            col2: "TOTAL AMOUNT AVAILABLE (C)=(A)+(B)",
-            col4: amountDetails.openingBalance + amountDetails.receiptTotalAmount
-        }
-        worksheet.addRow(row);
-
-        worksheet.addRow({});
-
-        row = {
-            col2: "PAYMENTS (D)"
-        }
-        worksheet.addRow(row);
-
-        while (paymentObjKeys.length > 1) {
-            curObjectKey = paymentObjKeys.shift();
-            particular = groupDetails.payments[curObjectKey.toString()].particular;
-            amount = groupDetails.payments[curObjectKey.toString()].amount;
-            row = { col2: particular, col3: amount };
-            worksheet.addRow(row);
+        let receiptsData = [];
+        let rowData;
+        let receipts = groupDetails.receipts;
+        let receiptsLength = Object.keys(groupDetails.receipts).length;
+        let curInd = 1;
+        for( let key of Object.keys(groupDetails.receipts) ){
+            if (receipts[key].amount==0 ){
+                continue;
+            }
+            if( curInd!=receiptsLength ){
+                rowData = [receipts[key].particular, receipts[key].amount];
+            }else{
+                rowData = [receipts[key].particular, receipts[key].amount, amountDetails.receiptTotalAmount];
+            }
+            receiptsData.push(rowData);
+            ++curInd;
         }
 
-        curObjectKey = paymentObjKeys.shift();
-        particular = groupDetails.payments[curObjectKey.toString()].particular;
-        amount = groupDetails.payments[curObjectKey.toString()].amount;
-        row = { col2: particular, col3: amount, col4: amountDetails.paymentTotalAmount };
-        worksheet.addRow(row);
+        XLSX.utils.sheet_add_aoa(worksheet, receiptsData, { origin: 'B12' });
 
-        worksheet.addRow({});
+        let nextRowInd = 11+receiptsLength+2;
 
-        row = {
-            col2: "CLOSING BALANCE (E)=(C)-(D)",
-            col4: amountDetails.closingBalance
+        writeToCell(worksheet, 'B' + nextRowInd, 'TOTAL AMOUNT AVAILABLE (C)=(A)+(B)');
+        writeToCell(worksheet, 'D' + nextRowInd, +amountDetails.openingBalance + amountDetails.receiptTotalAmount);
+
+        nextRowInd += 2;
+
+        writeToCell(worksheet, 'B'+nextRowInd, 'Payments (D)');
+
+        ++nextRowInd;
+
+        let paymentsData = [];
+
+        let payments = groupDetails.payments;
+        let paymentsLength = Object.keys(groupDetails.payments).length;
+        curInd = 1;
+        for (let key of Object.keys(groupDetails.payments)) {
+            if (payments[key].amount == 0) {
+                continue;
+            }
+            if (curInd != paymentsLength) {
+                rowData = [payments[key].particular, payments[key].amount];
+            } else {
+                rowData = [payments[key].particular, payments[key].amount, amountDetails.paymentTotalAmount];
+            }
+            paymentsData.push(rowData);
+            ++curInd;
         }
-        worksheet.addRow(row);
 
-        // save workbook to disk
-        workbook
-            .xlsx
-            .writeFile(filePath)
-            .then(() => {
-                // console.log("saved");
-            })
-            .catch((err) => {
-                // console.log("err", err);
-            });
+        paymentsData.push([]);
+        paymentsData.push(['CLOSING BALANCE (E)=(C)-(D)','' , amountDetails.closingBalance]);
+
+        XLSX.utils.sheet_add_aoa(worksheet, paymentsData, { origin: 'B'+nextRowInd });
+
+        workbook.Sheets['Sheet1'] = worksheet;
+
+        XLSX.writeFile(workbook, filePath);
     }
 
     const populateData = function () {
         let receiptDetails = groupDetails.receipts;
-        let receiptTable = $("#receipt-table");
+        let receiptTable = $('#receipt-table');
         let receiptTotalTransaction = 0;
         for (let [mappingId, curGroupDetail] of Object.entries(receiptDetails)) {
             receiptTable.append(
@@ -150,7 +140,7 @@ const ConsolidationViewer = new function () {
         }
 
         let paymentDetails = groupDetails.payments;
-        let paymentTable = $("#payment-table");
+        let paymentTable = $('#payment-table');
         let paymentTotalTransaction = 0;
         for (let [mappingId, curGroupDetail] of Object.entries(paymentDetails)) {
             paymentTable.append(
@@ -163,52 +153,19 @@ const ConsolidationViewer = new function () {
             paymentTotalTransaction += curGroupDetail.totalTransactions;
         }
 
-        $("#payment-total-transaction").text(paymentTotalTransaction);
-        $("#receipt-total-transaction").text(receiptTotalTransaction);
+        $('#payment-total-transaction').text(paymentTotalTransaction);
+        $('#receipt-total-transaction').text(receiptTotalTransaction);
 
-        // Excel formulas if applied, the result(value) is an json object with result key
-        // Excel formulas if applied, the result(value) is an json object with result key
-        if (typeof (amountDetails.openingBalance) === 'object' || amountDetails.openingBalance == null) {
-            if (amountDetails.openingBalance == null) {
-                $("#opening-balance-amount").text('null');
-            }
-            else { $("#opening-balance-amount").text(amountDetails.openingBalance.result); }
-        }
-        else {
-            $("#opening-balance-amount").text(amountDetails.openingBalance);
-        }
-
-        if (typeof (amountDetails.closingBalance) === 'object' || amountDetails.closingBalance == null) {
-            if (amountDetails.closingBalance == null) {
-                $("#closing-balance-amount").text('null');
-            }
-            else { $("#closing-balance-amount").text(amountDetails.closingBalance.result); }
-        } else {
-            $("#closing-balance-amount").text(amountDetails.closingBalance);
-        }
-
-        if (typeof (amountDetails.paymentTotalAmount) === 'object' || amountDetails.paymentTotalAmount == null) {
-            if (amountDetails.paymentTotalAmount == null) {
-                $("#payment-total-amount").text('null');
-            }
-            else { $("#payment-total-amount").text(amountDetails.paymentTotalAmount.result); }
-        } else {
-            $("#payment-total-amount").text(amountDetails.paymentTotalAmount);
-        }
-
-        if (typeof (amountDetails.receiptTotalAmount) === 'object' || amountDetails.receiptTotalAmount == null) {
-            if (amountDetails.receiptTotalAmount == null) {
-                $("#receipt-total-amount").text('null');
-            }
-            else { $("#receipt-total-amount").text(amountDetails.receiptTotalAmount.result); }
-        } else {
-            $("#receipt-total-amount").text(amountDetails.receiptTotalAmount)
-        }
+        $('#opening-balance-amount').text(amountDetails.openingBalance.toFixed(2));
+        $('#closing-balance-amount').text(amountDetails.closingBalance.toFixed(2));
+        $('#payment-total-amount').text(amountDetails.paymentTotalAmount.toFixed(2));
+        $('#receipt-total-amount').text(amountDetails.receiptTotalAmount.toFixed(2));
+        
     }
 
     const populateGroupTransactions = function (transactionData, mappingId, dataGroupType) {
-        let transactionTable = $("#transaction-table");
-        transactionTable.attr("data-mapping-id", mappingId);
+        let transactionTable = $('#transaction-table');
+        transactionTable.attr('data-mapping-id', mappingId);
         transactionTable.empty();
         transactionTable.append(
             '<tr>' +
@@ -229,28 +186,31 @@ const ConsolidationViewer = new function () {
     }
 
     const updateGroupNames = function () {
-        $("#payment-table tr").each(function () {
-            let mappingId = $(this).attr("data-mapping-id");
+        $('#payment-table tr').each(function () {
+            let mappingId = $(this).attr('data-mapping-id');
             if (mappingId != null) {
                 let curGroupDetails = groupDetails.payments[mappingId.toString()];
-                curGroupDetails.particular = $(this).find(".js-group-particular").text();
+                curGroupDetails.particular = $(this).find('.js-group-particular').text();
             }
         });
-        $("#receipt-table tr").each(function () {
-            let mappingId = $(this).attr("data-mapping-id");
+        $('#receipt-table tr').each(function () {
+            let mappingId = $(this).attr('data-mapping-id');
             if (mappingId != null) {
                 let curGroupDetails = groupDetails.receipts[mappingId.toString()];
-                curGroupDetails.particular = $(this).find(".js-group-particular").text();
+                curGroupDetails.particular = $(this).find('.js-group-particular').text();
             }
 
         });
     }
 
     this.init = function () {
-        let accountNumberValue = localStorage.getItem('accountNumberValue');
-        $("#account-number-value").text("AC NO : " + accountNumberValue);
-        let consolidationData = JSON.parse(localStorage.getItem("consolidationData"));
-        bankType = localStorage.getItem("bankType");
+
+        accountNumber = localStorage.getItem('accountNumber');
+        bankName = localStorage.getItem('bankName');
+        $('#account-number-value').text(bankName +' - ' + accountNumber);
+        let consolidationData = JSON.parse(localStorage.getItem('consolidationData'));
+        
+
         localStorage.clear();
         if (consolidationData) {
             groupDetails = consolidationData.groupDetails;
@@ -260,7 +220,7 @@ const ConsolidationViewer = new function () {
         }
 
 
-        document.getElementById("export-btn").addEventListener("click", () => {
+        document.getElementById('export-btn').addEventListener('click', () => {
             updateGroupNames();
             dialog.showSaveDialog({
                 title: 'Select the File Path to save',
@@ -283,65 +243,65 @@ const ConsolidationViewer = new function () {
             });
 
         });
-        $("#back-icon").on('click', () => {
-            window.location.href = "./import-file.html";
+        $('#back-icon').on('click', () => {
+            window.location.href = './import-file.html';
         });
 
-        $(".js-group-table").on('click', '.js-group-row', function () {
-            $(".js-group-table tr").removeClass("group-row--selected");
-            $(this).addClass("group-row--selected");
-            let mappingId = $(this).attr("data-mapping-id");
+        $('.js-group-table').on('click', '.js-group-row', function () {
+            $('.js-group-table tr').removeClass('group-row--selected');
+            $(this).addClass('group-row--selected');
+            let mappingId = $(this).attr('data-mapping-id');
             let selectedGroupTransactions = groupTransactions[mappingId.toString()];
             populateGroupTransactions(selectedGroupTransactions, mappingId, $(this).attr('data-group-type'));
         });
 
-        $("#transaction-table").on('dragstart', '.js-transaction-record', function (event) {
+        $('#transaction-table').on('dragstart', '.js-transaction-record', function (event) {
 
-            let sourceMappingId = $(this).closest("table").attr("data-mapping-id");
-            event.originalEvent.dataTransfer.setData("mappingId", sourceMappingId);
-            let creditAmount = $(this).find(".js-transaction-credit-amt").text();
+            let sourceMappingId = $(this).closest('table').attr('data-mapping-id');
+            event.originalEvent.dataTransfer.setData('mappingId', sourceMappingId);
+            let creditAmount = $(this).find('.js-transaction-credit-amt').text();
 
-            let debitAmount = $(this).find(".js-transaction-debit-amt").text();
+            let debitAmount = $(this).find('.js-transaction-debit-amt').text();
 
             let selectedTransactionIndex = $(this).index();
             let selectedTransaction = groupTransactions[sourceMappingId.toString()][selectedTransactionIndex - 1];
             groupTransactions[sourceMappingId.toString()].splice(selectedTransactionIndex - 1, 1);
 
-            event.originalEvent.dataTransfer.setData("selectedTransaction", JSON.stringify(selectedTransaction));
+            event.originalEvent.dataTransfer.setData('selectedTransaction', JSON.stringify(selectedTransaction));
             if (+creditAmount > 0) {
-                event.originalEvent.dataTransfer.setData("transactionAmount", creditAmount.toString());
-                event.originalEvent.dataTransfer.setData("transactionType", "credit");
+                event.originalEvent.dataTransfer.setData('transactionAmount', creditAmount.toString());
+                event.originalEvent.dataTransfer.setData('transactionType', 'credit');
             } else {
-                event.originalEvent.dataTransfer.setData("transactionAmount", debitAmount.toString());
-                event.originalEvent.dataTransfer.setData("transactionType", "debit");
+                event.originalEvent.dataTransfer.setData('transactionAmount', debitAmount.toString());
+                event.originalEvent.dataTransfer.setData('transactionType', 'debit');
             }
 
         });
 
-        $("#transaction-table").on('dragstop', '.js-transaction-record', function (event) {
-            $(".js-group-table tr").removeClass("group-row--drop");
+        $('#transaction-table').on('dragstop', '.js-transaction-record', function (event) {
+            $('.js-group-table tr').removeClass('group-row--drop');
         });
 
-        $(".js-group-table").on('dragover', '.js-group-row', function (event) {
-            $(".js-group-table tr").removeClass("group-row--drop");
-            $(this).addClass("group-row--drop");
-            var transactionType = event.originalEvent.dataTransfer.getData("transactionType");
-            if (transactionType && transactionType == $(this).attr("data-group-type")) {
+        $('.js-group-table').on('dragover', '.js-group-row', function (event) {
+            $('.js-group-table tr').removeClass('group-row--drop');
+            $(this).addClass('group-row--drop');
+            var transactionType = event.originalEvent.dataTransfer.getData('transactionType');
+            if (transactionType && transactionType == $(this).attr('data-group-type')) {
                 return true;
             }
             return false;
         });
 
-        $(".js-group-table").on('drop', '.js-group-row', function (event) {
+        $('.js-group-table').on('drop', '.js-group-row', function (event) {
             event.preventDefault();
-            $(".js-group-table tr").removeClass("group-row--drop");
-            let amount = parseFloat(event.originalEvent.dataTransfer.getData("transactionAmount"));
-            var transactionType = event.originalEvent.dataTransfer.getData("transactionType");
-            let sourceMappingId = event.originalEvent.dataTransfer.getData("mappingId");
-            let targetMappingId = $(this).attr("data-mapping-id");
+            $('.js-group-table tr').removeClass('group-row--drop');
+            let amount = parseFloat(event.originalEvent.dataTransfer.getData('transactionAmount'));
+            var transactionType = event.originalEvent.dataTransfer.getData('transactionType');
+            let sourceMappingId = event.originalEvent.dataTransfer.getData('mappingId');
+            let targetMappingId = $(this).attr('data-mapping-id');
             let sourceGroupDetails, targetGroupDetails;
 
-            if (transactionType == "credit") {
+            if (transactionType == 'credit') {
                 sourceGroupDetails = groupDetails.receipts[sourceMappingId.toString()];
                 targetGroupDetails = groupDetails.receipts[targetMappingId.toString()];
             } else {
@@ -354,30 +314,30 @@ const ConsolidationViewer = new function () {
             targetGroupDetails.amount += amount;
             ++targetGroupDetails.totalTransactions;
 
-            let selectedTransaction = event.originalEvent.dataTransfer.getData("selectedTransaction");
+            let selectedTransaction = event.originalEvent.dataTransfer.getData('selectedTransaction');
 
             groupTransactions[targetMappingId.toString()].push(JSON.parse(selectedTransaction));
 
             let selectedGroupTransactions = groupTransactions[sourceMappingId.toString()];
             populateGroupTransactions(selectedGroupTransactions, sourceMappingId, $(this).attr('data-group-type'));
 
-            $(this).find(".js-group-amount").text(targetGroupDetails.amount.toFixed(2));
-            $(this).find(".js-total-transactions").text(targetGroupDetails.totalTransactions);
+            $(this).find('.js-group-amount').text(targetGroupDetails.amount.toFixed(2));
+            $(this).find('.js-total-transactions').text(targetGroupDetails.totalTransactions);
 
-            $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find(".js-group-amount").text(sourceGroupDetails.amount.toFixed(2));
-            $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find(".js-total-transactions").text(sourceGroupDetails.totalTransactions);
+            $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find('.js-group-amount').text(sourceGroupDetails.amount.toFixed(2));
+            $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find('.js-total-transactions').text(sourceGroupDetails.totalTransactions);
 
         });
 
-        $("#payment-group-add-btn").on('click', function () {
+        $('#payment-group-add-btn').on('click', function () {
 
             let newPaymentGroup = {
                 amount: 0,
                 totalTransactions: 0,
-                particular: "dummy"
+                particular: 'dummy'
             }
             let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 2;
-            $("#payment-table").append(
+            $('#payment-table').append(
                 '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
                 '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
                 '<td class="js-group-amount">' + newPaymentGroup.amount.toFixed(2) + '</td>' +
@@ -390,15 +350,15 @@ const ConsolidationViewer = new function () {
         });
 
 
-        $("#receipt-group-add-btn").on('click', function () {
+        $('#receipt-group-add-btn').on('click', function () {
 
             let newPaymentGroup = {
                 amount: 0,
                 totalTransactions: 0,
-                particular: "dummy"
+                particular: 'dummy'
             }
             let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 1;
-            $("#receipt-table").append(
+            $('#receipt-table').append(
                 '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
                 '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
                 '<td class="js-group-amount">' + newPaymentGroup.amount.toFixed(2) + '</td>' +

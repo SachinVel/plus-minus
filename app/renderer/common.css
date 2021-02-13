@@ -32,6 +32,7 @@ body {
     padding: 15px 30px;
     background-color: #fff;
 }
+
 .product-logo {
     height: 40px;
     float: left;
@@ -48,6 +49,16 @@ body {
 }
 .primary-btn:hover {
     opacity: 0.8;
+}
+.header-btn{
+    float: right;
+    right: 3%;
+    font-family: 'amethysta';
+    background-color:white; 
+    color: black;
+}
+.btn-inactive{
+    cursor: not-allowed;
 }
 .title-bar {
     background-color: var(--bsa-blue);

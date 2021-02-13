@@ -22,6 +22,7 @@ app.once('ready', () => {
     show: false
   })
   window.setMenuBarVisibility(false)
+  
   window.loadURL(url.format({
     pathname: path.join(__dirname, '../dist/import-file.html'),
     protocol: 'file:',

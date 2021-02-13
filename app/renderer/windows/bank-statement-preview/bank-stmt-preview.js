@@ -1,62 +1,93 @@
-import popup from "../../utils/popup/popup";
 import bankStatementAnalyser from "../../server/analyser/analyser";
 import './bank-stmt-preview.css';
 import toast from "../../utils/toast/toast";
+const XLSX = require('xlsx');
 
 window.onload = function () {
     BankStmtPreview.init();
 }
+
 const BankStmtPreview = new function () {
+    let worksheet, columnHeaderInfo;
+
     const getFileContent = function (filePath) {
-
         return new Promise(async (resolve, reject) => {
+            let excelFile = XLSX.readFile(filePath);
 
-            let workbook = new ExcelJS.Workbook();
-            await workbook.xlsx.readFile(filePath);
-
-            let worksheet = workbook.getWorksheet(1);
-
-            let rowValues = [];
-            worksheet.getRows(0, worksheet.rowCount + 1).forEach(row => { rowValues.push(row.values) });
-            resolve(rowValues);
-
-        });
-
-    }
-
-    const processBankData = function (rows) {
-        let processedRows = [];
-        rows.forEach(row => {
-            let processedRow = [];
-            for (let ind = 0; ind < row.length; ++ind) {
-                let cell = row[ind];
-                if (typeof cell === "object") {
-                    if (cell.richText) {
-                        processedRow[ind] = cell.richText[0].text;
-                    }
-                } else {
-                    processedRow[ind] = cell;
-                }
+            if (excelFile.SheetNames.length > 1) {
+                reject('Upload excel file with single sheet');
             }
-            processedRows.push(processedRow);
+
+            let firstSheetIndex = 0;
+            let sheetname = excelFile.SheetNames[firstSheetIndex];
+            let sheetContent = excelFile.Sheets[sheetname];
+
+            resolve(sheetContent);
+
         });
-        return processedRows;
     }
 
     const parseBankData = function (rows, bankDataColumnIndexes) {
 
-        rows = rows.filter(row => (row[bankDataColumnIndexes.credit] != null && row[bankDataColumnIndexes.debit] != null
-            && row[bankDataColumnIndexes.balance] != null));
+        //filter rows that have only tranasaction record
+        rows = rows.filter(function (row) {
+            if (row[bankDataColumnIndexes.date] != null) {
+                if (typeof row[bankDataColumnIndexes.date] === 'string' && row[bankDataColumnIndexes.date].trim().length == 0) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
 
+            if (row[bankDataColumnIndexes.description] != null) {
+                if (typeof row[bankDataColumnIndexes.description] === 'string' && row[bankDataColumnIndexes.description].trim().length == 0) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+            if (row[bankDataColumnIndexes.balance] != null) {
+                if (typeof row[bankDataColumnIndexes.balance] === 'string' && row[bankDataColumnIndexes.balance].trim().length == 0) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+            if ((row[bankDataColumnIndexes.credit] == null && row[bankDataColumnIndexes.debit] == null)) {
+                return false;
+            }
+
+            return true;
+        });
+
+        // if transaction data is in reverse order, then sort by date
+        if (rows[0][bankDataColumnIndexes.date] > rows[rows.length - 1][bankDataColumnIndexes.date]) {
+            rows.sort(function (row1, row2) {
+                if (row1[bankDataColumnIndexes.date] == row2[bankDataColumnIndexes.date]) {
+                    //if two transaction dates are equal then the below is
+                    return row2[bankDataColumnIndexes.date] - (row1[bankDataColumnIndexes.date] + 1);
+                }
+                return row1[bankDataColumnIndexes.date] - row2[bankDataColumnIndexes.date]
+            });
+        }
+
+        //convert credit, debit, balance to number type.
         rows.forEach(row => {
             if (typeof row[bankDataColumnIndexes.credit] === 'string') {
-                row[bankDataColumnIndexes.credit] = parseFloat(row[bankDataColumnIndexes.credit].replace(/,/g, ''));
+                let numStr = row[bankDataColumnIndexes.credit].replace(/[,\s]/g, '');
+                row[bankDataColumnIndexes.credit] = numStr.length > 0 ? parseFloat(numStr) : 0;
             }
+
             if (typeof row[bankDataColumnIndexes.debit] === 'string') {
-                row[bankDataColumnIndexes.debit] = parseFloat(row[bankDataColumnIndexes.debit].replace(/,/g, ''));
+                let numStr = row[bankDataColumnIndexes.debit].replace(/[,\s]/g, '');
+                row[bankDataColumnIndexes.debit] = numStr.length > 0 ? parseFloat(numStr) : 0;
             }
+
             if (typeof row[bankDataColumnIndexes.balance] === 'string') {
-                row[bankDataColumnIndexes.balance] = parseFloat(row[bankDataColumnIndexes.balance].replace(/,/g, ''));
+                let numStr = row[bankDataColumnIndexes.balance].replace(/[,\s]/g, '');
+                row[bankDataColumnIndexes.balance] = numStr.length > 0 ? parseFloat(numStr) : 0;
             }
         });
 
@@ -64,10 +95,14 @@ const BankStmtPreview = new function () {
 
     }
 
-    const populateData = function (rows) {
+    const populateData = function (sheetContent) {
 
-        let tableElem = $("#bank-stmt-table");
+        //gets all values as string type since raw:false
+        let rows = XLSX.utils.sheet_to_json(sheetContent, { header: 1, raw: false, dateNF: 'yyyy-mm-dd', blankrows: false });
 
+        let tableElem = $('#bank-stmt-table');
+
+        //populate table with cellId as id for <td>
         let colMaxLen = -1;
         rows.forEach(row => {
             if (row.length > colMaxLen) {
@@ -75,31 +110,30 @@ const BankStmtPreview = new function () {
             }
         });
 
-        let headerContent = $("<tr></tr>");
+        let headerContent = $('<tr></tr>');
         headerContent.append('<th></th>');
         let colName = 'A';
-        for (let colNum = 1; colNum <= colMaxLen; ++colNum) {
+        for (let colNum = 0; colNum < colMaxLen; ++colNum) {
             headerContent.append('<th>' + colName + '</th>');
             colName = String.fromCharCode(colName.charCodeAt(0) + 1);
         }
-
         tableElem.append(
             headerContent
         );
 
         let rowInd = 1;
         rows.forEach(row => {
-            let rowContent = $("<tr></tr>");
+            let rowContent = $('<tr></tr>');
             rowContent.append(
-                "<th>" + rowInd + "</th>"
+                '<th>' + rowInd + '</th>'
             );
 
             for (let colInd = 0; colInd < colMaxLen; ++colInd) {
                 colName = String.fromCharCode('A'.charCodeAt(0) + colInd);
 
-                if (row[colInd + 1]) {
+                if (row[colInd]) {
                     rowContent.append(
-                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd + 1] + '</td>'
+                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd] + '</td>'
                     );
                 } else {
                     rowContent.append(
@@ -114,88 +148,108 @@ const BankStmtPreview = new function () {
         });
     }
 
-    const getUserInput = function () {
+    const getUserInput = function (columHeaderCells) {
+        //checks for cell click and selected header remove event
         return new Promise((resolve, reject) => {
-            $(".js-cell").on('click', function () {
-                if (!$(this).hasClass("selected-cell")) {
-                    resolve({
-                        id: $(this).attr("id"),
-                        name: $(this).text()
-                    });
-                    $(this).addClass("selected-cell");
-                    $(".js-cell").off('click');
+            //resolves when cell is clicked
+            //rejects when selected header remove is clicked.
+            let dataHeaders = ['date', 'description', 'debit', 'credit', 'balance'];
+            let curHeader;
+            let ind = 0;
+            while (ind < dataHeaders.length && columHeaderCells[dataHeaders[ind]]) {
+                ++ind;
+            }
+            let proceedBtnElem = $('#proceed-btn');
+
+            $('.js-cell').off('click');
+            $('.js-select-name-remove').off('click');
+
+            if (ind >= dataHeaders.length) {
+                //all headers are selected 
+                $('#user-prompt').text('Click Proceed to continue');
+                if (proceedBtnElem.hasClass('js-btn-inactive')) {
+                    proceedBtnElem.removeClass('js-btn-inactive');
+                    proceedBtnElem.removeClass('btn-inactive');
                 }
-            });
+                $('.js-select-name-remove').on('click', function () {
+                    let headerSelectParent = $(this).closest('.js-header-select');
+                    let headerName = headerSelectParent.attr('data-header-name');
+                    $('#' + headerName + '-header .js-selected-content').hide();
+                    reject({
+                        headerName: headerName
+                    });
+                    toast('success', `${headerName} header has been removed`);
+                    //remove selected cell class in table
+                    let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
+                    $('#' + cellId).removeClass('selected-cell');
+                    $('#' + cellId).removeClass('js-selected-cell');
+                });
+                columnHeaderInfo = columHeaderCells;
+            } else {
+                //some headers are not selected 
+                if (!proceedBtnElem.hasClass('js-btn-inactive')) {
+                    proceedBtnElem.addClass('js-btn-inactive');
+                    proceedBtnElem.addClass('btn-inactive');
+                }
+                curHeader = dataHeaders[ind];
+                $('#user-prompt').text(`Select ${curHeader} Column Header`);
+                $('.js-cell').on('click', function () {
+                    if (!$(this).hasClass('js-selected-cell')) {
+                        $(this).addClass('js-selected-cell');
+                        $(this).addClass('selected-cell');
+                        toast('success', `${curHeader} header has been selected`);
+                        $('#' + curHeader + '-header .js-selected-content').show();
+                        $('#' + curHeader + '-header .js-selected-content').attr('data-cell-id', $(this).attr('id'));
+                        $('#' + curHeader + '-header .js-selected-name-content').text((this).innerText);
+                        resolve({
+                            cellId: $(this).attr('id'),
+                            headerName: curHeader
+                        });
+                    }
+                });
+                $('.js-select-name-remove').on('click', function () {
+                    let headerSelectParent = $(this).closest('.js-header-select');
+                    let headerName = headerSelectParent.attr('data-header-name');
+                    $('#' + headerName + '-header .js-selected-content').hide();
+                    let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
+                    $('#' + cellId).removeClass('selected-cell');
+                    $('#' + cellId).removeClass('js-selected-cell');
+                    reject({
+                        headerName: headerName
+                    });
+                    toast('success', `${headerName} header has been removed`);
+                });
+            }
 
         });
     }
 
-    const getColumnHeaderInformation = async function () {
-        let columHeaderCells = {};
-        let headerNames = '';
-
-        $("#user-prompt").text("Click on Date Column Header");
-        await getUserInput().then((cell) => {
-            columHeaderCells.dateCellId = cell.id;
-            headerNames += cell.name + ", ";
+    const getColumnHeaderInformation = function (columHeaderCells = {}) {
+        getUserInput(columHeaderCells).then((data) => {
+            columHeaderCells[data.headerName] = data.cellId;
+            getColumnHeaderInformation(columHeaderCells);
+        }).catch((data) => {
+            columHeaderCells[data.headerName] = null;
+            getColumnHeaderInformation(columHeaderCells);
         });
-
-        toast('success', 'Date header has been selected');
-
-        $("#user-prompt").text("Click on Description Column Header");
-        await getUserInput().then((cell) => {
-            columHeaderCells.descCellId = cell.id;
-            headerNames += cell.name + ", ";
-        });
-
-        toast('success', 'Description header has been selected');
-
-        $("#user-prompt").text("Click on Debit Column Header");
-        await getUserInput().then((cell) => {
-            columHeaderCells.debitCellId = cell.id;
-            headerNames += cell.name + ", ";
-        });
-
-        toast('success', 'Debit header has been selected');
-
-        $("#user-prompt").text("Click on Credit Column Header");
-        await getUserInput().then((cell) => {
-            columHeaderCells.credtiCellId = cell.id;
-            headerNames += cell.name + ", ";
-        });
-
-        toast('success', 'Credit header has been selected');
-
-        $("#user-prompt").text("Click on Balance Column Header");
-        await getUserInput().then((cell) => {
-            columHeaderCells.balanceCellId = cell.id;
-            headerNames += cell.name;
-        });
-
-        toast('success', 'Balance header has been selected');
-
-        return {
-            headerNames: headerNames,
-            headerCells: columHeaderCells
-        };
     }
 
     const getColumnIndices = function (columnHeaderCells) {
 
-        let descriptionColId = /[A-Z]+/g.exec(columnHeaderCells.descCellId)[0];
-        let descColInd = +descriptionColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let descriptionColId = /[A-Z]+/g.exec(columnHeaderCells.description)[0];
+        let descColInd = +descriptionColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
-        let dateColId = /[A-Z]+/g.exec(columnHeaderCells.dateCellId)[0];
-        let dateColInd = +dateColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let dateColId = /[A-Z]+/g.exec(columnHeaderCells.date)[0];
+        let dateColInd = +dateColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
-        let creditColId = /[A-Z]+/g.exec(columnHeaderCells.credtiCellId)[0];
-        let creditColInd = +creditColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let creditColId = /[A-Z]+/g.exec(columnHeaderCells.credit)[0];
+        let creditColInd = +creditColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
-        let debitColId = /[A-Z]+/g.exec(columnHeaderCells.debitCellId)[0];
-        let debitColInd = +debitColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let debitColId = /[A-Z]+/g.exec(columnHeaderCells.debit)[0];
+        let debitColInd = +debitColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
-        let balanceColId = /[A-Z]+/g.exec(columnHeaderCells.balanceCellId)[0];
-        let balanceColInd = +balanceColId.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
+        let balanceColId = /[A-Z]+/g.exec(columnHeaderCells.balance)[0];
+        let balanceColInd = +balanceColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
         return {
             description: descColInd,
@@ -207,36 +261,43 @@ const BankStmtPreview = new function () {
 
     }
 
+    const proceedToAnalyse = function () {
+
+        let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo);
+        let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.description)[0];
+
+        let rawContent = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
+        rawContent.splice(0, headersIndex);
+        rawContent = parseBankData(rawContent, bankDataColumnIndexes);
+
+        let consolidationData = bankStatementAnalyser.anaylseContent(rawContent, bankDataColumnIndexes);
+        localStorage.setItem('consolidationData', JSON.stringify(consolidationData));
+        window.location.href = './consolidation-viewer.html';
+        localStorage.removeItem('filePath');
+
+    }
+
     this.init = function () {
 
-        let filePath = localStorage.getItem("filePath");
+        let filePath = localStorage.getItem('filePath');
 
-        getFileContent(filePath).then(async function (rows) {
-
-            rows = processBankData(rows);
-            populateData(rows);
-            let columnHeaderInfo = await getColumnHeaderInformation();
-            let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo.headerCells);
-            let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.headerCells.descCellId)[0];
-            rows.splice(0, headersIndex + 1);
-            rows = parseBankData(rows, bankDataColumnIndexes);
-            console.log("rows : ", rows);
-            let popupMessage = `Selected header contents are ${columnHeaderInfo.headerNames}Are you sure you want to continue?`;
-            popup.display(popupMessage, {
-                success: function () {
-                    let consolidationData = bankStatementAnalyser.anaylseContent(rows, bankDataColumnIndexes);
-                    localStorage.setItem("consolidationData", JSON.stringify(consolidationData));
-                    window.location.href = "./consolidation-view.html";
-                    localStorage.removeItem("filePath");
-                },
-                reject: function () {
-                    window.location.reload();
-                }
-            })
+        $('#proceed-btn').on('click', function () {
+            //if btn has js-btn-inactive,then some headers are not selected
+            if (!$(this).hasClass('js-btn-inactive')) {
+                proceedToAnalyse();
+            }
         });
 
-        $("#back-icon").on('click', function () {
-            window.location.href = "./import-file.html";
+        getFileContent(filePath).then(async function (sheetContent) {
+            worksheet = sheetContent;
+            populateData(sheetContent);
+            getColumnHeaderInformation();
+        }).catch((errorMsg) => {
+            toast('error', errorMsg);
+        });
+
+        $('#back-icon').on('click', function () {
+            window.location.href = './import-file.html';
         });
 
     }
