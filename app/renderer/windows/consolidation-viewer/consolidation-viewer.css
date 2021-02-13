@@ -98,6 +98,10 @@
     background: rgba(128, 128, 128, 0.2);
 }
 
+.js-transaction-record td{
+    overflow: hidden;
+}
+
 .group-row--selected {
     background: rgba(128, 128, 128, 0.3);
 }

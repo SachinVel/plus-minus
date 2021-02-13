@@ -31,29 +31,16 @@ const BankStmtPreview = new function () {
 
         //filter rows that have only tranasaction record
         rows = rows.filter(function (row) {
-            if (row[bankDataColumnIndexes.date] != null) {
-                if (typeof row[bankDataColumnIndexes.date] === 'string' && row[bankDataColumnIndexes.date].trim().length == 0) {
+            let transactionKeys = ['date', 'description', 'balance'];
+            transactionKeys.forEach((key) => {
+                if (row[bankDataColumnIndexes[key]] != null) {
+                    if (typeof row[bankDataColumnIndexes[key]] === 'string' && row[bankDataColumnIndexes[key]].trim().length == 0) {
+                        return false;
+                    }
+                } else {
                     return false;
                 }
-            } else {
-                return false;
-            }
-
-            if (row[bankDataColumnIndexes.description] != null) {
-                if (typeof row[bankDataColumnIndexes.description] === 'string' && row[bankDataColumnIndexes.description].trim().length == 0) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-            if (row[bankDataColumnIndexes.balance] != null) {
-                if (typeof row[bankDataColumnIndexes.balance] === 'string' && row[bankDataColumnIndexes.balance].trim().length == 0) {
-                    return false;
-                }
-            } else {
-                return false;
-            }
+            });
 
             if ((row[bankDataColumnIndexes.credit] == null && row[bankDataColumnIndexes.debit] == null)) {
                 return false;
@@ -75,20 +62,13 @@ const BankStmtPreview = new function () {
 
         //convert credit, debit, balance to number type.
         rows.forEach(row => {
-            if (typeof row[bankDataColumnIndexes.credit] === 'string') {
-                let numStr = row[bankDataColumnIndexes.credit].replace(/[,\s]/g, '');
-                row[bankDataColumnIndexes.credit] = numStr.length > 0 ? parseFloat(numStr) : 0;
-            }
-
-            if (typeof row[bankDataColumnIndexes.debit] === 'string') {
-                let numStr = row[bankDataColumnIndexes.debit].replace(/[,\s]/g, '');
-                row[bankDataColumnIndexes.debit] = numStr.length > 0 ? parseFloat(numStr) : 0;
-            }
-
-            if (typeof row[bankDataColumnIndexes.balance] === 'string') {
-                let numStr = row[bankDataColumnIndexes.balance].replace(/[,\s]/g, '');
-                row[bankDataColumnIndexes.balance] = numStr.length > 0 ? parseFloat(numStr) : 0;
-            }
+            let transactionKeys = ['credit', 'debit', 'balance'];
+            transactionKeys.forEach((key)=>{
+                if (typeof row[bankDataColumnIndexes[key]] === 'string') {
+                    let numStr = row[bankDataColumnIndexes[key]].replace(/[,\s]/g, '');
+                    row[bankDataColumnIndexes[key]] = numStr.length > 0 ? parseFloat(numStr) : 0;
+                }
+            }); 
         });
 
         return rows;

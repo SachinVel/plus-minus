@@ -14,16 +14,15 @@
     cursor: pointer;
 }
 .bank-stmt-table .cell:hover{
-    border : 2px solid  #317fed;
+    border : 2px solid  #008000;
 }
 .bank-stmt-table .selected-cell{
-    border: 1px solid green;
+    border: 1px solid #008000;
     cursor: not-allowed;
 }
 .bank-stmt-table .selected-cell:hover{
-    border: 1px solid green;
+    border: 1px solid #008000;
 }
-
 
 .bank-stmt-table th,td{
     border: 1px solid #dadada;
@@ -31,7 +30,6 @@
 
 .selection-info-container{
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
 }

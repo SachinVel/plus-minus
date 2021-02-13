@@ -1,4 +1,4 @@
-import bankStatementKeywords  from '../../constants/bank-details';
+import bankStatementKeywords from '../../constants/bank-details';
 
 const bankStatementAnalyser = new function () {
 
@@ -12,7 +12,7 @@ const bankStatementAnalyser = new function () {
 
     }
 
-    const convertExcelDateToString = function(serial) {
+    const convertExcelDateToString = function (serial) {
         var utc_days = Math.floor(serial - 25569);
         var utc_value = utc_days * 86400;
         var date_info = new Date(utc_value * 1000);
@@ -50,12 +50,13 @@ const bankStatementAnalyser = new function () {
             receipts: {}
         }
 
+        let firstRowIndex = 0;
         // calculating opening balance
-        if (transactionData[0][bankDataColumnIndexes.debit] && transactionData[0][bankDataColumnIndexes.debit] > 0) {
-            openingBalance = transactionData[0][bankDataColumnIndexes.balance] + transactionData[0][bankDataColumnIndexes.debit];
+        if (transactionData[firstRowIndex][bankDataColumnIndexes.debit] && transactionData[firstRowIndex][bankDataColumnIndexes.debit] > 0) {
+            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] + transactionData[firstRowIndex][bankDataColumnIndexes.debit];
         }
         else {
-            openingBalance = transactionData[0][bankDataColumnIndexes.balance] - transactionData[0][bankDataColumnIndexes.credit];
+            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] - transactionData[firstRowIndex][bankDataColumnIndexes.credit];
         }
 
         closingBalance = transactionData[transactionData.length - 1][bankDataColumnIndexes.balance];
@@ -69,7 +70,7 @@ const bankStatementAnalyser = new function () {
             totalRecords = transactionData.length;
             for (let ind = 0; ind < totalRecords; ++ind) {
                 let transRecord = transactionData.shift();
-                if (typeof transRecord[dateColInd] == 'number' ){
+                if (typeof transRecord[dateColInd] == 'number') {
                     transRecord[dateColInd] = convertExcelDateToString(transRecord[dateColInd]);
                 }
                 if (transRecord[descColInd] == null) {
@@ -88,11 +89,11 @@ const bankStatementAnalyser = new function () {
                         isKeywordMatch = processedDesc.includes(keyword.name);
                 }
                 if (isKeywordMatch) {
-                    if ( transRecord[creditColInd] != null && transRecord[creditColInd]>0 ) {
+                    if (transRecord[creditColInd] !== null && transRecord[creditColInd] > 0) {
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
 
-                    } else if (transRecord[debitColInd] != null && transRecord[debitColInd] > 0) {
+                    } else if (transRecord[debitColInd] !== null && transRecord[debitColInd] > 0) {
                         debitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
                     }
@@ -126,10 +127,10 @@ const bankStatementAnalyser = new function () {
         // extract dynamic transaction
         while (transactionData.length > 0) {
             let curRecord = transactionData.shift();
-            if (typeof curRecord[dateColInd] == 'number') {
+            if (typeof curRecord[dateColInd] === 'number') {
                 curRecord[dateColInd] = convertExcelDateToString(curRecord[dateColInd]);
             }
-            if (curRecord[descColInd] == null) {
+            if (curRecord[descColInd] === null) {
                 continue;
             }
             let curRecDesc = processDescription(curRecord[descColInd]);
