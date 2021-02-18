@@ -105,3 +105,8 @@
 .group-row--selected {
     background: rgba(128, 128, 128, 0.3);
 }
+
+#move-debit-transaction, #move-credit-transaction {
+    display: none;
+    margin-right: 10px;
+}
