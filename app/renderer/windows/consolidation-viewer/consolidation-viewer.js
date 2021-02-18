@@ -16,7 +16,6 @@ const ConsolidationViewer = new function () {
         bankName = localStorage.getItem('bankName');
         $('#account-number-value').text(bankName + ' - ' + accountNumber);
         let consolidationData = JSON.parse(localStorage.getItem('consolidationData'));
-        console.log(consolidationData);
 
         localStorage.clear();
         if (consolidationData) {
