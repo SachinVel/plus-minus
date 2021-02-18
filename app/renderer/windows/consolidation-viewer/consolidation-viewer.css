@@ -105,3 +105,15 @@
 .group-row--selected {
     background: rgba(128, 128, 128, 0.3);
 }
+
+.newGroup:focus {
+    background-color: lightblue;
+}
+
+.new-group-heading{
+    color: #317fed;
+}
+
+.new-group-buttons{
+    margin-top: 20px;
+}

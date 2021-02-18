@@ -1,4 +1,5 @@
 import './consolidation-viewer.css';
+import modal from '../../utils/modal/modal';
 const XLSX = require('xlsx');
 const path = require('path');
 const electron = require('electron');
@@ -12,6 +13,7 @@ const ConsolidationViewer = new function () {
     let groupDetails, groupTransactions, amountDetails;
     let accountNumber,bankName;
     let bankDataColumnIndexes;
+    let selectedReceiptGroupName, selectedPaymentGroupName;
 
     const writeToCell = function(worksheet,cellAddr,content){
         worksheet[cellAddr] = {};
@@ -331,11 +333,31 @@ const ConsolidationViewer = new function () {
 
         $('#payment-group-add-btn').on('click', function () {
 
+            let htmlContent = `<div id="myModal">
+            <h3 class="new-group-heading"> NEW GROUP </h1>
+            <label>Enter the new group name : </label>
+            <input type="text" id="newGroupValue" name="newGroupValue"><br>
+            <div class = "new-group-buttons">
+            <button class="primary-btn" id="ok"> OK </button>
+            <button class="primary-btn" id="cancel">Cancel </button>
+            </div>
+            </div>`;
+            modal(htmlContent);
+            
+            $('#cancel').on('click', function () {
+                closeModal();
+            });
+
+            $('#ok').on('click keydown', function () {
+                selectedPaymentGroupName = $('#newGroupValue').val();
+                closeModal();
+
             let newPaymentGroup = {
                 amount: 0,
                 totalTransactions: 0,
-                particular: 'dummy'
+                particular: selectedPaymentGroupName
             }
+
             let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 2;
             $('#payment-table').append(
                 '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
@@ -348,16 +370,42 @@ const ConsolidationViewer = new function () {
             groupDetails.payments[mappingId.toString()] = newPaymentGroup;
 
         });
+    });
 
-
+        const closeModal = () => {
+            $('#modal-dialog').css('display', 'none');
+            $('#modal-content').empty();
+        }
+        
         $('#receipt-group-add-btn').on('click', function () {
+            let htmlContent = `<div id="myModal">
+            <h3 class="new-group-heading"> NEW GROUP </h1>
+            <label>Enter the new group name : </label>
+            <input type="text" id="newGroupValue" name="newGroupValue"><br>
+            <div class = "new-group-buttons">
+            <button class="primary-btn" id="ok" type=submit> OK </button>
+            <button class="primary-btn" id="cancel" type=button> CANCEL</button>
+            </div>
+            </div>`;
+            modal(htmlContent);
+            
+            $('#cancel').on('click', function () {
+                closeModal();
+            });
+
+            $('#ok').on('click keydown', function (event) {
+                selectedReceiptGroupName = $('#newGroupValue').val();
+                closeModal();
+           
 
             let newPaymentGroup = {
                 amount: 0,
                 totalTransactions: 0,
-                particular: 'dummy'
+                particular: selectedReceiptGroupName
             }
+            
             let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 1;
+
             $('#receipt-table').append(
                 '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
                 '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
@@ -367,10 +415,8 @@ const ConsolidationViewer = new function () {
             )
             groupTransactions[mappingId.toString()] = [];
             groupDetails.receipts[mappingId.toString()] = newPaymentGroup;
-
         });
-
-
+    });
         populateData();
     }
 }

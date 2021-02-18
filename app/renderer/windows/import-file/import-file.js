@@ -31,7 +31,7 @@ window.onload = function () {
     });
 
     optimalSheet.addEventListener('click', () => {
-        let htmlContent = `<h1>Optimal Sheet</h1>
+        let htmlContent = `<h2>Optimal Sheet</h2>
             <img id="optimal-spread-sheet" src=${img} alt="optimal spread sheet">`;
         modal(htmlContent);
     })
