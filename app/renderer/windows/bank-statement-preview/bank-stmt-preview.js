@@ -15,7 +15,7 @@ const BankStmtPreview = new function () {
             let excelFile = XLSX.readFile(filePath);
 
             if (excelFile.SheetNames.length > 1) {
-                reject('Upload excel file with single sheet');
+                reject('Upload the excel file containing a single sheet');
             }
 
             let firstSheetIndex = 0;
@@ -172,7 +172,7 @@ const BankStmtPreview = new function () {
                     proceedBtnElem.addClass('btn-inactive');
                 }
                 curHeader = dataHeaders[ind];
-                $('#user-prompt').text(`Select ${curHeader} Column Header`);
+                $('#user-prompt').text(`Select the ${curHeader.toUpperCase()} Column Header`);
                 $('.js-cell').on('click', function () {
                     if (!$(this).hasClass('js-selected-cell')) {
                         $(this).addClass('js-selected-cell');
@@ -197,7 +197,7 @@ const BankStmtPreview = new function () {
                     reject({
                         headerName: headerName
                     });
-                    toast('success', `${headerName} header has been removed`);
+                    toast('success',  `Selected ${headerName} header has been removed`);
                 });
             }
 
