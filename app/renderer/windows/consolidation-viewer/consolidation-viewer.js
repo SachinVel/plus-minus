@@ -145,7 +145,7 @@ const ConsolidationViewer = new function () {
 
         $('#move-debit-transaction, #move-credit-transaction').hide().off('click');
 
-        $('.checkbox').off('change').on('change', function () {
+        $('.checkbox-content').off('change').on('change', function () {
             if (this.checked) {
                 selectedTransactionsIndex.push($(this).attr('data-index'));
             } else {
@@ -363,16 +363,16 @@ const ConsolidationViewer = new function () {
         transactionTable.empty();
         transactionTable.append(
             '<tr>' +
-            '<th></th>' +
-            '<th>Date</th>' +
-            '<th>Description</th>' +
-            `<th>${dataGroupType.charAt(0).toUpperCase() + dataGroupType.slice(1)}</th>` +
+            '<th class="checkbox-header"></th>' +
+            '<th class="date-header">Date</th>' +
+            '<th class="description-header">Description</th>' +
+            `<th class="amount-header">${dataGroupType.charAt(0).toUpperCase() + dataGroupType.slice(1)}</th>` +
             '</tr>'
         );
         transactionData.forEach((transRecord, index) => {
             transactionTable.append(
                 `<tr draggable="true" data-transaction-type=${dataGroupType} class="js-transaction-record">` +
-                `<td><input type=checkbox style="width:50px" class="checkbox" data-index=${index}></td>` +
+                `<td><input type=checkbox class="checkbox-content" data-index=${index}></td>` +
                 '<td>' + transRecord[bankDataColumnIndexes.date] + '</td>' +
                 '<td>' + transRecord[bankDataColumnIndexes.description] + '</td>' +
                 `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[bankDataColumnIndexes[dataGroupType]].toFixed(2) + '</td>' +

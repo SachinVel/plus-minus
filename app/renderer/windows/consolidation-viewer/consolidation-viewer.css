@@ -110,3 +110,19 @@
     display: none;
     margin-right: 10px;
 }
+
+.checkbox-header {
+    width: 8%;
+}
+
+.date-header {
+    width: 20%;
+}
+
+.description-header {
+    width: 55%;
+}
+
+.amount-header {
+    width: 17%;
+}
