@@ -30,13 +30,16 @@
                 <div class="amount-box-title">Closing Balance</div>
                 <div class="amount-box-value" id="closing-balance-amount"></div>
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box5">
+            <div class="consolidation-grid__box consolidation-grid__box5" id="credit-container">
                 <div class="group-title">
                     Receipts
                     <span class="tag" id="receipt-total-transaction"></span>
                     <button class="primary-btn add-group-btn" id="receipt-group-add-btn">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                         New Group
+                    </button>
+                    <button class="primary-btn add-group-btn" id="credit-cancel-btn">
+                        cancel
                     </button>
                     <button class="primary-btn add-group-btn" id="move-credit-transaction">
                         <i class="fa fa-plus" aria-hidden="true"></i>
@@ -45,15 +48,14 @@
                 </div>
                 
                 <div class="group-container">
-                    <table class="group-table js-group-table" id="receipt-table"  data-group-type="credit">
+                    <table class="group-table js-group-table" id="credit-table"  data-group-type="credit">
                         <tr>
                             <th>Particular</th>
                             <th>Amount</th>
                             <th>Total Transactions</th>
                         </tr>
                     </table>
-                </div>
-                
+                </div> 
             </div>
             <div class="consolidation-grid__box consolidation-grid__box6" >
                 <div class="transaction-container">
@@ -68,7 +70,7 @@
                 </div>
                 
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box7" >
+            <div class="consolidation-grid__box consolidation-grid__box7" id="debit-container">
                 <div class="group-title">
                     Payments
                     <span class="tag" id="payment-total-transaction"></span>
@@ -76,13 +78,16 @@
                         <i class="fa fa-plus" aria-hidden="true"></i>
                         New Group
                     </button>
+                    <button class="primary-btn add-group-btn" id="debit-cancel-btn">
+                        cancel
+                    </button>
                     <button class="primary-btn add-group-btn" id="move-debit-transaction">
                         <i class="fa fa-plus" aria-hidden="true"></i>
                         Move
                     </button>
                 </div>
                 <div class="group-container">
-                    <table class="group-table js-group-table" id="payment-table" data-group-type="debit">
+                    <table class="group-table js-group-table" id="debit-table" data-group-type="debit">
                         <tr>
                             <th>Particular</th>
                             <th>Amount</th>
