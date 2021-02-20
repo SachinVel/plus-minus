@@ -147,13 +147,13 @@ const ConsolidationViewer = new function () {
             $(`#${transactionType === 'credit' ? 'receipt' : 'payment'}-group-add-btn`).show()
             $(`#${transactionType}-cancel-btn`).off('click').hide();
             $(`#${transactionType}-table`).off('click');
-            $('.checkbox-content').prop("disabled", false);
+            $('.js-checkbox-content').prop("disabled", false);
             $(".js-transaction-record").attr('draggable', true);
             showGroupsTransaction();
         }
         $('#move-debit-transaction, #move-credit-transaction').hide().off('click');
 
-        $('.checkbox-content').off('change').on('change', function () {
+        $('.js-checkbox-content').off('change').on('change', function () {
             if (this.checked) {
                 selectedTransactionsIndex.push($(this).attr('data-index'));
             } else {
@@ -171,7 +171,7 @@ const ConsolidationViewer = new function () {
             $(`.transaction-container *, #${transactionType === 'credit' ? 'debit' : 'credit'}-container *`).css({ opacity: '0.5', cursor: 'not-allowed' });
             $(`#${transactionType === 'credit' ? 'receipt' : 'payment'}-group-add-btn`).hide()
             $(`#${transactionType}-cancel-btn`).show();
-            $('.checkbox-content').prop("disabled", true);
+            $('.js-checkbox-content').prop("disabled", true);
             $(".js-transaction-record").attr('draggable', false);
 
             $(`#${transactionType}-cancel-btn`).on('click', function () {
@@ -389,7 +389,7 @@ const ConsolidationViewer = new function () {
         transactionData.forEach((transRecord, index) => {
             transactionTable.append(
                 `<tr draggable="true" data-transaction-type=${dataGroupType} class="js-transaction-record">` +
-                `<td><input type=checkbox class="checkbox-content" data-index=${index}></td>` +
+                `<td><input type=checkbox class="js-checkbox-content" data-index=${index}></td>` +
                 '<td>' + transRecord[bankDataColumnIndexes.date] + '</td>' +
                 '<td>' + transRecord[bankDataColumnIndexes.description] + '</td>' +
                 `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[bankDataColumnIndexes[dataGroupType]].toFixed(2) + '</td>' +
