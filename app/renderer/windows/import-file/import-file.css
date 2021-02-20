@@ -36,14 +36,14 @@
     margin-top: 4%;
 }
 
-.import-screen-contact, .import-screen-proceed {
+.import-screen-btn, .import-screen-proceed {
     padding: 12px 12px 12px 12px;
     font-size: 20px;
     font-weight: bold;   
     border-radius: 10px; 
 }
 
-.import-screen-contact {
+.import-screen-btn {
     color: var(--bsa-blue);
     background-color: #efefef;
 }
@@ -149,4 +149,15 @@
 
 .import-screen-footer {
     flex-grow: 1;
+}
+
+.contact-icon{
+    color: #222;
+    font-size: 100px;
+    display: block;
+}
+.contact-container{
+    text-align: center;
+    width: 500px;
+    display: inline-block;
 }

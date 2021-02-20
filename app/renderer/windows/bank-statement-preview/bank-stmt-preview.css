@@ -45,6 +45,7 @@
     display: inline-block;
     width: 15%;
     margin: 20px;
+    height: 50px;
 }
 .header-select__title{
     width: 100%;
@@ -58,7 +59,7 @@
     border-radius: 8px;
     position: relative;
     overflow: hidden;
-    display: none;
+    visibility: hidden;
 }
 .selected-name__close{
     position: absolute;

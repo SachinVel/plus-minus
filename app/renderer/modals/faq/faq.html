@@ -1,0 +1,78 @@
+<div class="faq-container">
+    <div class="faq-pages-menu">
+        <span class="faq-page-option faq-page-option--selected js-faq-option" data-page-id="import-page-faq">Import screen</span>
+        <span class="faq-page-option js-faq-option" data-page-id="preview-page-faq">Preview screen</span>
+        <span class="faq-page-option js-faq-option" data-page-id="analysis-page-faq">Analysis screen</span>
+    </div>
+    <div class="faq-page-content js-faq-page-content" id="import-page-faq">
+        <div class='faq-question'>Are pdf formats supported?</div>
+        <div class='faq-answer'>
+            No, currently BSA does not support .pdf format bank statements to be imported. 
+        </div>
+        <div class='faq-question'>Can we convert a .pdf type bank statement into .xlsx format and import into BSA?</div>
+        <div class='faq-answer'>
+            Yes, that is allowed, although, it has come to our attention that, in most occasions, 
+            PDF statements converted into excel usually contain more than one sheet and images in the file which make it extreme difficult for us to process the data and give out a desired output.
+            PDF is meant for only data transfer and not data analysis. So, the converted statements can be brought to the standard bank statement format by the user and uploaded for accurate result.<br> 
+            <b>Note:</b> If there are watermarks, images, seal & signatures in the converted file, kindly remove the same before importing the .xlsx file.
+        </div>
+        <div class='faq-question'>Can we upload a bank statement in which we have worked & applied formulae to certain cells?</div>
+        <div class='faq-answer'>
+            Yes, that is allowed, although it is recommended to upload the statements downloaded from the bank's internet 
+            banking website without making any modifications (or) performing any arithmetic functions to the aforementioned file.
+        </div>
+        <div class='faq-question'>Where can we find the optimal bank statement format?</div>
+        <div class='faq-answer'>
+            We have given a bank statement format here, which can be referred the user.
+            (Note: This is to bring to your attention that the format given by us is not a referral to the statement given by any particular bank. 
+            This is just an illustrative format to help the user to get a better picture which in turn helps us to serve you better.)
+            What does the error message "File Content is invalid" mean?
+            Kindly check your file for inputs like
+            <ul>
+               <li> ********** in between the transactions (or) at the start (or) end of the data fields</li>
+               <li>Invalid date format (for instance - date is entered as a text)</li> 
+               <li>Invalid amount format (for instance - amount is entered as a text)</li>
+            </ul>
+        </div>
+    </div>
+    <div class="faq-page-content js-faq-page-content" id="preview-page-faq">
+        <div class='faq-question'>What is the order in which the input fields need to be selected?</div>
+        <div class='faq-answer'>
+            The input fields are to be selected in the following order (by whatever name called in the bank statement in question):
+            <ol>
+                <li>Date</li>
+                <li>Description</li> 
+                <li>Debit</li>
+                <li>Credit</li>
+                <li>Balance</li>
+            </ol>
+        </div>
+        <div class='faq-question'>
+            What recourse do I have if I have selected a wrong cell in the input field?
+        </div>
+        <div class='faq-answer'>
+            If the user has selected the wrong cell as the input field, the X button near the input field can used to clear the value fed into the input field and another cell can be selected in its place. 
+        </div>
+        <div class='faq-question'>
+            What does it mean if the cell values display [object Object] in the preview page of the uploaded file?
+        </div>
+        <div class='faq-answer'>
+            The error [object Object] appears when the format of the data in the cells are not suitable. Kindly verify the format of the excel sheet again using the pointers given in optimal bank statement format and upload the file again.
+            If the error still persists, kindly contact our support team.
+        </div>
+    </div>
+    <div class="faq-page-content js-faq-page-content" id="analysis-page-faq">
+        <div class='faq-question'>
+            Can I move records from receipts to payments and vice versa?
+        </div>
+        <div class='faq-answer'>
+            No, BSA not does allow movement of transactions from Receipts to Payments & vice versa. 
+        </div>
+        <div class='faq-question'>
+            Will the exported file contain a list of all the transactions under a certain head?
+        </div>
+        <div class='faq-answer'>
+            No. The exported file shall contain only a summary of the Bank Analysis finalised by the user in the Consolidation page. The same can be viewed by the user only in the Consolidation page & not the resultant .xlsx file. 
+        </div>
+    </div>
+</div>

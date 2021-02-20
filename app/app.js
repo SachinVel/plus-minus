@@ -2,7 +2,7 @@ const { app, BrowserWindow } = require('electron')
 const path = require('path')
 const url = require('url')
 
-let window = null
+let window = null;
 
 // Wait until the app is ready
 app.once('ready', () => {
@@ -24,7 +24,7 @@ app.once('ready', () => {
   window.setMenuBarVisibility(false)
   
   window.loadURL(url.format({
-    pathname: path.join(__dirname, '../dist/import-file.html'),
+    pathname: path.join(__dirname, '../dist/index.html'),
     protocol: 'file:',
     slashes: true
   }))

@@ -3,6 +3,10 @@ const XLSX = require('xlsx');
 const path = require('path');
 const electron = require('electron');
 const dialog = electron.remote.dialog;
+import Index from '../../../index';
+import consolidationViewerHtml from './consolidation-viewer.html';
+import toast from '../../utils/toast/toast';
+
 
 window.onload = function () {
     ConsolidationViewer.init();
@@ -237,6 +241,7 @@ const ConsolidationViewer = new function () {
                 // Stating whether dialog operation was cancelled or not.
                 if (!file.canceled) {
                     writeToFile(file.filePath.toString());
+                    toast('success','File has been saved successfully');
                 }
             }).catch(err => {
                 console.error(err)
@@ -244,7 +249,7 @@ const ConsolidationViewer = new function () {
 
         });
         $('#back-icon').on('click', () => {
-            window.location.href = './import-file.html';
+            Index.navigateTo('import-file');
         });
 
         $('.js-group-table').on('click', '.js-group-row', function () {
@@ -330,7 +335,6 @@ const ConsolidationViewer = new function () {
         });
 
         $('#payment-group-add-btn').on('click', function () {
-
             let newPaymentGroup = {
                 amount: 0,
                 totalTransactions: 0,
@@ -346,12 +350,10 @@ const ConsolidationViewer = new function () {
             )
             groupTransactions[mappingId.toString()] = [];
             groupDetails.payments[mappingId.toString()] = newPaymentGroup;
-
         });
 
 
         $('#receipt-group-add-btn').on('click', function () {
-
             let newPaymentGroup = {
                 amount: 0,
                 totalTransactions: 0,
@@ -367,10 +369,15 @@ const ConsolidationViewer = new function () {
             )
             groupTransactions[mappingId.toString()] = [];
             groupDetails.receipts[mappingId.toString()] = newPaymentGroup;
-
         });
 
 
         populateData();
     }
+
+    this.getHtmlContent = function(){
+        return consolidationViewerHtml;
+    }
 }
+
+export default ConsolidationViewer;

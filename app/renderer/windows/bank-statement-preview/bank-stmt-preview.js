@@ -2,6 +2,8 @@ import bankStatementAnalyser from "../../server/analyser/analyser";
 import './bank-stmt-preview.css';
 import toast from "../../utils/toast/toast";
 const XLSX = require('xlsx');
+import Index from '../../../index';
+import bankStmtPreviewHtml from './bank-stmt-preview.html';
 
 window.onload = function () {
     BankStmtPreview.init();
@@ -30,23 +32,27 @@ const BankStmtPreview = new function () {
     const parseBankData = function (rows, bankDataColumnIndexes) {
 
         //filter rows that have only tranasaction record
+
+        let transactionKeys = ['date', 'description', 'balance'];
         rows = rows.filter(function (row) {
-            let transactionKeys = ['date', 'description', 'balance'];
+            let isValidTransaction = true;
             transactionKeys.forEach((key) => {
                 if (row[bankDataColumnIndexes[key]] != null) {
                     if (typeof row[bankDataColumnIndexes[key]] === 'string' && row[bankDataColumnIndexes[key]].trim().length == 0) {
-                        return false;
+                        isValidTransaction = false;
+                        return;
                     }
                 } else {
-                    return false;
+                    isValidTransaction = false;
+                    return;
                 }
             });
 
             if ((row[bankDataColumnIndexes.credit] == null && row[bankDataColumnIndexes.debit] == null)) {
-                return false;
+                isValidTransaction = false;
             }
 
-            return true;
+            return isValidTransaction;
         });
 
         // if transaction data is in reverse order, then sort by date
@@ -60,9 +66,10 @@ const BankStmtPreview = new function () {
             });
         }
 
+        transactionKeys = ['credit', 'debit', 'balance'];
         //convert credit, debit, balance to number type.
         rows.forEach(row => {
-            let transactionKeys = ['credit', 'debit', 'balance'];
+           
             transactionKeys.forEach((key)=>{
                 if (typeof row[bankDataColumnIndexes[key]] === 'string') {
                     let numStr = row[bankDataColumnIndexes[key]].replace(/[,\s]/g, '');
@@ -70,7 +77,6 @@ const BankStmtPreview = new function () {
                 }
             }); 
         });
-
         return rows;
 
     }
@@ -154,7 +160,7 @@ const BankStmtPreview = new function () {
                 $('.js-select-name-remove').on('click', function () {
                     let headerSelectParent = $(this).closest('.js-header-select');
                     let headerName = headerSelectParent.attr('data-header-name');
-                    $('#' + headerName + '-header .js-selected-content').hide();
+                    $('#' + headerName + '-header .js-selected-content').css('visibility','hidden');
                     reject({
                         headerName: headerName
                     });
@@ -178,7 +184,7 @@ const BankStmtPreview = new function () {
                         $(this).addClass('js-selected-cell');
                         $(this).addClass('selected-cell');
                         toast('success', `${curHeader} header has been selected`);
-                        $('#' + curHeader + '-header .js-selected-content').show();
+                        $('#' + curHeader + '-header .js-selected-content').css('visibility','visible');
                         $('#' + curHeader + '-header .js-selected-content').attr('data-cell-id', $(this).attr('id'));
                         $('#' + curHeader + '-header .js-selected-name-content').text((this).innerText);
                         resolve({
@@ -190,7 +196,7 @@ const BankStmtPreview = new function () {
                 $('.js-select-name-remove').on('click', function () {
                     let headerSelectParent = $(this).closest('.js-header-select');
                     let headerName = headerSelectParent.attr('data-header-name');
-                    $('#' + headerName + '-header .js-selected-content').hide();
+                    $('#' + headerName + '-header .js-selected-content').css('visibility','hidden');
                     let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
                     $('#' + cellId).removeClass('selected-cell');
                     $('#' + cellId).removeClass('js-selected-cell');
@@ -252,7 +258,7 @@ const BankStmtPreview = new function () {
 
         let consolidationData = bankStatementAnalyser.anaylseContent(rawContent, bankDataColumnIndexes);
         localStorage.setItem('consolidationData', JSON.stringify(consolidationData));
-        window.location.href = './consolidation-viewer.html';
+        Index.navigateTo('consolidation-viewer');
         localStorage.removeItem('filePath');
 
     }
@@ -277,8 +283,14 @@ const BankStmtPreview = new function () {
         });
 
         $('#back-icon').on('click', function () {
-            window.location.href = './import-file.html';
+            Index.navigateTo('import-file');
         });
 
     }
+
+    this.getHtmlContent = function(){
+        return bankStmtPreviewHtml;
+    }
 }
+
+export default BankStmtPreview;

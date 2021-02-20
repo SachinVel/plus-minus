@@ -19,7 +19,7 @@
     background-color: #fefefe;
     padding: 30px;
     border: 1px solid #888;
-    width: 70%;
+    max-width: 70%;
     max-height: 100%;
     overflow: auto;
     border-radius: 10px;
