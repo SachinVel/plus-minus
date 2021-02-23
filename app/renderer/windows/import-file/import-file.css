@@ -28,7 +28,7 @@
 
 .import-screen-followup {
     margin-top: 1%;
-    font-size: 16px;
+    font-size: 15px;
     color: #efefef;
 }
 
@@ -92,15 +92,15 @@
 }
 
 .import-screen-optimal-sheet {
-    padding: 7px;
+    padding: 10 10 10 10;
     border-radius: 10px;
     height: 35px;
     align-self: center;
 }
 
 #optimal-spread-sheet {
-    width: 100%;
-    height: 100%;
+    width: 700px;
+    height: 500px;
 }
 
 .import-screen-card .field {

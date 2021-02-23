@@ -37,3 +37,4 @@ const modal = (content) => {
 }
 
 export default modal;
+export { closeModal };

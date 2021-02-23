@@ -17,7 +17,7 @@ const BankStmtPreview = new function () {
             let excelFile = XLSX.readFile(filePath);
 
             if (excelFile.SheetNames.length > 1) {
-                reject('Upload excel file with single sheet');
+                reject('Upload the excel file containing a single sheet');
             }
 
             let firstSheetIndex = 0;
@@ -69,13 +69,13 @@ const BankStmtPreview = new function () {
         transactionKeys = ['credit', 'debit', 'balance'];
         //convert credit, debit, balance to number type.
         rows.forEach(row => {
-           
-            transactionKeys.forEach((key)=>{
+
+            transactionKeys.forEach((key) => {
                 if (typeof row[bankDataColumnIndexes[key]] === 'string') {
                     let numStr = row[bankDataColumnIndexes[key]].replace(/[,\s]/g, '');
                     row[bankDataColumnIndexes[key]] = numStr.length > 0 ? parseFloat(numStr) : 0;
                 }
-            }); 
+            });
         });
         return rows;
 
@@ -160,7 +160,7 @@ const BankStmtPreview = new function () {
                 $('.js-select-name-remove').on('click', function () {
                     let headerSelectParent = $(this).closest('.js-header-select');
                     let headerName = headerSelectParent.attr('data-header-name');
-                    $('#' + headerName + '-header .js-selected-content').css('visibility','hidden');
+                    $('#' + headerName + '-header .js-selected-content').css('visibility', 'hidden');
                     reject({
                         headerName: headerName
                     });
@@ -178,13 +178,13 @@ const BankStmtPreview = new function () {
                     proceedBtnElem.addClass('btn-inactive');
                 }
                 curHeader = dataHeaders[ind];
-                $('#user-prompt').text(`Select ${curHeader} Column Header`);
+                $('#user-prompt').text(`Select the ${curHeader.toUpperCase()} Column Header`);
                 $('.js-cell').on('click', function () {
                     if (!$(this).hasClass('js-selected-cell')) {
                         $(this).addClass('js-selected-cell');
                         $(this).addClass('selected-cell');
                         toast('success', `${curHeader} header has been selected`);
-                        $('#' + curHeader + '-header .js-selected-content').css('visibility','visible');
+                        $('#' + curHeader + '-header .js-selected-content').css('visibility', 'visible');
                         $('#' + curHeader + '-header .js-selected-content').attr('data-cell-id', $(this).attr('id'));
                         $('#' + curHeader + '-header .js-selected-name-content').text((this).innerText);
                         resolve({
@@ -196,14 +196,14 @@ const BankStmtPreview = new function () {
                 $('.js-select-name-remove').on('click', function () {
                     let headerSelectParent = $(this).closest('.js-header-select');
                     let headerName = headerSelectParent.attr('data-header-name');
-                    $('#' + headerName + '-header .js-selected-content').css('visibility','hidden');
+                    $('#' + headerName + '-header .js-selected-content').css('visibility', 'hidden');
                     let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
                     $('#' + cellId).removeClass('selected-cell');
                     $('#' + cellId).removeClass('js-selected-cell');
                     reject({
                         headerName: headerName
                     });
-                    toast('success', `${headerName} header has been removed`);
+                    toast('success', `Selected ${headerName} header has been removed`);
                 });
             }
 
@@ -288,7 +288,7 @@ const BankStmtPreview = new function () {
 
     }
 
-    this.getHtmlContent = function(){
+    this.getHtmlContent = function () {
         return bankStmtPreviewHtml;
     }
 }

@@ -7,7 +7,6 @@
     display: flex;
     float: left;
     flex-direction: column;
-
 }
 .faq-page-option{
     background-color: var(--bsa-blue);

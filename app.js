@@ -12,9 +12,7 @@ app.once('ready', () => {
       nodeIntegration: true,
       enableRemoteModule: true  // For enabling remote module in windows os
     },
-    // Set the initial width to 500px
     width: 1200,
-    // Set the initial height to 400px
     height: 800,
 
     backgroundColor: "#fff",
@@ -22,9 +20,9 @@ app.once('ready', () => {
     show: false
   })
   window.setMenuBarVisibility(false)
-  
+
   window.loadURL(url.format({
-    pathname: path.join(__dirname, '../dist/index.html'),
+    pathname: path.join(__dirname, './dist/index.html'),
     protocol: 'file:',
     slashes: true
   }))

@@ -2,36 +2,44 @@ import ImportFile from './renderer/windows/import-file/import-file';
 import BankStatementPreview from './renderer/windows/bank-statement-preview/bank-stmt-preview';
 import ConsolidationViewer from './renderer/windows/consolidation-viewer/consolidation-viewer';
 
-window.onload = function(){
+window.onload = function () {
     $('body').html(
         ImportFile.getHtmlContent()
     );
     ImportFile.init();
+    $('#page-title').text(title['import-file']);
 }
 
-const Index = new function(){
+const Index = new function () {
 
-    this.navigateTo = function(location){
-        switch(location){
+    let title = {
+        'import-file': 'Import File',
+        'bank-statement-preview': 'Bank Statement Preview',
+        'consolidation-viewer': 'Consolidation Viewer'
+    }
+
+    this.navigateTo = function (location) {
+        switch (location) {
             case 'import-file':
                 $('body').html(
                     ImportFile.getHtmlContent()
                 );
                 ImportFile.init();
-            break;
+                break;
             case 'bank-statement-preview':
                 $('body').html(
                     BankStatementPreview.getHtmlContent()
                 );
                 BankStatementPreview.init();
-            break;
+                break;
             case 'consolidation-viewer':
                 $('body').html(
                     ConsolidationViewer.getHtmlContent()
                 );
                 ConsolidationViewer.init();
-            break;
+                break;
         }
+        $('#page-title').text(title[location]);
     }
 }
 

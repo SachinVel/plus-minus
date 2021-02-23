@@ -105,3 +105,36 @@
 .group-row--selected {
     background: rgba(128, 128, 128, 0.3);
 }
+
+.new-group-heading{
+    color: #317fed;
+}
+
+.new-group-buttons{
+    margin-top: 20px;
+}
+
+#move-debit-transaction, #move-credit-transaction {
+    display: none;
+    margin-right: 10px;
+}
+
+#credit-cancel-btn, #debit-cancel-btn {
+    display: none;
+}
+
+.checkbox-header {
+    width: 8%;
+}
+
+.date-header {
+    width: 20%;
+}
+
+.description-header {
+    width: 55%;
+}
+
+.amount-header {
+    width: 17%;
+}

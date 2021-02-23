@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack --config ./config/webpack.dev.js --mode development && electron ./app/app.js",
+    "start": "webpack --config ./config/webpack.dev.js --mode development && electron ./app.js",
     "production": "NODE_ENV=production webpack --config ./config/webpack.dev.js --mode production && electron ./app/app.js",
     "pack": "electron-packager .",
     "dist": "electron-builder"
