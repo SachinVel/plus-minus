@@ -14,10 +14,10 @@ window.onload = function () {
 
     $('#file-input').on('change', function () {
         if (uploadFile.files[0]) {
-            toast('success', 'File imported successfully');
+            toast('success', 'File uploaded successfully!');
             $('#file-input-wrapper').attr('content', uploadFile.files[0].name)
         } else {
-            toast('warning', 'File has been removed');
+            toast('warning', 'File has been removed!');
             $('#file-input-wrapper').attr('content', 'Drag file here or click to select')
         }
     });
@@ -45,7 +45,7 @@ window.onload = function () {
             localStorage.setItem('bankName', bankNameInput.val().toString());
             window.location.href = './bank-stmt-preview.html';
         } else {
-            toast('error', 'please fill the input');
+            toast('error', 'Please enter all the information!');
         }
     });
 }  
