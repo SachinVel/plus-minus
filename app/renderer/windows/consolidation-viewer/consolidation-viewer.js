@@ -227,6 +227,7 @@ const ConsolidationViewer = new function () {
 
             $(`#${transactionType}-cancel-btn`).on('click', function () {
                 resetMove();
+                toast('error', `Move cancelled!`);
             });
             // off click to disable populate functionality
             $('.js-group-table').off('click')
