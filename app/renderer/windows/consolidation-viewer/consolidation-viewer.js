@@ -57,9 +57,11 @@ const ConsolidationViewer = new function () {
                 // Stating whether dialog operation was cancelled or not.
                 if (!file.canceled) {
                     writeToFile(file.filePath.toString());
+                    toast('success', `The file has been exported successfully!`);
                 }
             }).catch(err => {
                 console.error(err)
+                toast('error', `Export failed, please check the format of the file and try again!`);
             });
         });
     };
