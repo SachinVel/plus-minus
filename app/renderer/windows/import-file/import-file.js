@@ -60,7 +60,7 @@ const ImportFile = new function () {
         contactBtn.addEventListener('click', function () {
             let contactHtmlContent = '<div class="contact-container">' +
                 '<i class="fa fa-user contact-icon" aria-hidden="true"></i>' +
-                '<span>For enquiries, write to us at   plusminusorg03@gmail.com</span>' +
+                '<span class="contact-text">For enquiries, write to us at   <span class="contact-mail">plusminusorg03@gmail.com</span></span>' +
                 '</div>';
             modal(contactHtmlContent);
         });

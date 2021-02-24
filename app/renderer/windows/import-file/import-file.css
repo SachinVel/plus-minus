@@ -161,3 +161,10 @@
     width: 500px;
     display: inline-block;
 }
+.contact-text{
+    margin-top: 40px;
+}
+.contact-mail{
+    color:  var(--bsa-blue);
+    font-weight: bold;
+}

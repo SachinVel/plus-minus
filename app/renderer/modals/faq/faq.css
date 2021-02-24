@@ -34,4 +34,5 @@
 .faq-question{
     color:  var(--bsa-blue);
     margin: 5px 0px;
+    font-weight: bolder;
 }
