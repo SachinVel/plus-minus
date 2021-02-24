@@ -138,3 +138,11 @@
 .amount-header {
     width: 17%;
 }
+
+.delete-group{
+    display: none;
+    cursor: pointer;
+}
+.delete-group:hover{
+    color: red;
+}

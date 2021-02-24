@@ -1,101 +1,122 @@
 <html>
-    <head>
-        <script src="./consolidation-viewer.js"></script>
-    </head>
-    <body>
-        <div class="title-bar">
-            <button class="primary-btn header-btn" id="export-btn">
-                <i class="fa fa-upload" aria-hidden="true"></i>
-                Export
-            </button>
-            <span class="back-icon" id="back-icon">
-                <i class="fa fa-arrow-left" aria-hidden="true"></i>
-            </span>
-            <div class="title-content" id="account-number-value">Consolidation Data</div>
+
+<head>
+    <script src="./consolidation-viewer.js"></script>
+</head>
+
+<body>
+    <div class="title-bar">
+        <button class="primary-btn header-btn" id="export-btn">
+            <i class="fa fa-upload" aria-hidden="true"></i>
+            Export
+        </button>
+        <span class="back-icon" id="back-icon">
+            <i class="fa fa-arrow-left" aria-hidden="true"></i>
+        </span>
+        <div class="title-content" id="account-number-value">Consolidation Data</div>
+    </div>
+    <div class="consolidation-grid-container">
+        <div class="consolidation-grid__box consolidation-grid__box1">
+            <div class="amount-box-title">Opening Balance</div>
+            <div class="amount-box-value" id="opening-balance-amount"></div>
         </div>
-        <div class="consolidation-grid-container">
-            <div class="consolidation-grid__box consolidation-grid__box1">
-                <div class="amount-box-title">Opening Balance</div>
-                <div class="amount-box-value" id="opening-balance-amount"></div>
+        <div class="consolidation-grid__box consolidation-grid__box2">
+            <div class="amount-box-title">Receipt Total</div>
+            <div class="amount-box-value" id="receipt-total-amount"></div>
+        </div>
+        <div class="consolidation-grid__box consolidation-grid__box3">
+            <div class="amount-box-title">Payment Total</div>
+            <div class="amount-box-value" id="payment-total-amount"></div>
+        </div>
+        <div class="consolidation-grid__box consolidation-grid__box4">
+            <div class="amount-box-title">Closing Balance</div>
+            <div class="amount-box-value" id="closing-balance-amount"></div>
+        </div>
+        <div class="consolidation-grid__box consolidation-grid__box5" id="credit-container">
+            <div class="group-title">
+                Receipts
+                <span class="tag" id="receipt-total-transaction"></span>
+                <button class="primary-btn add-group-btn" id="receipt-group-add-btn">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    New Group
+                </button>
+                <button class="primary-btn add-group-btn" id="credit-cancel-btn">
+                    Cancel
+                </button>
+                <button class="primary-btn add-group-btn" id="move-credit-transaction">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    Move
+                </button>
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box2">
-                <div class="amount-box-title">Receipt Total</div>
-                <div class="amount-box-value" id="receipt-total-amount"></div>
-            </div>
-            <div class="consolidation-grid__box consolidation-grid__box3">
-                <div class="amount-box-title">Payment Total</div>
-                <div class="amount-box-value" id="payment-total-amount"></div>
-            </div>
-            <div class="consolidation-grid__box consolidation-grid__box4">
-                <div class="amount-box-title">Closing Balance</div>
-                <div class="amount-box-value" id="closing-balance-amount"></div>
-            </div>
-            <div class="consolidation-grid__box consolidation-grid__box5" id="credit-container">
-                <div class="group-title">
-                    Receipts
-                    <span class="tag" id="receipt-total-transaction"></span>
-                    <button class="primary-btn add-group-btn" id="receipt-group-add-btn">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        New Group
-                    </button>
-                    <button class="primary-btn add-group-btn" id="credit-cancel-btn">
-                        Cancel
-                    </button>
-                    <button class="primary-btn add-group-btn" id="move-credit-transaction">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        Move
-                    </button>
-                </div>
-                
-                <div class="group-container">
-                    <table class="group-table js-group-table" id="credit-table"  data-group-type="credit">
+
+            <div class="group-container">
+                <table class="group-table js-group-table" id="credit-table" data-group-type="credit">
+                    <colgroup>
+                        <col span="1" style="width: 30%;">
+                        <col span="1" style="width: 18%;">
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 5%;">
+                    </colgroup>
+                    <tbody>
                         <tr>
                             <th>Particular</th>
                             <th>Amount</th>
                             <th>Total Transactions</th>
+                            <th></th>
                         </tr>
-                    </table>
-                </div> 
+                    </tbody>
+                </table>
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box6" >
-                <div class="transaction-container">
-                    <table class="group-table" id="transaction-table">
-                        <tr>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Credit</th>
-                            <th>Debit</th>
-                        </tr>
-                    </table>
-                </div>
-                
+        </div>
+        <div class="consolidation-grid__box consolidation-grid__box6">
+            <div class="transaction-container">
+                <table class="group-table" id="transaction-table">
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Credit</th>
+                        <th>Debit</th>
+                    </tr>
+                </table>
             </div>
-            <div class="consolidation-grid__box consolidation-grid__box7" id="debit-container">
-                <div class="group-title">
-                    Payments
-                    <span class="tag" id="payment-total-transaction"></span>
-                    <button class="primary-btn add-group-btn" id="payment-group-add-btn"> 
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        New Group
-                    </button>
-                    <button class="primary-btn add-group-btn" id="debit-cancel-btn">
-                        Cancel
-                    </button>
-                    <button class="primary-btn add-group-btn" id="move-debit-transaction">
-                        <i class="fa fa-plus" aria-hidden="true"></i>
-                        Move
-                    </button>
-                </div>
-                <div class="group-container">
-                    <table class="group-table js-group-table" id="debit-table" data-group-type="debit">
+
+        </div>
+        <div class="consolidation-grid__box consolidation-grid__box7" id="debit-container">
+            <div class="group-title">
+                Payments
+                <span class="tag" id="payment-total-transaction"></span>
+                <button class="primary-btn add-group-btn" id="payment-group-add-btn">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    New Group
+                </button>
+                <button class="primary-btn add-group-btn" id="debit-cancel-btn">
+                    Cancel
+                </button>
+                <button class="primary-btn add-group-btn" id="move-debit-transaction">
+                    <i class="fa fa-plus" aria-hidden="true"></i>
+                    Move
+                </button>
+            </div>
+            <div class="group-container">
+                <table class="group-table js-group-table" id="debit-table" data-group-type="debit">
+                    <colgroup>
+                        <col span="1" style="width: 30%;">
+                        <col span="1" style="width: 18%;">
+                        <col span="1" style="width: 10%;">
+                        <col span="1" style="width: 5%;">
+                    </colgroup>
+                    <tbody>
                         <tr>
                             <th>Particular</th>
                             <th>Amount</th>
                             <th>Total Transactions</th>
+                            <th></th>
                         </tr>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>

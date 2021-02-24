@@ -40,6 +40,38 @@ const ConsolidationViewer = new function () {
         dragAndDropTransactionRecord();
         addNewGroup();
         populateData();
+        deleteGroup()
+    }
+
+    const deleteGroup = function () {
+        $('.js-group-table').on('click', '.js-delete-group', function (event) {
+            let groupRowElem = $(this).closest('tr');
+            let mappingId = groupRowElem.attr('id');
+            delete groupTransactions[mappingId];
+            if (groupRowElem.attr('data-group-type') == 'credit') {
+                delete groupDetails.receipts[mappingId];
+            } else {
+                delete groupDetails.payments[mappingId];
+            }
+            groupRowElem.remove();
+            event.stopPropagation();
+        });
+    }
+
+    const checkEmptyGroup = function () {
+        $('.js-group-table .js-delete-group').hide();
+        for (let mappindId of Object.keys(groupDetails.receipts)) {
+            let group = groupDetails.receipts[mappindId];
+            if (group.totalTransactions === 0) {
+                $('#credit-table').find(`#${mappindId} .js-delete-group`).show();
+            }
+        }
+        for (let mappindId of Object.keys(groupDetails.payments)) {
+            let group = groupDetails.payments[mappindId];
+            if (group.totalTransactions === 0) {
+                $('#debit-table').find(`#${mappindId} .js-delete-group`).show();
+            }
+        }
     }
 
     const exportData = () => {
@@ -98,11 +130,12 @@ const ConsolidationViewer = new function () {
                     }
                     let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 2;
                     $("#debit-table tr:nth-child(1)").after(
-                        '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
+                        '<tr id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
                         '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
                         '<td class="js-group-amount">' + newPaymentGroup.amount.toFixed(2) + '</td>' +
                         '<td class="js-total-transactions">' + newPaymentGroup.totalTransactions + '</td>' +
-                        '</tr'
+                        '<td class="js-delete-group delete-group" style="display:inline-block"><i class="fa fa-trash" aria-hidden="true"></i></td>' +
+                        '</tr>'
                     );
                     groupTransactions[mappingId.toString()] = [];
                     groupDetails.payments[mappingId.toString()] = newPaymentGroup;
@@ -139,10 +172,11 @@ const ConsolidationViewer = new function () {
                     let mappingId = Object.keys(groupDetails.receipts).length + Object.keys(groupDetails.payments).length + 1;
 
                     $("#credit-table tr:nth-child(1)").after(
-                        '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
+                        '<tr id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
                         '<td contenteditable="true" class="js-group-particular">' + newPaymentGroup.particular + '</td>' +
                         '<td class="js-group-amount">' + newPaymentGroup.amount.toFixed(2) + '</td>' +
                         '<td class="js-total-transactions">' + newPaymentGroup.totalTransactions + '</td>' +
+                        '<td class="js-delete-group delete-group" style="display:inline-block"><i class="fa fa-trash" aria-hidden="true"></i></td>' +
                         '</tr'
                     )
                     groupTransactions[mappingId.toString()] = [];
@@ -150,14 +184,14 @@ const ConsolidationViewer = new function () {
                 }
             });
         });
-        populateData();
     }
 
     const showGroupsTransaction = () => {
-        $('.js-group-table').on('click', '.js-group-row', function () {
+        $('.js-group-table').on('click.showTransaction', '.js-group-row', function () {
+            console.log('group')
             $('.js-group-table tr').removeClass('group-row--selected');
             $(this).addClass('group-row--selected');
-            let mappingId = $(this).attr('data-mapping-id');
+            let mappingId = $(this).attr('id');
             let selectedGroupTransactions = groupTransactions[mappingId.toString()];
             populateGroupTransactions(selectedGroupTransactions, mappingId, $(this).attr('data-group-type'));
         });
@@ -189,6 +223,7 @@ const ConsolidationViewer = new function () {
             event.preventDefault();
             $('.js-group-table tr').removeClass('group-row--drop');
             populateMovedTransaction.call(this, selectedTransactionsIndex, sourceMappingId, transactionType, bankDataColumnIndexes[transactionType]);
+            checkEmptyGroup();
         });
     };
 
@@ -198,7 +233,7 @@ const ConsolidationViewer = new function () {
             $(`.transaction-container *, #${transactionType === 'credit' ? 'debit' : 'credit'}-container *`).css({ opacity: '1', cursor: 'unset' });
             $(`#${transactionType === 'credit' ? 'receipt' : 'payment'}-group-add-btn`).show()
             $(`#${transactionType}-cancel-btn`).off('click').hide();
-            $(`#${transactionType}-table`).off('click');
+            $(`#${transactionType}-table`).off('click.moveTransaction');
             $('.js-checkbox-content').prop("disabled", false);
             $(".js-transaction-record").attr('draggable', true);
             showGroupsTransaction();
@@ -231,16 +266,18 @@ const ConsolidationViewer = new function () {
                 toast('error', `Move cancelled!`);
             });
             // off click to disable populate functionality
-            $('.js-group-table').off('click')
-            $(`#${transactionType}-table`).on('click', '.js-group-row', function () {
+            $('.js-group-table').off('click.showTransaction')
+            $(`#${transactionType}-table`).on('click.moveTransaction', '.js-group-row', function () {
                 populateMovedTransaction.call(this, selectedTransactionsIndex, sourceMappingId, transactionType, amountIndex);
                 resetMove();
+                checkEmptyGroup();
             });
+
         })
     }
 
     const populateMovedTransaction = function (selectedTransactionsIndex, sourceMappingId, transactionType, amountIndex) {
-        let targetMappingId = $(this).attr('data-mapping-id');
+        let targetMappingId = $(this).attr('id');
         let sourceGroupDetails, targetGroupDetails, amount = 0;
 
         let selectedTransaction = selectedTransactionsIndex.map((selectedTransactionIndex) => {
@@ -274,8 +311,8 @@ const ConsolidationViewer = new function () {
 
         $(this).find('.js-group-amount').text(targetGroupDetails.amount.toFixed(2));
         $(this).find('.js-total-transactions').text(targetGroupDetails.totalTransactions);
-        $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find('.js-group-amount').text(sourceGroupDetails.amount.toFixed(2));
-        $(this).siblings('tr[data-mapping-id="' + sourceMappingId + '"]').find('.js-total-transactions').text(sourceGroupDetails.totalTransactions);
+        $(this).siblings('tr[id="' + sourceMappingId + '"]').find('.js-group-amount').text(sourceGroupDetails.amount.toFixed(2));
+        $(this).siblings('tr[id="' + sourceMappingId + '"]').find('.js-total-transactions').text(sourceGroupDetails.totalTransactions);
         toast('success', `Moved successfully!`);
     }
 
@@ -286,10 +323,11 @@ const ConsolidationViewer = new function () {
 
         for (let [mappingId, curGroupDetail] of Object.entries(receiptDetails)) {
             receiptTable.append(
-                '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
+                '<tr id="' + mappingId + '" class="js-group-row" data-group-type="credit">' +
                 '<td contenteditable="true" class="js-group-particular">' + curGroupDetail.particular + '</td>' +
                 '<td class="js-group-amount">' + curGroupDetail.amount.toFixed(2) + '</td>' +
                 '<td class="js-total-transactions">' + curGroupDetail.totalTransactions + '</td>' +
+                '<td class="js-delete-group delete-group"><i class="fa fa-trash" aria-hidden="true"></i></td>' +
                 '</tr>'
             );
             receiptTotalTransaction += curGroupDetail.totalTransactions;
@@ -301,10 +339,11 @@ const ConsolidationViewer = new function () {
 
         for (let [mappingId, curGroupDetail] of Object.entries(paymentDetails)) {
             paymentTable.append(
-                '<tr data-mapping-id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
+                '<tr id="' + mappingId + '" class="js-group-row" data-group-type="debit">' +
                 '<td contenteditable="true" class="js-group-particular">' + curGroupDetail.particular + '</td>' +
                 '<td class="js-group-amount">' + curGroupDetail.amount.toFixed(2) + '</td>' +
                 '<td class="js-total-transactions">' + curGroupDetail.totalTransactions + '</td>' +
+                '<td class="js-delete-group delete-group"><i class="fa fa-trash" aria-hidden="true"></i></td>' +
                 '</tr'
             );
             paymentTotalTransaction += curGroupDetail.totalTransactions;
@@ -456,14 +495,14 @@ const ConsolidationViewer = new function () {
 
     const updateGroupNames = function () {
         $('#debit-table tr').each(function () {
-            let mappingId = $(this).attr('data-mapping-id');
+            let mappingId = $(this).attr('id');
             if (mappingId != null) {
                 let curGroupDetails = groupDetails.payments[mappingId.toString()];
                 curGroupDetails.particular = $(this).find('.js-group-particular').text();
             }
         });
         $('#credit-table tr').each(function () {
-            let mappingId = $(this).attr('data-mapping-id');
+            let mappingId = $(this).attr('id');
             if (mappingId != null) {
                 let curGroupDetails = groupDetails.receipts[mappingId.toString()];
                 curGroupDetails.particular = $(this).find('.js-group-particular').text();
