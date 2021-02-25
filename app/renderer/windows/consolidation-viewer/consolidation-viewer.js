@@ -55,6 +55,7 @@ const ConsolidationViewer = new function () {
             }
             groupRowElem.remove();
             event.stopPropagation();
+            toast('success', `The empty label has been deleted successfully!`);
         });
     }
 
