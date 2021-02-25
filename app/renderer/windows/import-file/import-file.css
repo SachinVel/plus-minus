@@ -17,6 +17,12 @@
     background-color: var(--bsa-blue);
 }
 
+.import-screen-logo-prop {
+    width:100px;
+    height:80px;
+    float: left;
+}
+
 .import-screen-motto {
     flex-grow: 3;
     margin-top: 4%;
