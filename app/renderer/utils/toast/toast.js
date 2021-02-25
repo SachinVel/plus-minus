@@ -1,4 +1,4 @@
-window.$ = require('jquery');
+import './toast.css';
 
 const toast = (type, message) => {
     if (!type || !message) {
@@ -13,4 +13,4 @@ const toast = (type, message) => {
     }, 3000);
 }
 
-module.exports = toast;
+export default toast;

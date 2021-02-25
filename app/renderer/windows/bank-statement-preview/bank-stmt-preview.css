@@ -1,3 +1,5 @@
+@import '../../common.css';
+
 @keyframes blinker {
   50% {
     opacity: 0;
@@ -8,34 +10,70 @@
     overflow: scroll;
 }
 
-
-
 .bank-stmt-table .cell{
     cursor: pointer;
 }
 .bank-stmt-table .cell:hover{
-    border : 2px solid  #317fed;
+    border : 2px solid  #008000;
 }
 .bank-stmt-table .selected-cell{
-    border: 1px solid green;
+    border: 1px solid #008000;
     cursor: not-allowed;
 }
 .bank-stmt-table .selected-cell:hover{
-    border: 1px solid green;
+    border: 1px solid #008000;
 }
-
 
 .bank-stmt-table th,td{
     border: 1px solid #dadada;
 }
 
+.selection-info-container{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
 
-#user-prompt{
+.user-prompt{
     text-align: center;
-    padding: 10px;
-    font-size: 20px;
+    width: 100%;
+    font-size: 35px;
     color:  black;
-    animation: blinker 3s linear infinite;
+    animation: blinker 1s linear infinite;
+}
+.header-select{
+    font-weight: bold;
+    color: #317fed;
+    display: inline-block;
+    width: 15%;
+    margin: 20px;
+    height: 50px;
+}
+.header-select__title{
+    width: 100%;
+    text-align: center;
+}
+.header-select__selected-name{
+    width: 100%;
+    padding: 10px;
+    color: grey;
+    background: #e2e2e2;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    visibility: hidden;
+}
+.selected-name__close{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    background-color: #e2e2e2;
+    z-index: 100;
+    cursor: pointer;
+}
+.selected-name__close:hover{
+    color: #317fed;
 }
 .bank-stmt-table-container{
     overflow: scroll;

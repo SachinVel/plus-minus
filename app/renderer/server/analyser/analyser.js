@@ -1,23 +1,42 @@
-const bankStatementKeywords = require('../../constants/bank-details');
+import bankStatementKeywords from '../../constants/bank-details';
 
 const bankStatementAnalyser = new function () {
 
     const processDescription = function (description) {
 
         let regex = /[0-9/\-:\s]+/g;
-        let tempStr = description.toString().replace(regex, "");
+        let tempStr = description.toString().replace(regex, '');
         tempStr = tempStr.toLowerCase()
         tempStr = tempStr.trim();
         return tempStr.toLowerCase();
 
     }
 
+    const convertExcelDateToString = function (serial) {
+        var utc_days = Math.floor(serial - 25569);
+        var utc_value = utc_days * 86400;
+        var date_info = new Date(utc_value * 1000);
+
+        var fractional_day = serial - Math.floor(serial) + 0.0000001;
+
+        var total_seconds = Math.floor(86400 * fractional_day);
+
+        var seconds = total_seconds % 60;
+
+        total_seconds -= seconds;
+
+        var hours = Math.floor(total_seconds / (60 * 60));
+        var minutes = Math.floor(total_seconds / 60) % 60;
+
+        return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate(), hours, minutes, seconds).toDateString();
+    }
+
 
     const analyseTransactionData = function (transactionData, bankDataColumnIndexes) {
-
         let descColInd = bankDataColumnIndexes.description;
         let creditColInd = bankDataColumnIndexes.credit;
         let debitColInd = bankDataColumnIndexes.debit;
+        let dateColInd = bankDataColumnIndexes.date;
         let totalRecords;
         let debitAmount, creditAmount;
         let transactionGroupMappingID = 1;
@@ -31,18 +50,18 @@ const bankStatementAnalyser = new function () {
             receipts: {}
         }
 
+        let firstRowIndex = 0;
         // calculating opening balance
-        if (transactionData[0][bankDataColumnIndexes.debit] > 0) {
-            openingBalance = transactionData[0][bankDataColumnIndexes.balance] + transactionData[0][bankDataColumnIndexes.debit];
+        if (transactionData[firstRowIndex][bankDataColumnIndexes.debit] && transactionData[firstRowIndex][bankDataColumnIndexes.debit] > 0) {
+            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] + transactionData[firstRowIndex][bankDataColumnIndexes.debit];
         }
         else {
-            openingBalance = transactionData[0][bankDataColumnIndexes.balance] - transactionData[0][bankDataColumnIndexes.credit];
+            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] - transactionData[firstRowIndex][bankDataColumnIndexes.credit];
         }
 
         closingBalance = transactionData[transactionData.length - 1][bankDataColumnIndexes.balance];
 
         // extract common keywords data
-
         for (let keyword of bankStatementKeywords) {
             currentGroupCreditTransaction = [];
             currentGroupDebitTransaction = [];
@@ -51,27 +70,30 @@ const bankStatementAnalyser = new function () {
             totalRecords = transactionData.length;
             for (let ind = 0; ind < totalRecords; ++ind) {
                 let transRecord = transactionData.shift();
+                if (typeof transRecord[dateColInd] == 'number') {
+                    transRecord[dateColInd] = convertExcelDateToString(transRecord[dateColInd]);
+                }
                 if (transRecord[descColInd] == null) {
                     continue;
                 }
                 let processedDesc = processDescription(transRecord[descColInd]);
                 let isKeywordMatch = false;
                 switch (keyword.condition) {
-                    case "contains":
+                    case 'contains':
                         isKeywordMatch = processedDesc.includes(keyword.name);
                         break;
-                    case "startsWith":
+                    case 'startsWith':
                         isKeywordMatch = processedDesc.indexOf(keyword.name) == 0;
                         break;
                     default:
                         isKeywordMatch = processedDesc.includes(keyword.name);
                 }
                 if (isKeywordMatch) {
-                    if (transRecord[creditColInd]) {
+                    if (transRecord[creditColInd] !== null && transRecord[creditColInd] > 0) {
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
 
-                    } else if (transRecord[debitColInd]) {
+                    } else if (transRecord[debitColInd] !== null && transRecord[debitColInd] > 0) {
                         debitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
                     }
@@ -105,7 +127,10 @@ const bankStatementAnalyser = new function () {
         // extract dynamic transaction
         while (transactionData.length > 0) {
             let curRecord = transactionData.shift();
-            if (curRecord[descColInd] == null) {
+            if (typeof curRecord[dateColInd] === 'number') {
+                curRecord[dateColInd] = convertExcelDateToString(curRecord[dateColInd]);
+            }
+            if (curRecord[descColInd] === null) {
                 continue;
             }
             let curRecDesc = processDescription(curRecord[descColInd]);
@@ -130,11 +155,10 @@ const bankStatementAnalyser = new function () {
                 }
                 let processedDesc = processDescription(transRecord[descColInd]);
                 if (processedDesc.includes(curRecDesc)) {
-                    if (transRecord[creditColInd]) {
+                    if (transRecord[creditColInd] != null && transRecord[creditColInd] > 0) {
                         creditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
-                    }
-                    if (transRecord[debitColInd]) {
+                    } else if (transRecord[debitColInd] != null && transRecord[debitColInd] > 0) {
                         debitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
                     }
@@ -183,11 +207,6 @@ const bankStatementAnalyser = new function () {
 
     this.anaylseContent = function (rows, bankDataColumnIndexes) {
 
-        // let headersIndex = +/[0-9]+/g.exec(columnHeaderCells.descCellId)[0];
-        // rows.splice(0, headersIndex + 1);
-
-        
-
         let consolidationData = analyseTransactionData(rows, bankDataColumnIndexes);
         consolidationData.bankDataColumnIndexes = bankDataColumnIndexes;
         return consolidationData;
@@ -195,4 +214,4 @@ const bankStatementAnalyser = new function () {
     }
 }
 
-module.exports = bankStatementAnalyser;
+export default bankStatementAnalyser;

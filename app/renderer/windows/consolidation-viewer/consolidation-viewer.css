@@ -1,15 +1,5 @@
-.export-btn{
-    float: right;
-    right: 3%;
-    font-family: 'amethysta';
-    cursor: pointer;
-    background-color:white; 
-    color: black;
-}
-@font-face{
-    font-family: 'amethysta';
-    src: url("../../common/fonts/amethysta.ttf") format("truetype");
-}
+@import '../../common.css';
+
 .consolidation-grid-container{
     margin: 30 30 30 30;
     display: grid;
@@ -108,6 +98,51 @@
     background: rgba(128, 128, 128, 0.2);
 }
 
+.js-transaction-record td{
+    overflow: hidden;
+}
+
 .group-row--selected {
     background: rgba(128, 128, 128, 0.3);
+}
+
+.new-group-heading{
+    color: #317fed;
+}
+
+.new-group-buttons{
+    margin-top: 20px;
+}
+
+#move-debit-transaction, #move-credit-transaction {
+    display: none;
+    margin-right: 10px;
+}
+
+#credit-cancel-btn, #debit-cancel-btn {
+    display: none;
+}
+
+.checkbox-header {
+    width: 8%;
+}
+
+.date-header {
+    width: 20%;
+}
+
+.description-header {
+    width: 55%;
+}
+
+.amount-header {
+    width: 17%;
+}
+
+.delete-group{
+    display: none;
+    cursor: pointer;
+}
+.delete-group:hover{
+    color: red;
 }
