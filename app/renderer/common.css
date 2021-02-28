@@ -32,12 +32,6 @@ body {
     padding: 15px 30px;
     background-color: #fff;
 }
-
-.product-logo {
-    height: 40px;
-    float: left;
-    width: 100px;
-}
 .primary-btn {
     border: none;
     background-color: var(--bsa-blue);
