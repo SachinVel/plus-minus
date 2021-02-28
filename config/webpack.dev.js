@@ -1,4 +1,3 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin');
 const WebpackObfuscator = require('webpack-obfuscator');
 const path = require('path');
 const webpack = require('webpack');
@@ -9,7 +8,8 @@ let webpackConfig = {
    },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, '../dist/')
+    path: path.resolve(__dirname, '../dist/'),
+    assetModuleFilename: 'resources/[hash][ext][query]'
   },
   resolve: {
     fallback: {
@@ -22,12 +22,9 @@ let webpackConfig = {
       $: "jquery",
       jQuery: "jquery"
     }),
-    new HtmlWebpackPlugin({
-      template: './app/index.html',
-      inject: true,
-      chunks: ['index'],
-      filename: 'index.html'
-    }),
+    new CopyWebpackPlugin([{
+      from: './*.html'
+    }])
   ],
 
   target: 'electron-main',
