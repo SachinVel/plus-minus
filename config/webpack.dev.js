@@ -22,9 +22,6 @@ let webpackConfig = {
       $: "jquery",
       jQuery: "jquery"
     }),
-    new CopyWebpackPlugin([{
-      from: './*.html'
-    }])
   ],
 
   target: 'electron-main',
