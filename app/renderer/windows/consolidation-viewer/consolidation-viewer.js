@@ -239,7 +239,34 @@ const ConsolidationViewer = new function () {
             $(".js-transaction-record").attr('draggable', true);
             showGroupsTransaction();
         }
+        const showOrHideMoveBtn = () => {
+            if (selectedTransactionsIndex.length >= 1) {
+                $(`#move-${transactionType}-transaction`).show();
+            } else {
+                $(`#move-${transactionType}-transaction`).hide();
+            }
+        }
+
         $('#move-debit-transaction, #move-credit-transaction').hide().off('click');
+        $('.checkbox-header').off('click').on('click', function () {
+            switch (+$(this).attr('data-state')) {
+                case 0:
+                    $('.js-checkbox-content').prop('checked', true);
+                    $('.js-checkbox-content').each(function () {
+                        selectedTransactionsIndex.push($(this).attr('data-index'));
+                    });
+                    $(this).html('<i class="fa fa-check-square" aria-hidden="true"></i>');
+                    $(this).attr('data-state', 1);
+                    break;
+                case 1:
+                    $('.js-checkbox-content').prop('checked', false);
+                    selectedTransactionsIndex = [];
+                    $(this).html('<i class="fa fa-square-o" aria-hidden="true"></i>');
+                    $(this).attr('data-state', 0);
+                    break;
+            }
+            showOrHideMoveBtn();
+        })
 
         $('.js-checkbox-content').off('change').on('change', function () {
             if (this.checked) {
@@ -248,11 +275,21 @@ const ConsolidationViewer = new function () {
                 selectedTransactionsIndex = selectedTransactionsIndex.filter((selectedTransactionIndex) => selectedTransactionIndex !== $(this).attr('data-index'));
             }
 
-            if (selectedTransactionsIndex.length >= 1) {
-                $(`#move-${transactionType}-transaction`).show();
-            } else {
-                $(`#move-${transactionType}-transaction`).hide();
+            if (selectedTransactionsIndex.length === 1 || $('.js-checkbox-content').length - 1 === selectedTransactionsIndex.length) {
+                $('.checkbox-header').html('<i class="fa fa-minus-square-o" aria-hidden="true"></i>');
+                $('.checkbox-header').attr('data-state', 1);
             }
+
+            if (selectedTransactionsIndex.length === $('.js-checkbox-content').length) {
+                $('.checkbox-header').html('<i class="fa fa-check-square" aria-hidden="true"></i>');
+            }
+
+            if (selectedTransactionsIndex.length === 0) {
+                $('.checkbox-header').html('<i class="fa fa-square-o" aria-hidden="true"></i>');
+                $('.checkbox-header').attr('data-state', 0);
+            }
+
+            showOrHideMoveBtn();
         });
 
         $(`#move-${transactionType}-transaction`).on('click', function () {
@@ -288,7 +325,7 @@ const ConsolidationViewer = new function () {
         })
 
         // Note: Do not put the splice function in the above loop as it will mess with the indexes.
-        selectedTransactionsIndex.forEach((selectedTransactionIndex) => {
+        selectedTransactionsIndex.sort((a, b) => b - a).forEach((selectedTransactionIndex) => {
             groupTransactions[sourceMappingId.toString()].splice(selectedTransactionIndex, 1)
         });
 
@@ -474,7 +511,7 @@ const ConsolidationViewer = new function () {
         transactionTable.empty();
         transactionTable.append(
             '<tr>' +
-            '<th class="checkbox-header"></th>' +
+            '<th class="checkbox-header" data-state=0><i class="fa fa-square-o" aria-hidden="true"></i></th>' +
             '<th class="date-header">Date</th>' +
             '<th class="description-header">Description</th>' +
             `<th class="amount-header">${dataGroupType.charAt(0).toUpperCase() + dataGroupType.slice(1)}</th>` +
