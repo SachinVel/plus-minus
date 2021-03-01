@@ -40,7 +40,17 @@ const ConsolidationViewer = new function () {
         dragAndDropTransactionRecord();
         addNewGroup();
         populateData();
-        deleteGroup()
+        deleteGroup();
+        searchGroup();
+    }
+
+    const searchGroup = () => {
+        ['credit', 'debit'].forEach(tableName => {
+            $(`#${tableName}-group-search`).on('keyup change', function () {
+                $(`#${tableName}-table .js-group-row:not(:contains(${$(this).val()}))`).hide();
+                $(`#${tableName}-table .js-group-row:contains(${$(this).val()})`).show();
+            })
+        })
     }
 
     const deleteGroup = function () {
@@ -189,7 +199,6 @@ const ConsolidationViewer = new function () {
 
     const showGroupsTransaction = () => {
         $('.js-group-table').on('click.showTransaction', '.js-group-row', function () {
-            console.log('group')
             $('.js-group-table tr').removeClass('group-row--selected');
             $(this).addClass('group-row--selected');
             let mappingId = $(this).attr('id');
