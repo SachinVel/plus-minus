@@ -116,19 +116,22 @@
     margin-top: 20px;
 }
 
-#move-debit-transaction,
-#move-credit-transaction {
+#move-transaction, #move-cancel-btn {
     display: none;
-    margin-right: 10px;
-}
-
-#credit-cancel-btn,
-#debit-cancel-btn {
-    display: none;
+    margin: 0 5px 10px 0;
+    height: 27px;
+    font-size: 12px;
+    width: 97px;
+    padding: 0px;
 }
 
 .checkbox-header {
     width: 8%;
+    cursor: pointer;
+}
+
+input[type="checkbox"] {
+    cursor: pointer;
 }
 
 .checkbox-header i {
@@ -156,11 +159,16 @@
 }
 
 #debit-group-search,
-#credit-group-search {
+#credit-group-search,
+#transaction-group-search {
     float: right;
     margin-right: 7px;
     height: 27px;
     padding: 3px;
     border-radius: 5px;
     border: 1px solid var(--bsa-grey);
+}
+
+#transaction-group-search {
+    margin-bottom: 10px;
 }

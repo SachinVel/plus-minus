@@ -46,10 +46,14 @@ const ConsolidationViewer = new function () {
 
     const searchGroup = () => {
         ['credit', 'debit'].forEach(tableName => {
-            $(`#${tableName}-group-search`).on('keyup change', function () {
+            $(`#${tableName}-group-search`).on('keyup', function () {
                 $(`#${tableName}-table .js-group-row:not(:contains(${$(this).val()}))`).hide();
                 $(`#${tableName}-table .js-group-row:contains(${$(this).val()})`).show();
             })
+        })
+        $('#transaction-group-search').on('keyup', function () {
+            $(`#transaction-table .js-transaction-record:not(:contains(${$(this).val()}))`).hide();
+            $(`#transaction-table .js-transaction-record:contains(${$(this).val()})`).show();
         })
     }
 
@@ -242,7 +246,7 @@ const ConsolidationViewer = new function () {
         const resetMove = () => {
             $(`.transaction-container *, #${transactionType === 'credit' ? 'debit' : 'credit'}-container *`).css({ opacity: '1', cursor: 'unset' });
             $(`#${transactionType === 'credit' ? 'receipt' : 'payment'}-group-add-btn`).show()
-            $(`#${transactionType}-cancel-btn`).off('click').hide();
+            $('#move-cancel-btn').off('click').hide();
             $(`#${transactionType}-table`).off('click.moveTransaction');
             $('.js-checkbox-content').prop("disabled", false);
             $(".js-transaction-record").attr('draggable', true);
@@ -250,13 +254,13 @@ const ConsolidationViewer = new function () {
         }
         const showOrHideMoveBtn = () => {
             if (selectedTransactionsIndex.length >= 1) {
-                $(`#move-${transactionType}-transaction`).show();
+                $(`#move-transaction`).show();
             } else {
-                $(`#move-${transactionType}-transaction`).hide();
+                $(`#move-transaction`).hide();
             }
         }
 
-        $('#move-debit-transaction, #move-credit-transaction').hide().off('click');
+        $('#move-transaction').hide().off('click');
         $('.checkbox-header').off('click').on('click', function () {
             switch (+$(this).attr('data-state')) {
                 case 0:
@@ -301,14 +305,13 @@ const ConsolidationViewer = new function () {
             showOrHideMoveBtn();
         });
 
-        $(`#move-${transactionType}-transaction`).on('click', function () {
+        $(`#move-transaction`).on('click', function () {
             $(`.transaction-container *, #${transactionType === 'credit' ? 'debit' : 'credit'}-container *`).css({ opacity: '0.5', cursor: 'not-allowed' });
-            $(`#${transactionType === 'credit' ? 'receipt' : 'payment'}-group-add-btn`).hide()
-            $(`#${transactionType}-cancel-btn`).show();
+            $(`#move-cancel-btn`).show();
             $('.js-checkbox-content').prop("disabled", true);
             $(".js-transaction-record").attr('draggable', false);
 
-            $(`#${transactionType}-cancel-btn`).on('click', function () {
+            $(`#move-cancel-btn`).on('click', function () {
                 resetMove();
                 toast('error', `Move cancelled!`);
             });
@@ -395,7 +398,12 @@ const ConsolidationViewer = new function () {
             );
             paymentTotalTransaction += curGroupDetail.totalTransactions;
         }
-
+        $('.js-group-particular').on('keypress', function (event) {
+            if (event.key === 'Enter') {
+                $(this).trigger( "blur" );
+                event.preventDefault();
+            }
+        });
         $('#payment-total-transaction').text(paymentTotalTransaction);
         $('#receipt-total-transaction').text(receiptTotalTransaction);
 
