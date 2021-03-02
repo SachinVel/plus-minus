@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <script src="./consolidation-viewer.js"></script>
+    <title>Viewer</title>
 </head>
 
 <body>
@@ -40,13 +40,7 @@
                     <i class="fa fa-plus" aria-hidden="true"></i>
                     New Group
                 </button>
-                <button class="primary-btn add-group-btn" id="credit-cancel-btn">
-                    Cancel
-                </button>
-                <button class="primary-btn add-group-btn" id="move-credit-transaction">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                    Move
-                </button>
+                <input type="text" id="credit-group-search" placeholder="Search Receipt Group" />
             </div>
 
             <div class="group-container">
@@ -69,6 +63,14 @@
             </div>
         </div>
         <div class="consolidation-grid__box consolidation-grid__box6">
+            <button class="primary-btn" id="move-transaction">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+                Move
+            </button>
+            <button class="primary-btn" id="move-cancel-btn">
+                Cancel
+            </button>
+            <input type="text" id="transaction-group-search" placeholder="Search Transaction" />
             <div class="transaction-container">
                 <table class="group-table" id="transaction-table">
                     <tr>
@@ -89,13 +91,7 @@
                     <i class="fa fa-plus" aria-hidden="true"></i>
                     New Group
                 </button>
-                <button class="primary-btn add-group-btn" id="debit-cancel-btn">
-                    Cancel
-                </button>
-                <button class="primary-btn add-group-btn" id="move-debit-transaction">
-                    <i class="fa fa-plus" aria-hidden="true"></i>
-                    Move
-                </button>
+                <input type="text" id="debit-group-search" placeholder="Search Payment Group" />
             </div>
             <div class="group-container">
                 <table class="group-table js-group-table" id="debit-table" data-group-type="debit">

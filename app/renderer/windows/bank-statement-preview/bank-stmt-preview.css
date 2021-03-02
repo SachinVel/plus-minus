@@ -24,7 +24,7 @@
     border: 1px solid #008000;
 }
 
-.bank-stmt-table th,td{
+.bank-stmt-table th, .bank-stmt-table td{
     border: 1px solid #dadada;
 }
 
