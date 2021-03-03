@@ -47,13 +47,21 @@ const ConsolidationViewer = new function () {
     const searchGroup = () => {
         ['credit', 'debit'].forEach(tableName => {
             $(`#${tableName}-group-search`).on('keyup', function () {
-                $(`#${tableName}-table .js-group-row:not(:contains(${$(this).val()}))`).hide();
-                $(`#${tableName}-table .js-group-row:contains(${$(this).val()})`).show();
+                let searchText = $(this).val();
+                $(`#${tableName}-table .js-group-row`).each(function () {
+                    $(this).text().toUpperCase().includes(searchText.toUpperCase()) 
+                        ? $(this).show() 
+                        : $(this).hide()
+                });
             })
         })
         $('#transaction-group-search').on('keyup', function () {
-            $(`#transaction-table .js-transaction-record:not(:contains(${$(this).val()}))`).hide();
-            $(`#transaction-table .js-transaction-record:contains(${$(this).val()})`).show();
+            let searchText = $(this).val();
+            $('#transaction-table .js-transaction-record').each(function () {
+                $(this).text().toUpperCase().includes(searchText.toUpperCase()) 
+                    ? $(this).show() 
+                    : $(this).hide()
+            });
         })
     }
 
@@ -264,11 +272,15 @@ const ConsolidationViewer = new function () {
         $('.checkbox-header').off('click').on('click', function () {
             switch (+$(this).attr('data-state')) {
                 case 0:
-                    $('.js-checkbox-content').prop('checked', true);
-                    $('.js-checkbox-content').each(function () {
+                    $('.js-checkbox-content:visible').prop('checked', true);
+                    $('.js-checkbox-content:visible').each(function () {
                         selectedTransactionsIndex.push($(this).attr('data-index'));
                     });
-                    $(this).html('<i class="fa fa-check-square" aria-hidden="true"></i>');
+                    if ($('.js-checkbox-content').length === selectedTransactionsIndex.length) {
+                        $(this).html('<i class="fa fa-check-square" aria-hidden="true"></i>');
+                    } else {
+                        $(this).html('<i class="fa fa-minus-square-o" aria-hidden="true"></i>');
+                    }
                     $(this).attr('data-state', 1);
                     break;
                 case 1:
@@ -400,7 +412,7 @@ const ConsolidationViewer = new function () {
         }
         $('.js-group-particular').on('keypress', function (event) {
             if (event.key === 'Enter') {
-                $(this).trigger( "blur" );
+                $(this).trigger("blur");
                 event.preventDefault();
             }
         });
