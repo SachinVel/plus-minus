@@ -5,7 +5,7 @@ const path = require('path');
 import toast from "../../utils/toast/toast";
 const electron = require('electron');
 const dialog = electron.remote.dialog;
-import Index from '../../../index';
+import Index from '../../index';
 import consolidationViewerHtml from './consolidation-viewer.html';
 
 

@@ -2,7 +2,7 @@ import bankStatementAnalyser from "../../server/analyser/analyser";
 import './bank-stmt-preview.css';
 import toast from "../../utils/toast/toast";
 const XLSX = require('xlsx');
-import Index from '../../../index';
+import Index from '../../index';
 import bankStmtPreviewHtml from './bank-stmt-preview.html';
 
 window.onload = function () {

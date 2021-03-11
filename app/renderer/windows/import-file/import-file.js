@@ -3,7 +3,7 @@ import modal from '../../utils/modal/modal';
 import './import-file.css';
 import img from '../../../assets/images/upload-format.jpg';
 import Faq from '../../modals/faq/faq';
-import Index from '../../../index';
+import Index from '../../index';
 import importFileHtml from './import-file.html';
 
 const ImportFile = new function () {

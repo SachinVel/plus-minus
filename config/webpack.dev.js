@@ -4,7 +4,8 @@ const webpack = require('webpack');
 
 let webpackConfig = {
   entry: {
-    'index': './app/index.js',
+    'renderer': './app/renderer/index.js',
+    'main': './app/main/index.js'
    },
   output: {
     filename: '[name].js',
