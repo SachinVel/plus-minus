@@ -31,6 +31,7 @@
 .selection-info-container{
     display: flex;
     flex-wrap: wrap;
+    height: 140px;
     justify-content: center;
 }
 
@@ -77,6 +78,6 @@
 }
 .bank-stmt-table-container{
     overflow: scroll;
-    height: calc( 100% - 50px);
+    height: calc( 100% - 200px);
 }
 

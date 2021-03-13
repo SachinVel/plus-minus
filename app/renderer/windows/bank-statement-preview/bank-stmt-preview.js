@@ -10,7 +10,9 @@ window.onload = function () {
 }
 
 const BankStmtPreview = new function () {
-    let worksheet, columnHeaderInfo;
+    let columnHeaderCells;
+    let dataHeaders = ['date', 'description', 'debit', 'credit', 'balance'];
+    let worksheet;
 
     const getFileContent = function (filePath) {
         return new Promise(async (resolve, reject) => {
@@ -134,94 +136,74 @@ const BankStmtPreview = new function () {
         });
     }
 
-    const getUserInput = function (columHeaderCells) {
-        //checks for cell click and selected header remove event
-        return new Promise((resolve, reject) => {
-            //resolves when cell is clicked
-            //rejects when selected header remove is clicked.
-            let dataHeaders = ['date', 'description', 'debit', 'credit', 'balance'];
-            let curHeader;
-            let ind = 0;
-            while (ind < dataHeaders.length && columHeaderCells[dataHeaders[ind]]) {
-                ++ind;
+    const checkSelectedHeaderCells = function () {
+        //checks selected header cells and updates userprompt and proceedbutton accordingly
+        let ind = 0;
+        while (ind < dataHeaders.length && columnHeaderCells[dataHeaders[ind]]) {
+            ++ind;
+        }
+        let proceedBtnElem = $('#proceed-btn');
+        if (ind >= dataHeaders.length) {
+            $('#user-prompt').text('Click Proceed to continue');
+            if (proceedBtnElem.hasClass('js-btn-inactive')) {
+                proceedBtnElem.removeClass('js-btn-inactive');
+                proceedBtnElem.removeClass('btn-inactive');
             }
-            let proceedBtnElem = $('#proceed-btn');
-
-            $('.js-cell').off('click');
-            $('.js-select-name-remove').off('click');
-
-            if (ind >= dataHeaders.length) {
-                //all headers are selected 
-                $('#user-prompt').text('Click Proceed to continue');
-                if (proceedBtnElem.hasClass('js-btn-inactive')) {
-                    proceedBtnElem.removeClass('js-btn-inactive');
-                    proceedBtnElem.removeClass('btn-inactive');
-                }
-                $('.js-select-name-remove').on('click', function () {
-                    let headerSelectParent = $(this).closest('.js-header-select');
-                    let headerName = headerSelectParent.attr('data-header-name');
-                    $('#' + headerName + '-header .js-selected-content').css('visibility', 'hidden');
-                    reject({
-                        headerName: headerName
-                    });
-                    toast('success', `${headerName} header has been removed`);
-                    //remove selected cell class in table
-                    let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
-                    $('#' + cellId).removeClass('selected-cell');
-                    $('#' + cellId).removeClass('js-selected-cell');
-                });
-                columnHeaderInfo = columHeaderCells;
-            } else {
-                //some headers are not selected 
-                if (!proceedBtnElem.hasClass('js-btn-inactive')) {
-                    proceedBtnElem.addClass('js-btn-inactive');
-                    proceedBtnElem.addClass('btn-inactive');
-                }
-                curHeader = dataHeaders[ind];
-                $('#user-prompt').text(`Select the ${curHeader.toUpperCase()} Column Header`);
-                $('.js-cell').on('click', function () {
-                    if (!$(this).hasClass('js-selected-cell')) {
-                        $(this).addClass('js-selected-cell');
-                        $(this).addClass('selected-cell');
-                        toast('success', `${curHeader} header has been selected`);
-                        $('#' + curHeader + '-header .js-selected-content').css('visibility', 'visible');
-                        $('#' + curHeader + '-header .js-selected-content').attr('data-cell-id', $(this).attr('id'));
-                        $('#' + curHeader + '-header .js-selected-name-content').text((this).innerText);
-                        resolve({
-                            cellId: $(this).attr('id'),
-                            headerName: curHeader
-                        });
-                    }
-                });
-                $('.js-select-name-remove').on('click', function () {
-                    let headerSelectParent = $(this).closest('.js-header-select');
-                    let headerName = headerSelectParent.attr('data-header-name');
-                    $('#' + headerName + '-header .js-selected-content').css('visibility', 'hidden');
-                    let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
-                    $('#' + cellId).removeClass('selected-cell');
-                    $('#' + cellId).removeClass('js-selected-cell');
-                    reject({
-                        headerName: headerName
-                    });
-                    toast('success', `Selected ${headerName} header has been removed`);
-                });
+        } else {
+            let curHeader = dataHeaders[ind];
+            $('#user-prompt').text(`Select the ${curHeader.toUpperCase()} Column Header`);
+            if (!proceedBtnElem.hasClass('js-btn-inactive')) {
+                proceedBtnElem.addClass('js-btn-inactive');
+                proceedBtnElem.addClass('btn-inactive');
             }
+        }
 
-        });
     }
 
-    const getColumnHeaderInformation = function (columHeaderCells = {}) {
-        getUserInput(columHeaderCells).then((data) => {
-            columHeaderCells[data.headerName] = data.cellId;
-            getColumnHeaderInformation(columHeaderCells);
-        }).catch((data) => {
-            columHeaderCells[data.headerName] = null;
-            getColumnHeaderInformation(columHeaderCells);
+    const bindEventListeners = function () {
+        checkSelectedHeaderCells();
+        $('.js-cell').on('click', function () {
+            let ind = 0;
+            while (ind < dataHeaders.length && columnHeaderCells[dataHeaders[ind]]) {
+                ++ind;
+            }
+            if (ind > dataHeaders.length) {
+                return;
+            }
+            let curHeader = dataHeaders[ind];
+            if (!$(this).hasClass('js-selected-cell')) {
+                $(this).addClass('js-selected-cell');
+                $(this).addClass('selected-cell');
+                toast('success', `${curHeader} header has been selected`);
+                $('#' + curHeader + '-header .js-selected-content').css('visibility', 'visible');
+                $('#' + curHeader + '-header .js-selected-content').attr('data-cell-id', $(this).attr('id'));
+                $('#' + curHeader + '-header .js-selected-name-content').text((this).innerText);
+                columnHeaderCells[curHeader] = $(this).attr('id');
+                checkSelectedHeaderCells();
+            }
+        });
+
+        $('.js-header-select').on('click', '.js-select-name-remove', function () {
+            let headerSelectParent = $(this).closest('.js-header-select');
+            let headerName = headerSelectParent.attr('data-header-name');
+            $('#' + headerName + '-header .js-selected-content').css('visibility', 'hidden');
+            let cellId = $('#' + headerName + '-header .js-selected-content').attr('data-cell-id');
+            $('#' + cellId).removeClass('selected-cell');
+            $('#' + cellId).removeClass('js-selected-cell');
+            columnHeaderCells[headerName] = null;
+            toast('success', `Selected ${headerName} header has been removed`);
+            checkSelectedHeaderCells();
+        });
+
+        $('#proceed-btn').on('click', function () {
+            //if btn has js-btn-inactive class,then some headers are not selected
+            if (!$(this).hasClass('js-btn-inactive')) {
+                proceedToAnalyse();
+            }
         });
     }
 
     const getColumnIndices = function (columnHeaderCells) {
-
         let descriptionColId = /[A-Z]+/g.exec(columnHeaderCells.description)[0];
         let descColInd = +descriptionColId.charCodeAt(0) - 'A'.charCodeAt(0);
 
@@ -244,13 +226,11 @@ const BankStmtPreview = new function () {
             date: dateColInd,
             balance: balanceColInd
         }
-
     }
 
     const proceedToAnalyse = function () {
-
-        let bankDataColumnIndexes = getColumnIndices(columnHeaderInfo);
-        let headersIndex = +/[0-9]+/g.exec(columnHeaderInfo.description)[0];
+        let bankDataColumnIndexes = getColumnIndices(columnHeaderCells);
+        let headersIndex = +/[0-9]+/g.exec(columnHeaderCells.description)[0];
 
         let rawContent = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: null });
         rawContent.splice(0, headersIndex);
@@ -260,24 +240,17 @@ const BankStmtPreview = new function () {
         localStorage.setItem('consolidationData', JSON.stringify(consolidationData));
         Index.navigateTo('consolidation-viewer');
         localStorage.removeItem('filePath');
-
     }
 
     this.init = function () {
+        columnHeaderCells = {};
 
         let filePath = localStorage.getItem('filePath');
-
-        $('#proceed-btn').on('click', function () {
-            //if btn has js-btn-inactive,then some headers are not selected
-            if (!$(this).hasClass('js-btn-inactive')) {
-                proceedToAnalyse();
-            }
-        });
 
         getFileContent(filePath).then(async function (sheetContent) {
             worksheet = sheetContent;
             populateData(sheetContent);
-            getColumnHeaderInformation();
+            bindEventListeners();
         }).catch((errorMsg) => {
             toast('error', errorMsg);
         });
@@ -285,7 +258,6 @@ const BankStmtPreview = new function () {
         $('#back-icon').on('click', function () {
             Index.navigateTo('import-file');
         });
-
     }
 
     this.getHtmlContent = function () {
