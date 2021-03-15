@@ -15,6 +15,11 @@ const bankStatementGroups = [
         {keyword : 'licofindia' , condition : 'contains'},
         {keyword : 'lifeinsurancecorporation' , condition : 'contains'}
     ]},
+    { displayName: 'Online Transfers', searchKeywords:  [
+        {keyword : 'neft' , condition : 'contains'},
+        {keyword : 'rtgs' , condition : 'contains'},
+        {keyword : 'imps' , condition : 'contains'}
+    ]},
     { displayName: 'Cheques', searchKeywords: [
         {keyword : 'chq' , condition : 'contains'},
         {keyword : 'cheque' , condition : 'contains'}
@@ -24,11 +29,6 @@ const bankStatementGroups = [
         {keyword : 'creditinterest' , condition : 'contains'},
         {keyword : 'intpd' , condition : 'contains'},
         {keyword : 'int' , condition : 'word'}
-    ]},
-    { displayName: 'Online Transfers', searchKeywords:  [
-        {keyword : 'neft' , condition : 'contains'},
-        {keyword : 'rtgs' , condition : 'contains'},
-        {keyword : 'imps' , condition : 'contains'}
     ]},
     { displayName: 'Cash Deposit', groupType : 'credit', searchKeywords:  [
         {keyword : 'cash' , condition : 'contains'},
