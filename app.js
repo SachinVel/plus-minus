@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const url = require('url')
-const LicenseValidation = require("./app/main/license-validation/license-validation");
+const LicenseValidation = require('./app/main/license-validation/license-validation');
 let window = null;
 
 const processRendererMessage = function (message) {
@@ -40,7 +40,7 @@ const preprocess = async function () {
         nodeIntegration: true,
         enableRemoteModule: true  // For enabling remote module in windows os
       },
-      backgroundColor: "#fff",
+      backgroundColor: '#fff',
       // Don't show the window until it's ready, this prevents any white flickering
       show: false
     });
