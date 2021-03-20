@@ -34,8 +34,9 @@
     "babel-loader": "^8.2.2",
     "css-loader": "^5.0.1",
     "electron": "^11.3.0",
-    "electron-builder": "^22.9.1",
+    "electron-builder": "^22.10.5",
     "electron-packager": "^15.2.0",
+    "electron-store": "^7.0.2",
     "html-loader": "^2.0.0",
     "html-webpack-plugin": "^5.2.0",
     "javascript-obfuscator": "^2.10.3",
@@ -46,8 +47,7 @@
     "webpack-cli": "^4.5.0",
     "webpack-obfuscator": "^3.3.0",
     "xlsx": "^0.16.9",
-    "crypto-js": "^4.0.0",
-    "moment": "^2.29.1",
-    "node-machine-id": "^1.1.12"
+    "is-online": "^9.0.0",
+    "hddserial": "0.0.7"
   }
 }

@@ -1,0 +1,23 @@
+.register-container{
+    height: 100%;
+    width: 100%;
+}
+.resgiter-header{
+    padding: 15px;
+    height: 50px;
+}
+.register-input-unit{
+    height: 50px;
+    padding: 15px;
+}
+.register-input__icon{
+    color: #cccccc;
+}
+.register-input__value{
+    width: 250;
+    height: 30;
+    padding: 5px;
+}
+.register-btn{
+    margin: 15px 36px;
+}
