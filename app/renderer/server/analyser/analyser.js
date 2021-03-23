@@ -1,15 +1,26 @@
-import bankStatementKeywords from '../../constants/bank-details';
+import bankStatementGroups from '../../constants/bank-details';
 
 const bankStatementAnalyser = new function () {
 
-    const processDescription = function (description) {
+    const parseDescription = function (transactionData, descColInd) {
+        let processedDescriptionArr = [];
+        let splitRegex = /[^0-9a-zA-z]/;
+        transactionData.forEach(singleTransaction => {
+            let transactionDescription = singleTransaction[descColInd];
 
-        let regex = /[0-9/\-:\s]+/g;
-        let tempStr = description.toString().replace(regex, '');
-        tempStr = tempStr.toLowerCase()
-        tempStr = tempStr.trim();
-        return tempStr.toLowerCase();
+            let wordsArr = transactionDescription.split(splitRegex).filter(word => {
+                return (word.length > 0 && isNaN(word));
+            }).map(word => {
+                return word.replace(/[0-9]/g, '').toLowerCase();
+            });
 
+            processedDescriptionArr.push({
+                descWords: wordsArr,
+                wholeDesc: wordsArr.join('')
+            });
+        });
+
+        return processedDescriptionArr;
     }
 
     const convertExcelDateToString = function (serial) {
@@ -33,12 +44,13 @@ const bankStatementAnalyser = new function () {
 
 
     const analyseTransactionData = function (transactionData, bankDataColumnIndexes) {
+
         let descColInd = bankDataColumnIndexes.description;
         let creditColInd = bankDataColumnIndexes.credit;
         let debitColInd = bankDataColumnIndexes.debit;
         let dateColInd = bankDataColumnIndexes.date;
         let totalRecords;
-        let debitAmount, creditAmount;
+        let currentGroupDebitAmount, currentGroupCreditAmount;
         let transactionGroupMappingID = 1;
         let currentGroupCreditTransaction, currentGroupDebitTransaction;
         let openingBalance, closingBalance, receiptTotalAmount = 0, paymentTotalAmount = 0;
@@ -61,133 +73,184 @@ const bankStatementAnalyser = new function () {
 
         closingBalance = transactionData[transactionData.length - 1][bankDataColumnIndexes.balance];
 
+        let processedDescriptionArr = parseDescription(transactionData, descColInd);
+
         // extract common keywords data
-        for (let keyword of bankStatementKeywords) {
+        for (let group of bankStatementGroups) {
             currentGroupCreditTransaction = [];
             currentGroupDebitTransaction = [];
-            debitAmount = 0;
-            creditAmount = 0;
-            totalRecords = transactionData.length;
-            for (let ind = 0; ind < totalRecords; ++ind) {
-                let transRecord = transactionData.shift();
-                if (typeof transRecord[dateColInd] == 'number') {
-                    transRecord[dateColInd] = convertExcelDateToString(transRecord[dateColInd]);
-                }
-                if (transRecord[descColInd] == null) {
-                    continue;
-                }
-                let processedDesc = processDescription(transRecord[descColInd]);
-                let isKeywordMatch = false;
-                switch (keyword.condition) {
-                    case 'contains':
-                        isKeywordMatch = processedDesc.includes(keyword.name);
-                        break;
-                    case 'startsWith':
-                        isKeywordMatch = processedDesc.indexOf(keyword.name) == 0;
-                        break;
-                    default:
-                        isKeywordMatch = processedDesc.includes(keyword.name);
-                }
-                if (isKeywordMatch) {
-                    if (transRecord[creditColInd] !== null && transRecord[creditColInd] > 0) {
-                        creditAmount += transRecord[creditColInd];
-                        currentGroupCreditTransaction.push(transRecord);
+            currentGroupDebitAmount = 0;
+            currentGroupCreditAmount = 0;
 
-                    } else if (transRecord[debitColInd] !== null && transRecord[debitColInd] > 0) {
-                        debitAmount += transRecord[debitColInd];
-                        currentGroupDebitTransaction.push(transRecord);
+            group.searchKeywords.forEach(groupSearchUnit => {
+                let keyword = groupSearchUnit.keyword;
+                let searchCondition = groupSearchUnit.condition;
+                totalRecords = transactionData.length;
+                for (let ind = 0; ind < totalRecords; ++ind) {
+                    let transRecord = transactionData.shift();
+                    let processedDescription = processedDescriptionArr.shift();
+                    if (typeof transRecord[dateColInd] == 'number') {
+                        transRecord[dateColInd] = convertExcelDateToString(transRecord[dateColInd]);
                     }
-                } else {
-                    transactionData.push(transRecord);
-                }
-            }
-            receiptTotalAmount += creditAmount;
-            paymentTotalAmount += debitAmount;
+                    if (group.groupType) {
+                        if (group.groupType == 'credit' && transRecord[debitColInd] > 0) {
+                            transactionData.push(transRecord);
+                            processedDescriptionArr.push(processedDescription);
+                            continue;
+                        }
+                        if (group.groupType == 'debit' && transRecord[creditColInd] > 0) {
+                            transactionData.push(transRecord);
+                            processedDescriptionArr.push(processedDescription);
+                            continue;
+                        }
+                    }
 
-            if (debitAmount > 0) {
+                    let isKeywordMatch = false;
+                    switch (searchCondition) {
+                        case 'contains':
+                            isKeywordMatch = processedDescription.wholeDesc.includes(keyword);
+                            break;
+                        case 'word':
+                            isKeywordMatch = processedDescription.descWords.some(word => word === keyword);
+                            break;
+                    }
+                    if (isKeywordMatch) {
+                        if (transRecord[creditColInd] !== null && transRecord[creditColInd] > 0) {
+                            currentGroupCreditAmount += transRecord[creditColInd];
+                            currentGroupCreditTransaction.push(transRecord);
+                        } else if (transRecord[debitColInd] !== null && transRecord[debitColInd] > 0) {
+                            currentGroupDebitAmount += transRecord[debitColInd];
+                            currentGroupDebitTransaction.push(transRecord);
+                        }
+                    } else {
+                        transactionData.push(transRecord);
+                        processedDescriptionArr.push(processedDescription);
+                    }
+                }
+            });
+
+            receiptTotalAmount += currentGroupCreditAmount;
+            paymentTotalAmount += currentGroupDebitAmount;
+
+            if (currentGroupDebitAmount > 0) {
                 groupDetails.payments[transactionGroupMappingID] = {
-                    amount: debitAmount,
+                    amount: currentGroupDebitAmount,
                     totalTransactions: currentGroupDebitTransaction.length,
-                    particular: keyword.name
+                    particular: group.displayName
                 };
                 groupTransactions[transactionGroupMappingID] = currentGroupDebitTransaction;
                 ++transactionGroupMappingID;
             }
-            if (creditAmount > 0) {
+            if (currentGroupCreditAmount > 0) {
                 groupDetails.receipts[transactionGroupMappingID] = {
-                    amount: creditAmount,
+                    amount: currentGroupCreditAmount,
                     totalTransactions: currentGroupCreditTransaction.length,
-                    particular: keyword.name
+                    particular: group.displayName
                 }
                 groupTransactions[transactionGroupMappingID] = currentGroupCreditTransaction;
                 ++transactionGroupMappingID;
             }
+
         }
+
+        let creditUngroupedTransactions = [];
+        let debitUngroupedTransactions = [];
+        let debitUngroupedAmount = 0, creditUngroupedAmount = 0;
 
         // extract dynamic transaction
         while (transactionData.length > 0) {
+
             let curRecord = transactionData.shift();
+
+            let curProcessedDescription = processedDescriptionArr.shift();
             if (typeof curRecord[dateColInd] === 'number') {
                 curRecord[dateColInd] = convertExcelDateToString(curRecord[dateColInd]);
             }
-            if (curRecord[descColInd] === null) {
-                continue;
-            }
-            let curRecDesc = processDescription(curRecord[descColInd]);
 
-            debitAmount = curRecord[debitColInd] != null ? curRecord[debitColInd] : 0;
-            creditAmount = curRecord[creditColInd] != null ? curRecord[creditColInd] : 0;
+            currentGroupDebitAmount = curRecord[debitColInd] != null ? curRecord[debitColInd] : 0;
+            currentGroupCreditAmount = curRecord[creditColInd] != null ? curRecord[creditColInd] : 0;
             currentGroupCreditTransaction = [];
             currentGroupDebitTransaction = [];
 
-            if (debitAmount > 0) {
+            if (currentGroupDebitAmount > 0) {
                 currentGroupDebitTransaction.push(curRecord)
             } else {
                 currentGroupCreditTransaction.push(curRecord);
             }
 
-
             totalRecords = transactionData.length;
             for (let ind = 0; ind < totalRecords; ++ind) {
                 let transRecord = transactionData.shift();
-                if (transRecord[descColInd] == null) {
-                    continue;
-                }
-                let processedDesc = processDescription(transRecord[descColInd]);
-                if (processedDesc.includes(curRecDesc)) {
+                let processedDescription = processedDescriptionArr.shift();
+                if (curProcessedDescription.wholeDesc === processedDescription.wholeDesc) {
                     if (transRecord[creditColInd] != null && transRecord[creditColInd] > 0) {
-                        creditAmount += transRecord[creditColInd];
+                        currentGroupCreditAmount += transRecord[creditColInd];
                         currentGroupCreditTransaction.push(transRecord);
                     } else if (transRecord[debitColInd] != null && transRecord[debitColInd] > 0) {
-                        debitAmount += transRecord[debitColInd];
+                        currentGroupDebitAmount += transRecord[debitColInd];
                         currentGroupDebitTransaction.push(transRecord);
                     }
                 } else {
                     transactionData.push(transRecord);
+                    processedDescriptionArr.push(processedDescription);
                 }
             }
 
-            receiptTotalAmount += creditAmount;
-            paymentTotalAmount += debitAmount;
+            receiptTotalAmount += currentGroupCreditAmount;
+            paymentTotalAmount += currentGroupDebitAmount;
 
-            if (debitAmount > 0) {
-                groupDetails.payments[transactionGroupMappingID] = {
-                    amount: debitAmount,
-                    totalTransactions: currentGroupDebitTransaction.length,
-                    particular: curRecDesc
-                };
-                groupTransactions[transactionGroupMappingID] = currentGroupDebitTransaction;
-                ++transactionGroupMappingID;
-            } else if (creditAmount > 0) {
-                groupDetails.receipts[transactionGroupMappingID] = {
-                    amount: creditAmount,
-                    totalTransactions: currentGroupCreditTransaction.length,
-                    particular: curRecDesc
+            console.log('after curgroup : ', currentGroupCreditAmount, ' ', currentGroupDebitAmount);
+
+            if (currentGroupDebitAmount > 0) {
+                if (currentGroupDebitTransaction.length === 1) {
+                    debitUngroupedTransactions.push(curRecord);
+                    debitUngroupedAmount += currentGroupDebitAmount;
+                } else {
+                    groupDetails.payments[transactionGroupMappingID] = {
+                        amount: currentGroupDebitAmount,
+                        totalTransactions: currentGroupDebitTransaction.length,
+                        particular: curProcessedDescription.descWords.join(' ')
+                    };
+                    groupTransactions[transactionGroupMappingID] = currentGroupDebitTransaction;
+                    ++transactionGroupMappingID;
                 }
-                groupTransactions[transactionGroupMappingID] = currentGroupCreditTransaction;
-                ++transactionGroupMappingID;
+            }
+            if (currentGroupCreditAmount > 0) {
+                if (currentGroupCreditTransaction.length === 1) {
+                    creditUngroupedTransactions.push(curRecord);
+                    creditUngroupedAmount += currentGroupCreditAmount;
+                } else {
+                    groupDetails.receipts[transactionGroupMappingID] = {
+                        amount: currentGroupCreditAmount,
+                        totalTransactions: currentGroupCreditTransaction.length,
+                        particular: curProcessedDescription.descWords.join(' ')
+                    }
+                    groupTransactions[transactionGroupMappingID] = currentGroupCreditTransaction;
+                    ++transactionGroupMappingID;
+                }
             }
 
+        }
+
+
+        if (debitUngroupedTransactions.length > 0) {
+            groupDetails.payments[transactionGroupMappingID] = {
+                amount: debitUngroupedAmount,
+                totalTransactions: debitUngroupedTransactions.length,
+                particular: 'Ungrouped Transactions'
+            }
+            groupTransactions[transactionGroupMappingID] = debitUngroupedTransactions;
+            ++transactionGroupMappingID;
+        }
+
+        if (creditUngroupedTransactions.length > 0) {
+            groupDetails.receipts[transactionGroupMappingID] = {
+                amount: creditUngroupedAmount,
+                totalTransactions: creditUngroupedTransactions.length,
+                particular: 'Ungrouped Transactions'
+            }
+            groupTransactions[transactionGroupMappingID] = creditUngroupedTransactions;
+            ++transactionGroupMappingID;
         }
 
         return {

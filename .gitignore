@@ -1,7 +1,6 @@
 node_modules
 out
 package-lock.json
-dist/index.js
 dist/resources
 dist/authentication-index.js
 dist/application-index.js
