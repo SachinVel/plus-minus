@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const path = require('path')
+const path = require('path');
 const url = require('url')
+const Config = require('./config/config');
 const LicenseValidation = require('./app/main/license-validation/license-validation');
 let window = null;
 
@@ -24,6 +25,11 @@ const processRendererMessage = function (message) {
 ipcMain.on('asynchronous-message', (event, message) => {
   processRendererMessage(message);
 });
+
+// In the Main process.
+ipcMain.on('synchronous-message', (event, properyName) => {
+  event.returnValue = Config.getProperty(properyName);
+})
 
 // Wait until the app is ready
 app.once('ready', () => {

@@ -1,11 +1,10 @@
-import UserRegister from './windows/user-register/user-register';
-import errorMessage from './windows/error-mesage/error-message';
 const electron = require('electron');
 const ipc = electron.ipcRenderer;
+import UserRegister from './windows/user-register/user-register';
+import errorMessage from './windows/error-mesage/error-message';
 import './common.css';
-import toast from './utils/toast/toast';
 
-const Index = new function () {
+const AuthenticationIndex = new function () {
 
     window.onload = function () {
         bindIpc();
@@ -13,20 +12,24 @@ const Index = new function () {
 
     const bindIpc = function () {
         ipc.on('page-load', (event, pageType) => {
-            Index.navigateTo(pageType);
+            AuthenticationIndex.navigateTo(pageType);
         });
     }
 
     let title = {
         'invalidUser': 'Invalid User',
         'userFirstTime': 'User SignUp',
-        'internetConnectionNeeded' : 'No Internet',
-        'licenceRenew' : 'Renew Licence',
-        'appError' : 'internalError'
+        'internetConnectionNeeded': 'No Internet',
+        'licenceRenew': 'Renew Licence',
+        'appError': 'internalError'
     }
 
     this.informMain = function (message) {
         ipc.send('asynchronous-message', message);
+    }
+
+    this.getPropertyFromMain = function (propertyName) {
+        return ipc.sendSync('synchronous-message', propertyName);
     }
 
     this.navigateTo = function (location) {
@@ -70,4 +73,4 @@ const Index = new function () {
     }
 }
 
-export default Index;
+export default AuthenticationIndex;

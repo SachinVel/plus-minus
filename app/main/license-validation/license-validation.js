@@ -3,16 +3,15 @@ let crypto = require('crypto');
 let Store = require('electron-store');
 const hddserial = require('hddserial');
 const isOnline = require('is-online');
-const http = require('http');
-const Config = require('../../../config/config');
+const { net } = require('electron');
+const Config = require('../../../config/config')
 const LicenceConstants = require('../constants/Licence-constants');
 
 const LicenseValidation = new function () {
     let store = new Store();
     let iv, key;
     let userInfo = null;
-    let hostName = Config.getProperty('hostName');
-    let port = Config.getProperty('port');
+    let plusMinusDomain = Config.getProperty('serverOrigin');
 
     this.getUserStatus = async function () {
         if (userInfo == null) {
@@ -49,12 +48,14 @@ const LicenseValidation = new function () {
                     var decryptedCheckStr = decipher.update(integrityCheckStr, 'hex', 'utf8') + decipher.final('utf8');
                     if (decryptedCheckStr !== LicenceConstants.integrityCheckString) {
                         resolve('invalidUser');
+                        return;
                     }
                     let encryptedAppCount = userInfo.appCount;
                     decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
                     let decryptedAppCount = decipher.update(encryptedAppCount, 'hex', 'utf8') + decipher.final('utf8');
                     if (decryptedAppCount > LicenceConstants.maxAppCount) {
                         resolve('internetConnectionNeeded');
+                        return;
                     }
                     let encryptedCurrentTimestamp = userInfo.currentTimestamp;
                     decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
@@ -62,12 +63,14 @@ const LicenseValidation = new function () {
                     let currentTimestamp = Date.now();
                     if (currentTimestamp <= decryptedCurrentTimestamp) {
                         resolve('invalidUser');
+                        return;
                     }
                     let encryptedExpiryTimestamp = userInfo.expiryTimestamp;
                     decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
                     let decryptedExpiryTimestamp = decipher.update(encryptedExpiryTimestamp, 'hex', 'utf8') + decipher.final('utf8');
                     if (currentTimestamp >= decryptedExpiryTimestamp) {
                         resolve('licenceRenew');
+                        return;
                     }
 
                     let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
@@ -76,7 +79,6 @@ const LicenseValidation = new function () {
                     cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
                     userInfo.appCount = cipher.update(currAppCount.toString(), 'utf8', 'hex') + cipher.final('hex');;
                     store.set('userInfo', userInfo);
-
                     resolve('validUser');
                 }
                 catch (error) {
@@ -108,6 +110,7 @@ const LicenseValidation = new function () {
                     var decryptedCheckStr = decipher.update(integrityCheckStr, 'hex', 'utf8') + decipher.final('utf8');
                     if (decryptedCheckStr !== LicenceConstants.integrityCheckString) {
                         resolve('invalidUser');
+                        return;
                     }
 
                     //get systemId
@@ -117,13 +120,12 @@ const LicenseValidation = new function () {
 
                     //check with server
                     const options = {
-                        hostname: hostName,
-                        port: port,
-                        path: '/customers/check?systemAddress=' + systemId,
+                        url: plusMinusDomain + '/customers/check?systemId=' + systemId,
                         method: 'GET'
                     }
 
-                    const req = http.request(options, res => {
+                    let req = net.request(options)
+                    req.on('response', res => {
 
                         let body = '';
 
@@ -166,7 +168,11 @@ const LicenseValidation = new function () {
 
                     req.on('error', error => {
                         console.error('server call fail : ', error);
-                        throw new Error('error in fetching details from server');
+
+                        //continue with offline if online check is failed
+                        checkUserOffline(userInfo).then((userStatus) => {
+                            resolve(userStatus);
+                        });
                     })
 
                     req.end();
