@@ -14,7 +14,7 @@ const UserRegister = new function () {
     const registerUser = function (email, licenseKey) {
 
         if (email == null || licenseKey == null) {
-            toast('error', 'Please fill the input');
+            toast('error', 'Please fill the input!');
             return;
         }
         $.ajax({
@@ -31,7 +31,7 @@ const UserRegister = new function () {
                         currentTimestamp: result.curTimeStamp
                     });
                 } else {
-                    toast('error', 'User credentials are wrong');
+                    toast('error', 'User credentials are wrong!');
                 }
             },
             error: function (error) {

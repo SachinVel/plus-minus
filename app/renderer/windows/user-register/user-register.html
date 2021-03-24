@@ -1,14 +1,18 @@
-<div class="register-container" id="register-container">
-    <div class="resgiter-header">User Signup</div>
-    <div class="register-input-unit">
-        <i class="fa fa-envelope register-input__icon" aria-hidden="true"></i>
-        <input type="text" placeholder="email" class="register-input__value" id="user-email-input">
+<div class="card-container">
+    <div class="card" content="Register!">
+        <div class="field">
+            <div class="card__title">Email ID</div>
+            <input class="card__value" type="text" id="user-email-input" />
+        </div>
+        <div class="field">
+            <div class="card__title">License Key</div>
+            <input class="card__value" type="text" id="license-key-input" />
+        </div>
+        <div class="register-screen-footer">
+            <button class="primary-btn register-screen-proceed" id="register-btn">
+                Register
+                <i class="fa fa-chevron-right"></i>
+            </button>
+        </div>
     </div>
-    <div class="register-input-unit">
-        <i class="fa fa-key register-input__icon" aria-hidden="true" ></i>
-        <input type="text" placeholder="License Key" class="register-input__value" id="license-key-input">
-    </div>
-    <button class="primary-btn register-btn" id="register-btn">
-        Register
-    </button>
 </div>
