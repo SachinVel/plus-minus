@@ -5,7 +5,6 @@ import AuthenticationIndex from '../../authentication-index';
 
 const UserRegister = new function () {
     let plusMinusDomain;
-    let licenseKey;
 
     this.getHtmlContent = function () {
         return userRegisterHTML;
@@ -39,10 +38,6 @@ const UserRegister = new function () {
             }
         });
 
-    }
-
-    this.setLicenseKey = function (key) {
-        licenseKey = key;
     }
 
     this.init = function () {

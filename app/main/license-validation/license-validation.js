@@ -6,6 +6,7 @@ const isOnline = require('is-online');
 const { net } = require('electron');
 const Config = require('../../../config/config')
 const LicenceConstants = require('../constants/Licence-constants');
+const {machineId}= require('node-machine-id');
 
 const LicenseValidation = new function () {
     let store = new Store();
@@ -14,12 +15,12 @@ const LicenseValidation = new function () {
     let plusMinusDomain = Config.getProperty('serverOrigin');
 
     this.getUserStatus = async function () {
-        if (userInfo == null) {
-            userInfo = store.get('userInfo');
+        if (userInfo === null) {
+            userInfo = store.get('userInfo') || null;
         }
         let isOnlineResult = await isOnline();
         let result;
-        if (userInfo === undefined) {
+        if (userInfo === null) {
             //if user is firstTime
             if (isOnlineResult) {
                 return 'userFirstTime';
@@ -38,12 +39,13 @@ const LicenseValidation = new function () {
     }
 
     const checkUserOffline = function (userInfo) {
+
         return new Promise((resolve, reject) => {
-            hddserial.first(function (err, hdd) {
+            machineId().then(function (id) {
                 try {
-                    key = hdd.toString('hex').repeat(3).substring(0, 32);
-                    let iv = Buffer.alloc(16, 0);
-                    let decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+                    key = id.toString('hex').repeat(5).substring(0, 32);
+                    let iv = Buffer.alloc(16, 0);// initialisation vector for encypt/decrypt
+                    let decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);//returns decipher structure
                     let integrityCheckStr = userInfo.integrityCheckString;
                     var decryptedCheckStr = decipher.update(integrityCheckStr, 'hex', 'utf8') + decipher.final('utf8');
                     if (decryptedCheckStr !== LicenceConstants.integrityCheckString) {
@@ -73,7 +75,7 @@ const LicenseValidation = new function () {
                         return;
                     }
 
-                    let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+                    let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);//returns cipher structure
                     userInfo.currentTimestamp = cipher.update(currentTimestamp.toString(), 'utf8', 'hex') + cipher.final('hex');
                     let currAppCount = +decryptedAppCount + 1;
                     cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
@@ -96,12 +98,9 @@ const LicenseValidation = new function () {
 
         return new Promise(async (resolve, reject) => {
 
-            hddserial.first(function (err, hdd) {// get hardware serial number which is encryption key
+            machineId().then(function (id) {// get hardware serial number which is encryption key
                 try {
-                    if (err != null) {
-                        throw new Error('error in fetching hardware serial number');
-                    }
-                    key = hdd.toString('hex').repeat(3).substring(0, 32);
+                    key = id.toString('hex').repeat(5).substring(0, 32);
                     let iv = Buffer.alloc(16, 0);// initialisation vector for encypt/decrypt
 
                     //check for integrity of file
@@ -138,7 +137,7 @@ const LicenseValidation = new function () {
                                 let result = JSON.parse(body);
                                 // do something with JSON
                                 if (result.valid) {
-                                    key = hdd.toString('hex').repeat(3).substring(0, 32);
+                                    key = id.toString('hex').repeat(3).substring(0, 32);
                                     let iv = Buffer.alloc(16, 0);;
                                     let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
                                     let currentTimestamp = result.curTimeStamp;
@@ -192,9 +191,9 @@ const LicenseValidation = new function () {
 
     this.persistData = function (userData) {
         return new Promise((resolve, reject) => {
-            hddserial.first(function (err, hdd) {
+            machineId().then(function (id) {
                 iv = Buffer.alloc(16, 0);
-                key = hdd.toString('hex').repeat(3).substring(0, 32);
+                key = id.toString('hex').repeat(3).substring(0, 32);
                 let cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
                 let checkString = LicenceConstants.integrityCheckString;
                 let encryptedCheckString = cipher.update(checkString, 'utf8', 'hex') + cipher.final('hex');
@@ -216,7 +215,7 @@ const LicenseValidation = new function () {
                     currentTimestamp: encryptedCurrentTimestamp,
                     appCount: encryptedAppCount
                 };
-                userInfo = encryptedUserInfo
+                userInfo = encryptedUserInfo;
                 store.set('userInfo', encryptedUserInfo);
                 resolve();
             });

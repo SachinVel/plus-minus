@@ -118,16 +118,9 @@ const BankStmtPreview = new function () {
 
             for (let colInd = 0; colInd < colMaxLen; ++colInd) {
                 colName = String.fromCharCode('A'.charCodeAt(0) + colInd);
-
-                if (row[colInd]) {
-                    rowContent.append(
-                        '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd] + '</td>'
-                    );
-                } else {
-                    rowContent.append(
-                        '<td id="' + (colName + rowInd) + '"  class="cell js-cell"></td>'
-                    );
-                }
+                rowContent.append(
+                    '<td id="' + (colName + rowInd) + '" class="cell js-cell">' + row[colInd]?row[colInd]:'' + '</td>'
+                );
             }
             ++rowInd;
             tableElem.append(
