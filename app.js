@@ -4,7 +4,7 @@ const url = require('url')
 const Config = require('./config/config');
 const LicenseValidation = require('./app/main/license-validation/license-validation');
 let window = null;
-s
+
 const processRendererMessage = function (message) {
   switch (message.type) {
     case 'userRegisterSuccessful':

@@ -5,8 +5,8 @@ const Config = new function () {
         port: 3000,
     };
     let productionConfig = {
-        serverOrigin: 'http://151.106.113.76',
-        hostname: '151.106.113.76',
+        serverOrigin: 'http://smartreport.in',
+        hostname: 'smartreport.in',
         port: 8080
     }
     this.getProperty = function (propertyName) {

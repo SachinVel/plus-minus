@@ -6,7 +6,7 @@ const isOnline = require('is-online');
 const { net } = require('electron');
 const Config = require('../../../config/config')
 const LicenceConstants = require('../constants/Licence-constants');
-const {machineId}= require('node-machine-id');
+const { machineId } = require('node-machine-id');
 
 const LicenseValidation = new function () {
     let store = new Store();
@@ -88,8 +88,6 @@ const LicenseValidation = new function () {
                     resolve('appError');
                 }
             });
-
-
         })
 
     }
