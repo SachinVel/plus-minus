@@ -1,7 +1,6 @@
 
 let crypto = require('crypto');
 let Store = require('electron-store');
-const hddserial = require('hddserial');
 const isOnline = require('is-online');
 const { net } = require('electron');
 const Config = require('../../../config/config')
