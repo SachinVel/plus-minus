@@ -535,6 +535,7 @@ const ConsolidationViewer = new function () {
     }
 
     const populateGroupTransactions = function (transactionData, mappingId, dataGroupType) {
+        
         let transactionTable = $('#transaction-table');
         transactionTable.attr('data-mapping-id', mappingId);
         transactionTable.empty();
@@ -552,7 +553,7 @@ const ConsolidationViewer = new function () {
                 `<td><input type=checkbox class="js-checkbox-content" data-index=${index}></td>` +
                 '<td>' + transRecord[bankDataColumnIndexes.date] + '</td>' +
                 '<td>' + transRecord[bankDataColumnIndexes.description] + '</td>' +
-                `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[bankDataColumnIndexes[dataGroupType]].toFixed(2) + '</td>' +
+                `<td class="js-transaction-${dataGroupType}-amt">` + transRecord[bankDataColumnIndexes[dataGroupType]]?.toFixed(2) + '</td>' +
                 '</tr>'
             )
         });
