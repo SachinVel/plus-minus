@@ -1,6 +1,6 @@
-import ImportFile from './renderer/windows/import-file/import-file';
-import BankStatementPreview from './renderer/windows/bank-statement-preview/bank-stmt-preview';
-import ConsolidationViewer from './renderer/windows/consolidation-viewer/consolidation-viewer';
+import ImportFile from './windows/import-file/import-file';
+import BankStatementPreview from './windows/bank-statement-preview/bank-stmt-preview';
+import ConsolidationViewer from './windows/consolidation-viewer/consolidation-viewer';
 
 const Index = new function () {
 

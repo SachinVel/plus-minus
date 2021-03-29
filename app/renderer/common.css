@@ -44,6 +44,18 @@ body {
 .primary-btn:hover {
     opacity: 0.8;
 }
+.secondary-btn{
+    border: none;
+    background-color: #b9b9b9;
+    color: #fff;
+    font-size: 14px;
+    border-radius: 3px;
+    padding: 7px 10px;
+    cursor: pointer;
+}
+.secondary-btn:hover{
+    opacity: 0.8;
+}
 .header-btn{
     float: right;
     right: 3%;

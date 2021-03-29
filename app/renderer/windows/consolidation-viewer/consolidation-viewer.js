@@ -2,10 +2,10 @@ import './consolidation-viewer.css';
 import modal, { closeModal } from '../../utils/modal/modal';
 const XLSX = require('xlsx');
 const path = require('path');
-import toast from "../../utils/toast/toast";
+import toast from '../../utils/toast/toast';
 const electron = require('electron');
 const dialog = electron.remote.dialog;
-import Index from '../../../index';
+import Index from '../../application-index';
 import consolidationViewerHtml from './consolidation-viewer.html';
 
 
@@ -256,8 +256,8 @@ const ConsolidationViewer = new function () {
             $(`#${transactionType === 'credit' ? 'receipt' : 'payment'}-group-add-btn`).show()
             $('#move-cancel-btn').off('click').hide();
             $(`#${transactionType}-table`).off('click.moveTransaction');
-            $('.js-checkbox-content').prop("disabled", false);
-            $(".js-transaction-record").attr('draggable', true);
+            $('.js-checkbox-content').prop('disabled', false);
+            $('.js-transaction-record').attr('draggable', true);
             showGroupsTransaction();
         }
         const showOrHideMoveBtn = () => {
@@ -320,8 +320,8 @@ const ConsolidationViewer = new function () {
         $(`#move-transaction`).on('click', function () {
             $(`.transaction-container *, #${transactionType === 'credit' ? 'debit' : 'credit'}-container *`).css({ opacity: '0.5', cursor: 'not-allowed' });
             $(`#move-cancel-btn`).show();
-            $('.js-checkbox-content').prop("disabled", true);
-            $(".js-transaction-record").attr('draggable', false);
+            $('.js-checkbox-content').prop('disabled', true);
+            $('.js-transaction-record').attr('draggable', false);
 
             $(`#move-cancel-btn`).on('click', function () {
                 resetMove();
@@ -412,7 +412,7 @@ const ConsolidationViewer = new function () {
         }
         $('.js-group-particular').on('keypress', function (event) {
             if (event.key === 'Enter') {
-                $(this).trigger("blur");
+                $(this).trigger('blur');
                 event.preventDefault();
             }
         });

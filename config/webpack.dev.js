@@ -4,8 +4,9 @@ const webpack = require('webpack');
 
 let webpackConfig = {
   entry: {
-    'index': './app/index.js',
-   },
+    'application-index': './app/renderer/application-index.js',
+    'authentication-index': './app/renderer/authentication-index.js'
+  },
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, '../dist/'),

@@ -3,8 +3,9 @@ import modal from '../../utils/modal/modal';
 import './import-file.css';
 import img from '../../../assets/images/upload-format.jpg';
 import Faq from '../../modals/faq/faq';
-import Index from '../../../index';
+import Index from '../../application-index';
 import importFileHtml from './import-file.html';
+
 
 const ImportFile = new function () {
     this.init = function () {
@@ -35,7 +36,7 @@ const ImportFile = new function () {
 
         optimalSheet.addEventListener('click', () => {
             let htmlContent = `<h1>Optimal Sheet</h1>
-                <img id="optimal-spread-sheet" src=${img} alt="optimal spread sheet">`;
+                <img id="optimal-spread-sheet" src=${img} width="200" height="40" alt="optimal spread sheet">`;
             modal(htmlContent);
         });
 
