@@ -64,12 +64,18 @@ const bankStatementAnalyser = new function () {
 
         let firstRowIndex = 0;
         // calculating opening balance
-        if (transactionData[firstRowIndex][bankDataColumnIndexes.debit] && transactionData[firstRowIndex][bankDataColumnIndexes.debit] > 0) {
-            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] + transactionData[firstRowIndex][bankDataColumnIndexes.debit];
+        if( transactionData[firstRowIndex][bankDataColumnIndexes.description].toLowerCase().includes('balance') ){
+            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance];
+            transactionData.splice(0,1);
+        }else{
+            if (transactionData[firstRowIndex][bankDataColumnIndexes.debit] && transactionData[firstRowIndex][bankDataColumnIndexes.debit] > 0) {
+                openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] + transactionData[firstRowIndex][bankDataColumnIndexes.debit];
+            }
+            else {
+                openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] - transactionData[firstRowIndex][bankDataColumnIndexes.credit];
+            }
         }
-        else {
-            openingBalance = transactionData[firstRowIndex][bankDataColumnIndexes.balance] - transactionData[firstRowIndex][bankDataColumnIndexes.credit];
-        }
+        
 
         closingBalance = transactionData[transactionData.length - 1][bankDataColumnIndexes.balance];
 
@@ -199,11 +205,9 @@ const bankStatementAnalyser = new function () {
             receiptTotalAmount += currentGroupCreditAmount;
             paymentTotalAmount += currentGroupDebitAmount;
 
-            console.log('after curgroup : ', currentGroupCreditAmount, ' ', currentGroupDebitAmount);
-
             if (currentGroupDebitAmount > 0) {
                 if (currentGroupDebitTransaction.length === 1) {
-                    debitUngroupedTransactions.push(curRecord);
+                    debitUngroupedTransactions.push(currentGroupDebitTransaction[0]);
                     debitUngroupedAmount += currentGroupDebitAmount;
                 } else {
                     groupDetails.payments[transactionGroupMappingID] = {
@@ -217,7 +221,7 @@ const bankStatementAnalyser = new function () {
             }
             if (currentGroupCreditAmount > 0) {
                 if (currentGroupCreditTransaction.length === 1) {
-                    creditUngroupedTransactions.push(curRecord);
+                    creditUngroupedTransactions.push(currentGroupCreditTransaction[0]);
                     creditUngroupedAmount += currentGroupCreditAmount;
                 } else {
                     groupDetails.receipts[transactionGroupMappingID] = {
